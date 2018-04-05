@@ -9,7 +9,6 @@ nbactions.xml
 
 # gradle
 *gradle/
-gradlew*
 
 # vim
 .*.sw[a-p]
