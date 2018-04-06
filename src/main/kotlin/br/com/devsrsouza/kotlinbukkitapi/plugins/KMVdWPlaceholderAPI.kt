@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions.plugins.dvdwplaceholderapi
+package br.com.devsrsouza.kotlinbukkitapi.plugins.dvdwplaceholderapi
 
 import be.maximvdw.placeholderapi.PlaceholderAPI
 import org.bukkit.Bukkit

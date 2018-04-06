@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions.plugins
+package br.com.devsrsouza.kotlinbukkitapi.plugins
 
 import br.com.devsrsouza.kotlinbukkitapi.extensions.time.second
 import com.connorlinfoot.titleapi.TitleAPI

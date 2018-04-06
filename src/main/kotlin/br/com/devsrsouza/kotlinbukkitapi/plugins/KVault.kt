@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions.plugins.vault
+package br.com.devsrsouza.kotlinbukkitapi.plugins.vault
 
 import net.milkbowl.vault.chat.Chat
 import net.milkbowl.vault.economy.Economy
@@ -16,11 +16,11 @@ val Player.vault get() = Vault(this)
 val OfflinePlayer.vault get() = VaultOffline(this)
 
 open class VaultOffline(private val player: OfflinePlayer) {
-    val economy = br.com.devsrsouza.kotlinbukkitapi.extensions.plugins.vault.Economy(player)
-    //val PERMISSION = br.com.devsrsouza.kotlinbukkitapi.extensions.plugins.vault.Permission(player)
+    val economy = br.com.devsrsouza.kotlinbukkitapi.plugins.vault.Economy(player)
+    //val PERMISSION = br.com.devsrsouza.kotlinbukkitapi.plugins.vault.Permission(player)
 }
 class Vault(player: Player) : VaultOffline(player){
-    val chat = br.com.devsrsouza.kotlinbukkitapi.extensions.plugins.vault.Chat(player)
+    val chat = br.com.devsrsouza.kotlinbukkitapi.plugins.vault.Chat(player)
 }
 
 class Economy(private val player: OfflinePlayer) {

@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions.plugins.actionbarapi
+package br.com.devsrsouza.kotlinbukkitapi.plugins.actionbarapi
 
 import com.connorlinfoot.actionbarapi.ActionBarAPI
 import org.bukkit.Bukkit

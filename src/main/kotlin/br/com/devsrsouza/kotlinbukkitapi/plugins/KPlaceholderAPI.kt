@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions.plugins.placeholderapi
+package br.com.devsrsouza.kotlinbukkitapi.plugins.placeholderapi
 
 import me.clip.placeholderapi.PlaceholderAPI
 import org.bukkit.Bukkit
