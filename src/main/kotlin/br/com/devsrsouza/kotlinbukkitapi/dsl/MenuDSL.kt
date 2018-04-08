@@ -13,11 +13,8 @@ import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitTask
 
-fun menuCreate(displayname: String, lines: Int = 3, cancel: Boolean = false, block: Menu.() -> Unit) : Menu {
-    val createdMenu = Menu(displayname, lines, cancel).apply{block()}
-    MenuController.registerMenu(createdMenu)
-    return createdMenu
-}
+fun createMenu(displayname: String, lines: Int = 3, cancel: Boolean = false, block: Menu.() -> Unit) =
+    Menu(displayname, lines, cancel).apply { block() }.let { MenuController.registerMenu(it) }
 
 typealias MenuUpdatetEvent = MenuUpdate.() -> Unit
 typealias MenuCloseEvent = MenuClose.() -> Unit
@@ -26,24 +23,20 @@ typealias SlotClickEvent = SlotClick.() -> Unit
 typealias SlotRenderItemEvent = SlotRenderItem.() -> Unit
 typealias SlotUpdateEvent = SlotUpdate.() -> Unit
 
-open class Menu(var displayname: String, var lines: Int,
-           var cancel: Boolean) {
+open class Menu(var displayname: String, var lines: Int, var cancel: Boolean) {
 
     private var task: BukkitTask? = null
     var updateDelay: Long = 0
-    set(value) {
-        task?.cancel()
-        task = null
-        if(value > 0) { task = task(0, value){ update() } }
-    }
+        set(value) {
+            task?.cancel()
+            task = null
+            if (value > 0) task = task(0, value) { update() }
+        }
 
     val viewers = mutableMapOf<Player, Inventory>()
     val slots = mutableMapOf<Int, Slot>()
     val data = mutableMapOf<String, Any>()
-    var baseSlot = Slot(this, -1)
-
-    init {
-    }
+    val baseSlot = Slot(this, -1)
 
     private var update: MenuUpdatetEvent? = null
     var close: MenuCloseEvent? = null
@@ -67,7 +60,16 @@ open class Menu(var displayname: String, var lines: Int,
         players.forEach { player ->
             viewers.entries.forEach {
                 if(it.key == player) {
-                    update?.invoke(MenuUpdate(it.key, it.value.title))
+                    if(update !== null) {
+                        val menuUpdate = MenuUpdate(it.key, it.value.title)
+                        update?.invoke(menuUpdate)
+
+                        /*
+                          todo change menu title
+                          menuUpdate.title
+                        */
+                    }
+
                     for(i in 0 until (lines*9)) {
                         var slot = slots[i+1] ?: baseSlot
                         updateSlot(player, slot, it.value, i)
@@ -78,25 +80,25 @@ open class Menu(var displayname: String, var lines: Int,
     }
 
     fun updateSlot(slot: Slot, vararg players: Player = viewers.keys.toTypedArray()) {
-        if(slot.update === null) return
-        if(slot === baseSlot) {
+        if (slot.update === null) return
+        if (slot === baseSlot) {
             slots.forEach { pos, slot ->
-                for(i in 0 until (lines*9)) {
-                    if(slots[i+1] === null) {
+                for (i in 0 until (lines * 9)) {
+                    if (slots[i + 1] === null) {
                         players.forEach { player ->
                             viewers.entries.forEach {
-                                updateSlot(player, slot, it.value, pos-1)
+                                updateSlot(player, slot, it.value, pos - 1)
                             }
                         }
                     }
                 }
             }
-        }else {
+        } else {
             slots.forEach { pos, slot ->
-                if(slot === updateSlot@slot) {
+                if (slot === updateSlot@ slot) {
                     players.forEach { player ->
                         viewers.entries.forEach {
-                            updateSlot(player, slot, it.value, pos-1)
+                            updateSlot(player, slot, it.value, pos - 1)
                         }
                     }
                 }
@@ -159,21 +161,31 @@ class Slot(private val menu: Menu, val pos: Int, var item: ItemStack? = null) {
     }
 }
 
-open class MenuInteract(private val menu: Menu, val player: Player, var cancel: Boolean) {
-    fun forceUpdate() {
+open class MenuInteract(protected val menu: Menu, val player: Player, var cancel: Boolean) {
+    fun updateToPlayer() {
         menu.update(player)
-    }
-    fun forceUpdateForAllPlayers() {
-        menu.update()
     }
 }
 
 class SlotClick(menu: Menu, player: Player, cancel: Boolean,
+                private val slot: Slot,
                 val clickType: ClickType,
                 val inventoryAction: InventoryAction,
                 val itemClicked: ItemStack? = null,
                 val itemCursor: ItemStack? = null,
-                val hotbarKey: Int = -1) : MenuInteract(menu, player, cancel)
+                val hotbarKey: Int = -1) : MenuInteract(menu, player, cancel) {
+
+
+    fun updateSlotToPlayer() {
+        menu.updateSlot(slot, player)
+    }
+
+    fun updateSlot() {
+        menu.updateSlot(slot)
+    }
+
+    fun close() = player.closeInventory()
+}
 
 class SlotRenderItem(val player: Player, var renderItem: ItemStack?)
 class SlotUpdate(val player: Player, val templateItem: ItemStack?, var showingItem: ItemStack?)
@@ -224,7 +236,7 @@ object MenuController : Listener {
                     val slot = menu.slots.get(clickedSlot) ?: menu.baseSlot
                     if (slot.click != null) {
                         val slotClick = SlotClick(menu, player,
-                            menu.cancel, event.click, event.action,
+                            menu.cancel, slot, event.click, event.action,
                             event.currentItem, event.cursor)
                         slot.click?.invoke(slotClick)
                         if (slotClick.cancel) event.isCancelled = true
