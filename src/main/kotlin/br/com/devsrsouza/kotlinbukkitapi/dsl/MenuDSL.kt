@@ -175,7 +175,6 @@ class SlotClick(menu: Menu, player: Player, cancel: Boolean,
                 val itemCursor: ItemStack? = null,
                 val hotbarKey: Int = -1) : MenuInteract(menu, player, cancel) {
 
-
     fun updateSlotToPlayer() {
         menu.updateSlot(slot, player)
     }
@@ -223,6 +222,23 @@ object MenuController : Listener {
 
     init {
         KotlinBukkitAPI.INSTANCE.registerEvents(this)
+    }
+
+    fun registerMenu(menu: Menu) = if (!menus.contains(menu)) {
+        menus.add(menu)
+        true
+    } else false
+
+
+    fun unregisterMenu(menu: Menu) {
+        menus.remove(menu)
+    }
+
+    private fun getMenuFromPlayer(player: Player) : Menu? {
+        for(menu in menus)
+            for(viewer in menu.viewers)
+                if(viewer.key.name == player.name) return menu
+        return null
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -307,22 +323,5 @@ object MenuController : Listener {
                 menu.viewers.remove(player)
             }
         }
-    }
-
-    fun registerMenu(menu: Menu) = if (!menus.contains(menu)) {
-        menus.add(menu)
-        true
-    } else false
-
-
-    fun unregisterMenu(menu: Menu) {
-        menus.remove(menu)
-    }
-
-    private fun getMenuFromPlayer(player: Player) : Menu? {
-        for(menu in menus)
-            for(viewer in menu.viewers)
-                if(viewer.key.name == player.name) return menu
-        return null
     }
 }
