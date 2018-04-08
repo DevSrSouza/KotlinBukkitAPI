@@ -1,12 +1,15 @@
-package br.com.devsrsouza.kotlinbukkitapi.plugins
+package br.com.devsrsouza.kotlinbukkitapi.plugins.hologramAPI
 
 import de.inventivegames.hologram.Hologram
 import de.inventivegames.hologram.HologramAPI
 import de.inventivegames.hologram.touch.TouchAction
 import de.inventivegames.hologram.touch.TouchHandler
 import de.inventivegames.hologram.view.ViewHandler
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.entity.Player
+
+val hasHologramAPI by lazy { Bukkit.getServer().pluginManager.getPlugin("HologramAPI") != null  }
 
 val Location.hologramAPI get() = KHologramAPI(this)
 

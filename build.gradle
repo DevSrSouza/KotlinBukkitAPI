@@ -38,6 +38,10 @@ repositories {
         name = "mvdw-software"
         url = 'http://repo.mvdw-software.be/content/groups/public/'
     }
+    maven {
+        name = 'inventive-repo'
+        url = 'https://repo.inventivetalent.org/content/groups/public/'
+    }
 }
 
 sourceSets {
@@ -59,6 +63,9 @@ dependencies {
 
     compileOnly 'com.github.connorlinfoot:ActionBarAPI:master-SNAPSHOT'
     compileOnly 'com.github.connorlinfoot:TitleAPI:master-SNAPSHOT'
+
+    compileOnly 'org.inventivetalent.packetlistener:api:3.6.0-SNAPSHOT'
+    compileOnly('org.inventivetalent:hologramapi:1.6.0')
 }
 
 compileKotlin {
@@ -95,13 +102,13 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 def pomConfig = {
-    /*licenses {
+    licenses {
         license {
-            name "GNU General Public License, Version 3.0"
+            name "MIT License"
             url "https://www.gnu.org/licenses/gpl.txt"
             distribution "repo"
         }
-    }*/
+    }
     developers {
         developer {
             id "DevSrSouza"
