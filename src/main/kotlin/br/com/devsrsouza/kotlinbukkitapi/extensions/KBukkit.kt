@@ -1,7 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions
 
 import org.bukkit.Bukkit
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 object Console {
@@ -16,9 +15,9 @@ fun broadcast(message: String) {
     Bukkit.broadcastMessage(message)
 }
 
-inline fun broadcast(senders: Iterable<Player> = Bukkit.getOnlinePlayers(), message: Player.() -> String) {
-    for (sender in senders) {
-        sender.sendMessage(message.invoke(sender))
+inline fun broadcast(players: Iterable<Player> = Bukkit.getOnlinePlayers(), message: Player.() -> String) {
+    for (player in players) {
+        player.sendMessage(message.invoke(player))
     }
 }
 
