@@ -8,7 +8,7 @@ nbproject/
 nbactions.xml
 
 # gradle
-*gradle/
+.gradle/
 
 # vim
 .*.sw[a-p]
