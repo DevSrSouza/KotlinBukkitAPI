@@ -23,7 +23,8 @@ val plugins = listOf(
     PluginDependency("inventive-repo", "https://repo.inventivetalent.org/content/groups/public/",
         mapOf(
             "PacketListenerApi" to "org.inventivetalent.packetlistener:api:3.6.0-SNAPSHOT",
-            "HologramAPI" to "org.inventivetalent:hologramapi:1.6.0"
+            "HologramAPI" to "org.inventivetalent:hologramapi:1.6.0",
+            "BossBarAPI" to "org.inventivetalent:bossbarapi:2.4.1"
         )
     ),
     PluginDependency("direct-from-git", "https://jitpack.io",
@@ -73,7 +74,7 @@ java.sourceSets {
 }
 
 bukkit {
-    name = "KotlinBukkitAPI"
+    name = project.name
     version = project.version.toString()
     main = "br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI"
 
