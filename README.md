@@ -99,6 +99,7 @@ command("twitter") {
   // args - Array<String>
   
   sender.sendMessage(+"&eFollow me on Twitter :D &atwitter.com/DevSrSouza")
+}
 ```
 
 Item meta DSL and another stuffs
@@ -107,12 +108,12 @@ command("some-name") {
 
   if(sender is Player) { // checking if CommandSender is a player
     val player = sender as Player
-    player.vault.economy.deposit(2500) // you can see more about the vault api on KVault.kt
+    player.vault.economy.deposit(2500.0) // you can see more about the vault api on KVault.kt
     
     // lets make a item more easy with kotlin and ItemMeta DSL
     val gem = ItemStack(Material.DIAMOND).apply {
       amount = 5
-      meta<ItemMeta> { // here you can put any meta type you wont, like BannerMeta(if the item isso a banner)
+      meta<ItemMeta> { // here you can put any meta type you wont, like BannerMeta(if the item is a banner)
         // here is the same idea of event block but here you only que put the ItemMeta type, like BannerMeta, BookMeta
         displayName = +"&bGem"
       }
@@ -133,6 +134,53 @@ command("some-name") {
     }
     
   } else sender.sendMessage("Command just for players")
+}
+```
+
+Menu creator DSL
+```kotlin
+// okay, lets make a Menu
+// fun createMenu(displayname: String, lines: Int = 3, cancel: Boolean = false, block: Menu.() -> Unit)
+val myMenu = createMenu(+"&cWarps", cancel = true) { // cancel true to cancel player interact with inventory by default
+  // this menu will be a menu with 3 lines (27 slots) and the name "Warps" in red
+  // this block is a Menu
+
+  // registering a slot
+  slot(2, 4) { // Line, Slot
+    // inside of this block will be a Slot
+    item = ItemStack(Material.DIAMOND_SWORD).apply {
+      addEnchantment(Enchantment.DAMAGE_ALL, 5)
+
+      meta<ItemMeta> {
+        displayName = +"&4Arena PvP"
+      }
+    }
+
+    onClick {
+      player.teleport(Location(player.world, 250, 70, -355))
+      close() // close the menu
+    }
+  }
+
+  slot(2, 6) {
+    item = ItemStack(Material.GOLD).apply {
+      meta<ItemMeta> {
+        displayName = +"&6Shop"
+      }
+    }
+    
+    onClick {
+      player.teleport(Location(player.world, 2399, 70, -1234))
+      close() // close the menu
+  }
+}
+
+// now we need a command to open the menu to the player
+command("warps") {
+  if(sender is Player) {
+    val player = sender as Player
+    myMenu.openToPlayer(player) // here we open the menu to de Player
+  }
 }
 ```
 
