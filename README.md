@@ -1,4 +1,4 @@
-# KotlinBukkitAPI
+![logo](logo.png)
 
 KotlinBukkitAPI is a API for Bukkit using the cool features of Kotlin to make your lifes much easely. Edit
 Add topics
