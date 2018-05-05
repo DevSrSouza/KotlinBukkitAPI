@@ -6,6 +6,82 @@ import kotlin.reflect.*
 import kotlin.reflect.full.*
 import kotlin.reflect.jvm.isAccessible
 
+typealias LoadFunction<T> = (Any) -> T
+typealias SaveFunction<T> = T.() -> Any
+
+open class Serializable<T>(default: T, val description: String = "") {
+
+    private var _value: T = default
+
+    internal var loadFunction: LoadFunction<T>? = null
+    internal var saveFunction: SaveFunction<T>? = null
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        return _value
+    }
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+        _value = value
+    }
+
+    internal fun load(any: Any) = Unit.apply { if(loadFunction != null) _value = loadFunction!!.invoke(any) }
+    internal fun save() = saveFunction?.invoke(_value)
+
+    fun load(block: LoadFunction<T>) { loadFunction = block }
+    fun save(block: SaveFunction<T>) { saveFunction = block }
+}
+
+fun <T> serializable(default: T, description: String = "", block: Serializable<T>.() -> Unit) = Serializable(default, description).apply { block() }
+
+fun Configuration.saveFrom(model: KClass<*>) : Int {
+    var change = 0
+    KConfig.setTo(model) {
+        var path = ""
+        var actualEntry = it
+        while (true) {
+            if(actualEntry.value is Map.Entry<*,*>) {
+                path += actualEntry.key + "."
+                actualEntry = actualEntry.value as Map.Entry<String, Any>
+            }else{
+                path += actualEntry.key
+                set(path, actualEntry.value)
+                change++
+                break
+            }
+        }
+    }
+    return change
+}
+
+fun Configuration.loadAndSetDefault(model: KClass<*>) : Int {
+    var change = 0
+    KConfig.loadAndSetDefault(model, toMap()) {
+        var path = ""
+        var actualEntry = it
+        while (true) {
+            if(actualEntry.value is Map.Entry<*,*>) {
+                path += actualEntry.key + "."
+                actualEntry = actualEntry.value as Map.Entry<String, Any>
+            }else{
+                path += actualEntry.key
+                set(path, actualEntry.value)
+                change++
+                break
+            }
+        }
+    }
+    return change
+}
+
+fun ConfigurationSection.toMap() : Map<String, Any> =
+    getValues(true).apply {
+        forEach { k, v ->
+            if (v is ConfigurationSection) {
+                set(k, v.toMap())
+            }
+        }
+    }
+
 object KConfig {
 
     fun loadAndSetDefault(model: KClass<*>, map: Map<String, Any>, set: (Map.Entry<String, Any>) -> Unit) {
@@ -373,79 +449,3 @@ private class Entry<K, V>(override val key: K, override var value: V) : MutableM
         return copy
     }
 }
-
-typealias LoadFunction<T> = (Any) -> T
-typealias SaveFunction<T> = T.() -> Any
-
-open class Serializable<T>(default: T, val description: String = "") {
-
-    private var _value: T = default
-
-    internal var loadFunction: LoadFunction<T>? = null
-    internal var saveFunction: SaveFunction<T>? = null
-
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return _value
-    }
-
-    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-        _value = value
-    }
-
-    internal fun load(any: Any) = Unit.apply { if(loadFunction != null) _value = loadFunction!!.invoke(any) }
-    internal fun save() = saveFunction?.invoke(_value)
-
-    fun load(block: LoadFunction<T>) { loadFunction = block }
-    fun save(block: SaveFunction<T>) { saveFunction = block }
-}
-
-fun <T> serializable(default: T, description: String = "", block: Serializable<T>.() -> Unit) = Serializable(default, description).apply { block() }
-
-fun Configuration.saveFrom(model: KClass<*>) : Int {
-    var change = 0
-    KConfig.setTo(model) {
-        var path = ""
-        var actualEntry = it
-        while (true) {
-            if(actualEntry.value is Map.Entry<*,*>) {
-                path += actualEntry.key + "."
-                actualEntry = actualEntry.value as Map.Entry<String, Any>
-            }else{
-                path += actualEntry.key
-                set(path, actualEntry.value)
-                change++
-                break
-            }
-        }
-    }
-    return change
-}
-
-fun Configuration.loadAndSetDefault(model: KClass<*>) : Int {
-    var change = 0
-    KConfig.loadAndSetDefault(model, toMap()) {
-        var path = ""
-        var actualEntry = it
-        while (true) {
-            if(actualEntry.value is Map.Entry<*,*>) {
-                path += actualEntry.key + "."
-                actualEntry = actualEntry.value as Map.Entry<String, Any>
-            }else{
-                path += actualEntry.key
-                set(path, actualEntry.value)
-                change++
-                break
-            }
-        }
-    }
-    return change
-}
-
-fun ConfigurationSection.toMap() : Map<String, Any> =
-    getValues(true).apply {
-        forEach { k, v ->
-            if (v is ConfigurationSection) {
-                set(k, v.toMap())
-            }
-        }
-    }
