@@ -89,9 +89,9 @@ events {
 
 ```
 
-Command DSL example
+Simple Command DSL example
 ```kotlin
-command("twitter") {
+simpleCommand("twitter") {
   // in this block you have the class CommandMaker, which have the properties:
   // sender - CommandSender
   // command - Command
@@ -104,7 +104,7 @@ command("twitter") {
 
 Item meta DSL and another stuffs
 ```kotlin
-command("some-name") {
+simpleCommand("some-name") {
 
   if(sender is Player) { // checking if CommandSender is a player
     val player = sender as Player
@@ -176,7 +176,7 @@ val myMenu = createMenu(+"&cWarps", cancel = true) { // cancel true to cancel pl
 }
 
 // now we need a command to open the menu to the player
-command("warps") {
+simpleCommand("warps") {
   if(sender is Player) {
     val player = sender as Player
     myMenu.openToPlayer(player) // here we open the menu to de Player

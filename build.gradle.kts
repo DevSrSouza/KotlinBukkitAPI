@@ -11,28 +11,31 @@ plugins {
 }
 
 group = "br.com.devsrsouza"
-version = "0.0.1-SNAPSHOT"
+version = "0.1.0-SNAPSHOT"
 
 val plugins = listOf(
-    PluginDependency("vault-repo", "http://nexus.hc.to/content/repositories/pub_releases",
-        mapOf("Vault" to "net.milkbowl.vault:VaultAPI:1.6")),
-    PluginDependency("placeholderapi", "http://repo.extendedclip.com/content/repositories/placeholderapi/",
-        mapOf("PlaceholderAPI" to "me.clip:placeholderapi:2.8.5")),
-    PluginDependency("mvdw-software", "http://repo.mvdw-software.be/content/groups/public/",
-        mapOf("MVdWPlaceholderAPI" to "be.maximvdw:MVdWPlaceholderAPI:2.5.2-SNAPSHOT")),
-    PluginDependency("inventive-repo", "https://repo.inventivetalent.org/content/groups/public/",
-        mapOf(
-            "PacketListenerApi" to "org.inventivetalent.packetlistener:api:3.6.0-SNAPSHOT",
-            "HologramAPI" to "org.inventivetalent:hologramapi:1.6.0",
-            "BossBarAPI" to "org.inventivetalent:bossbarapi:2.4.1"
+        PluginDependency("vault-repo", "http://nexus.hc.to/content/repositories/pub_releases",
+                mapOf("Vault" to "net.milkbowl.vault:VaultAPI:1.6")),
+        PluginDependency("placeholderapi", "http://repo.extendedclip.com/content/repositories/placeholderapi/",
+                mapOf("PlaceholderAPI" to "me.clip:placeholderapi:2.8.5")),
+        PluginDependency("mvdw-software", "http://repo.mvdw-software.be/content/groups/public/",
+                mapOf("MVdWPlaceholderAPI" to "be.maximvdw:MVdWPlaceholderAPI:2.5.2-SNAPSHOT")),
+        PluginDependency("inventive-repo", "https://repo.inventivetalent.org/content/groups/public/",
+                mapOf(
+                        "PacketListenerApi" to "org.inventivetalent.packetlistener:api:3.6.0-SNAPSHOT",
+                        "HologramAPI" to "org.inventivetalent:hologramapi:1.6.0",
+                        "BossBarAPI" to "org.inventivetalent:bossbarapi:2.4.1"
+                )
+        ),
+        PluginDependency("direct-from-github", "https://jitpack.io",
+                mapOf(
+                        "ActionBarAPI" to "com.github.connorlinfoot:ActionBarAPI:master-SNAPSHOT",
+                        "TitleAPI" to "com.github.connorlinfoot:TitleAPI:master-SNAPSHOT"
+                )
+        ),
+        PluginDependency("WorldEdit", "http://maven.sk89q.com/repo/",
+                mapOf("Worldedit" to "com.sk89q.worldedit:worldedit-bukkit:6.1.5")
         )
-    ),
-    PluginDependency("direct-from-git", "https://jitpack.io",
-        mapOf(
-            "ActionBarAPI" to "com.github.connorlinfoot:ActionBarAPI:master-SNAPSHOT",
-            "TitleAPI" to "com.github.connorlinfoot:TitleAPI:master-SNAPSHOT"
-        )
-    )
 )
 
 repositories {
