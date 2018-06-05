@@ -60,8 +60,8 @@ dependencies {
     compile(kotlin("stdlib"))
     compile(kotlin("reflect"))
 
-    compileOnly("org.bukkit:bukkit:1.12.2-R0.1-SNAPSHOT")
-    compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
+    compileOnly("org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT")
+    compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
     plugins.map { it.plugins }.flatMap { it.entries }.map{ it.value }.forEach {
         compileOnly(it) {
