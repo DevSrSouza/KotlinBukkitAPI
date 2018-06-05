@@ -71,12 +71,6 @@ dependencies {
     }
 }
 
-java.sourceSets {
-    getByName("main") {
-        getJava().srcDir("text/src/main/java")
-    }
-}
-
 bukkit {
     name = project.name
     version = project.version.toString()

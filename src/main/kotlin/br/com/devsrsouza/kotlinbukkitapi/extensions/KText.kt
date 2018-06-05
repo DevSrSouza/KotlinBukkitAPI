@@ -5,9 +5,12 @@ import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.HoverEvent
 import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.chat.ComponentSerializer
+import net.md_5.bungee.api.ChatColor as BungeeColor
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
-import net.md_5.bungee.api.ChatColor as BungeeColor
+
+operator fun String.unaryPlus() = ChatColor.translateAlternateColorCodes('&', this)
+operator fun String.unaryMinus() = replace('§', '&')
 
 fun Player.sendRawMessage(text: BaseComponent) = sendRawMessage(text.toJson())
 fun Player.sendRawMessage(text: Array<BaseComponent>) = sendRawMessage(text.toJson())
@@ -43,6 +46,7 @@ fun String.showText(vararg components: BaseComponent) = hover(HoverEvent(HoverEv
 
 fun TextComponent.append(text: String) = apply { addExtra(text) }
 fun TextComponent.append(text: BaseComponent) = apply { addExtra(text) }
+fun TextComponent.breakLine() = apply { addExtra("\n") }
 
 fun BaseComponent.color(color: BungeeColor) = apply { this.color = color }
 fun BaseComponent.bold() = apply { isBold = true }
@@ -59,6 +63,3 @@ fun BaseComponent.suggestCommand(command: String) = click(ClickEvent(ClickEvent.
 fun BaseComponent.hover(hoverEvent: HoverEvent) = apply { this.hoverEvent = hoverEvent }
 fun BaseComponent.showText(component: BaseComponent) = hover(HoverEvent(HoverEvent.Action.SHOW_TEXT, arrayOf(component)))
 fun BaseComponent.showText(vararg components: BaseComponent) = hover(HoverEvent(HoverEvent.Action.SHOW_TEXT, components))
-
-operator fun String.unaryPlus() = ChatColor.translateAlternateColorCodes('&', this)
-operator fun String.unaryMinus() = replace('§', '&')
