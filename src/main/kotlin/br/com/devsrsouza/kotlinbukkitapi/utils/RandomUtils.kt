@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions
+package br.com.devsrsouza.kotlinbukkitapi.utils
 
 import java.util.*
 

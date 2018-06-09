@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions.time
+package br.com.devsrsouza.kotlinbukkitapi.utils.time
 
 val Number.millisecond get() = Millisecond(this)
 val Number.tick get() = Tick(this)

@@ -1,7 +1,6 @@
 ![logo](logo.png)
 
-KotlinBukkitAPI is a API for Bukkit using the cool features of Kotlin to make your lifes much easely. Edit
-Add topics
+KotlinBukkitAPI is a API for Bukkit/SpigotAPI using the cool features of Kotlin to make your lifes much easely.
 
 * Need help? contact me on [Twitter](twitter.com/DevSrSouza)
 
@@ -22,7 +21,7 @@ The following steps will ensure your project is cloned properly.
 
 #### Windows
 ```
-./gradlew.bat shadowJar
+gradlew shadowJar
 ```
 
 
@@ -38,7 +37,7 @@ The following steps will ensure your project is cloned properly.
 #### Windows
 
 ```
-./gradlew.bat publishToMavenLocal
+gradlew publishToMavenLocal
 ```
 
 ### Maven
@@ -60,7 +59,7 @@ repositories {
 }
 
 dependencies {
-  compileOnly 'br.com.devsrsouza:kotlinbukkitapi:0.0.1-SNAPSHOT'
+  compileOnly 'br.com.devsrsouza:kotlinbukkitapi:0.1.0-SNAPSHOT'
 }
 ```
 
