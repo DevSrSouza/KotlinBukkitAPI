@@ -9,11 +9,16 @@ import net.md_5.bungee.api.ChatColor as BungeeColor
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 
+/**
+ * ONLY WITH SPIGOT
+ */
+
 operator fun String.unaryPlus() = ChatColor.translateAlternateColorCodes('&', this)
 operator fun String.unaryMinus() = replace('§', '&')
 
-fun Player.sendRawMessage(text: BaseComponent) = sendRawMessage(text.toJson())
-fun Player.sendRawMessage(text: Array<BaseComponent>) = sendRawMessage(text.toJson())
+fun Player.sendMessage(text: BaseComponent) = spigot().sendMessage(text)
+fun Player.sendMessage(text: Array<BaseComponent>) = spigot().sendMessage(TextComponent(*text))
+fun Player.sendMessage(text: List<BaseComponent>) = spigot().sendMessage(TextComponent(*text.toTypedArray()))
 
 //fun String.asText() = TextComponent(*TextComponent.fromLegacyText(this))
 fun String.asText() = TextComponent(this)
@@ -41,25 +46,25 @@ fun String.showText(component: BaseComponent) = hover(HoverEvent(HoverEvent.Acti
 fun String.showText(vararg components: BaseComponent) = hover(HoverEvent(HoverEvent.Action.SHOW_TEXT, components))
 
 /**
- * BUILDER STYLE
+ * Chaining methods for TextComponent and BaseComponent
  */
 
 fun TextComponent.append(text: String) = apply { addExtra(text) }
 fun TextComponent.append(text: BaseComponent) = apply { addExtra(text) }
 fun TextComponent.breakLine() = apply { addExtra("\n") }
 
-fun BaseComponent.color(color: BungeeColor) = apply { this.color = color }
-fun BaseComponent.bold() = apply { isBold = true }
-fun BaseComponent.italic() = apply { isItalic = true }
-fun BaseComponent.underline() = apply { isUnderlined = true }
-fun BaseComponent.strikethrough() = apply { isStrikethrough = true }
-fun BaseComponent.obfuscated() = apply { isObfuscated = true }
+fun <T : BaseComponent> T.color(color: BungeeColor) = apply { this.color = color }
+fun <T : BaseComponent> T.bold() = apply { isBold = true }
+fun <T : BaseComponent> T.italic() = apply { isItalic = true }
+fun <T : BaseComponent> T.underline() = apply { isUnderlined = true }
+fun <T : BaseComponent> T.strikethrough() = apply { isStrikethrough = true }
+fun <T : BaseComponent> T.obfuscated() = apply { isObfuscated = true }
 
-fun BaseComponent.click(clickEvent: ClickEvent) = apply { this.clickEvent = clickEvent }
-fun BaseComponent.openUrl(url: String) = click(ClickEvent(ClickEvent.Action.OPEN_URL, url))
-fun BaseComponent.runCommand(command: String) = click(ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
-fun BaseComponent.suggestCommand(command: String) = click(ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
+fun <T : BaseComponent> T.click(clickEvent: ClickEvent) = apply { this.clickEvent = clickEvent }
+fun <T : BaseComponent> T.openUrl(url: String) = click(ClickEvent(ClickEvent.Action.OPEN_URL, url))
+fun <T : BaseComponent> T.runCommand(command: String) = click(ClickEvent(ClickEvent.Action.RUN_COMMAND, command))
+fun <T : BaseComponent> T.suggestCommand(command: String) = click(ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
 
-fun BaseComponent.hover(hoverEvent: HoverEvent) = apply { this.hoverEvent = hoverEvent }
-fun BaseComponent.showText(component: BaseComponent) = hover(HoverEvent(HoverEvent.Action.SHOW_TEXT, arrayOf(component)))
-fun BaseComponent.showText(vararg components: BaseComponent) = hover(HoverEvent(HoverEvent.Action.SHOW_TEXT, components))
+fun <T : BaseComponent> T.hover(hoverEvent: HoverEvent) = apply { this.hoverEvent = hoverEvent }
+fun <T : BaseComponent> T.showText(component: BaseComponent) = hover(HoverEvent(HoverEvent.Action.SHOW_TEXT, arrayOf(component)))
+fun <T : BaseComponent> T.showText(vararg components: BaseComponent) = hover(HoverEvent(HoverEvent.Action.SHOW_TEXT, components))
