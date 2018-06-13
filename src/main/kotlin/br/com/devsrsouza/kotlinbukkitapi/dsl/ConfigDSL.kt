@@ -9,7 +9,7 @@ import kotlin.reflect.jvm.isAccessible
 typealias LoadFunction<T> = (Any) -> T
 typealias SaveFunction<T> = T.() -> Any
 
-open class Serializable<T>(default: T, val description: String = "") {
+open class Serializable<T>(val default: T, val description: String = "") {
 
     private var _value: T = default
 
@@ -190,9 +190,9 @@ object KConfig {
             when (defaultObj) {
                 is String, is Number, is Boolean -> set(resolveEntry(defaultObj, prop.name, base) as Entry<String, Any>)
                 is Map<*, *> -> {
-                    if (isMapCompatible(defaultObj) && defaultObj.keys.isNotEmpty()) {
+                    if (isMapCompatible(prop, defaultObj) && defaultObj.keys.isNotEmpty()) {
                         val map = defaultObj as Map<String, Any>
-                        if (isMapValuePrimitive(defaultObj)) {
+                        if (isMapValuePrimitive(prop, defaultObj)) {
                             map.forEach { k, v ->
                                 set(resolveEntry(Entry(k, v), prop.name, base) as Entry<String, Any>)
                             }
@@ -205,7 +205,7 @@ object KConfig {
                 }
                 is List<*> -> {
                     if (defaultObj.isNotEmpty())
-                        if (isPrimitiveList(defaultObj))
+                        if (isPrimitiveList(prop, defaultObj))
                             set(resolveEntry(defaultObj, prop.name, base) as Entry<String, Any>)
                         else {
                             val list = defaultObj as List<Any>
@@ -333,11 +333,13 @@ object KConfig {
                         ?.type?.takeUnless { it.isMarkedNullable }?.classifier
                 )
                 if (valueTypeClass != null) {
-                    prop.set(instance, obj.mapValues {
-                        if (it is Map<*, *> && isMapCompatible(it)) {
-                            loadPojo(valueTypeClass, it as Map<String, Any>)
-                        } else null
-                    }.mapNotNull { it.value })
+                    prop.apply { isAccessible = true }.set(instance, obj.mapValues {
+                        it.value.let {
+                            if (it is Map<*, *> && isMapCompatible(it)) {
+                                loadPojo(valueTypeClass, it as Map<String, Any>)
+                            } else null
+                        }
+                    }.filter { it.key != null && it.value != null } as Map<Any, Any>)
                 }
             }
     }
