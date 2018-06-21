@@ -7,7 +7,7 @@ import org.bukkit.command.SimpleCommandMap
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 
-private val serverCommands : SimpleCommandMap by lazy {
+private val serverCommands: SimpleCommandMap by lazy {
     val packageName = Bukkit.getServer().javaClass.getPackage().getName()
     val version = packageName.substring(packageName.lastIndexOf('.') + 1)
     val bukkitclass = Class.forName("org.bukkit.craftbukkit.$version.CraftServer")
@@ -27,7 +27,7 @@ fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
                   block: ExecutorBlock) {
     val cmd = command(name, plugin) {
 
-        if (description.isBlank()) this.description = description
+        if (description.isNotBlank()) this.description = description
         if (aliases.isNotEmpty()) this.aliases = aliases.toList()
 
         executor(block)
@@ -45,38 +45,44 @@ fun command(name: String,
 }
 
 class Executor<E : CommandSender>(val sender: E,
-               val label: String,
-               val args: Array<out String>)
+                                  val label: String,
+                                  val args: Array<out String>)
 
 class TabCompleter(val sender: CommandSender,
                    val alias: String,
                    val args: Array<out String>)
 
-class KCommand(name: String,
-               executor: ExecutorBlock = {}
+open class KCommand(name: String,
+                    executor: ExecutorBlock = {}
 ) : org.bukkit.command.Command(name.trim()) {
 
     private var executor: ExecutorBlock = executor
     private var executorPlayer: ExecutorPlayerBlock? = null
     private var tabCompleter: TabCompleterBlock? = null
-    private val subCommands: MutableList<KCommand> = mutableListOf()
+
+    val subCommands: MutableList<KCommand> = mutableListOf()
 
     var onlyInGameMessage = ""
 
-    override fun execute(sender: CommandSender, commandLabel: String, args: Array<out String>): Boolean {
+    override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
         if (subCommands.isNotEmpty()) {
-            val subCommand = subCommands.find { it.name.equals(args.getOrNull(0), true) }
-            if (subCommand != null) {
-                subCommand.execute(sender, commandLabel, args.sliceArray(1 until args.size))
-            } else if (executorPlayer != null) {
-                if(sender is Player) {
-                    executorPlayer?.invoke(Executor(sender, commandLabel, args))
-                } else sender.sendMessage(onlyInGameMessage)
-            } else {
-                Executor(sender, commandLabel, args).executor()
+            val subCommand = args.getOrNull(0)?.let { arg ->
+                subCommands.find {
+                    it.name.equals(arg, true) ||
+                            it.aliases.find { it.equals(arg, true) } != null
+                }
             }
+            if (subCommand != null) {
+                subCommand.execute(sender, "$label ${args.get(0)}", args.sliceArray(1 until args.size))
+                return true
+            }
+        }
+        if (executorPlayer != null) {
+            if (sender is Player) {
+                executorPlayer!!.invoke(Executor(sender, label, args))
+            } else sender.sendMessage(onlyInGameMessage)
         } else {
-            Executor(sender, commandLabel, args).executor()
+            Executor(sender, label, args).executor()
         }
         return true
     }
@@ -89,7 +95,7 @@ class KCommand(name: String,
         }
     }
 
-    fun defaultTabComplete(sender: CommandSender, alias: String, args: Array<out String>) : MutableList<String> {
+    open fun defaultTabComplete(sender: CommandSender, alias: String, args: Array<out String>): MutableList<String> {
         if (args.size > 1) {
             val subCommand = subCommands.find { it.name.equals(args.getOrNull(0), true) }
             if (subCommand != null) {
@@ -106,22 +112,22 @@ class KCommand(name: String,
         return super.tabComplete(sender, alias, args)
     }
 
-    fun command(name: String, block: CommandMaker) {
+    open fun command(name: String, block: CommandMaker) {
         subCommands.add(KCommand(name).also {
             it.permission = this.permission
             it.permissionMessage = this.permissionMessage
         }.apply(block))
     }
 
-    fun executor(block: ExecutorBlock) {
+    open fun executor(block: ExecutorBlock) {
         executor = block
     }
 
-    fun executorPlayer(block: ExecutorPlayerBlock) {
+    open fun executorPlayer(block: ExecutorPlayerBlock) {
         executorPlayer = block
     }
 
-    fun tabComplete(block: TabCompleterBlock) {
+    open fun tabComplete(block: TabCompleterBlock) {
         tabCompleter = block
     }
 
