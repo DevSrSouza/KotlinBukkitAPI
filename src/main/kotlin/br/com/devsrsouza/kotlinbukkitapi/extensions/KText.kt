@@ -26,8 +26,8 @@ fun BaseComponent.toJson() = ComponentSerializer.toString(this)
 fun Array<BaseComponent>.toJson() = ComponentSerializer.toString(*this)
 
 operator fun String.plus(text: BaseComponent) = asText().apply { addExtra(text) }
-operator fun BaseComponent.plus(component: BaseComponent) = apply { addExtra(component) }
-operator fun BaseComponent.plus(text: String) = apply { addExtra(text) }
+operator fun <T : BaseComponent> T.plus(component: BaseComponent) = apply { addExtra(component) }
+operator fun <T : BaseComponent> T.plus(text: String) = apply { addExtra(text) }
 
 fun String.color(color: BungeeColor) = asText().color(color)
 fun String.bold() = asText().bold()
@@ -68,3 +68,119 @@ fun <T : BaseComponent> T.suggestCommand(command: String) = click(ClickEvent(Cli
 fun <T : BaseComponent> T.hover(hoverEvent: HoverEvent) = apply { this.hoverEvent = hoverEvent }
 fun <T : BaseComponent> T.showText(component: BaseComponent) = hover(HoverEvent(HoverEvent.Action.SHOW_TEXT, arrayOf(component)))
 fun <T : BaseComponent> T.showText(vararg components: BaseComponent) = hover(HoverEvent(HoverEvent.Action.SHOW_TEXT, components))
+
+/**
+ * Replaces
+ */
+
+fun <T : BaseComponent> T.replace(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+    replaceOnHover(oldValue, newValue, ignoreCase)
+    replaceOnClick(oldValue, newValue, ignoreCase)
+    (this as? TextComponent)?.replaceOnText(oldValue, newValue, ignoreCase)
+}
+fun <T : BaseComponent> T.replaceAll(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+    replaceOnAllHovers(oldValue, newValue, ignoreCase)
+    replaceOnAllClick(oldValue, newValue, ignoreCase)
+    (this as? TextComponent)?.replaceOnAllTexts(oldValue, newValue, ignoreCase)
+}
+
+fun <T : BaseComponent> T.replaceOnHover(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+    if(hoverEvent != null)
+        for (component in hoverEvent.value)
+            if(component is TextComponent) component.replaceOnAllTexts(oldValue, newValue, ignoreCase)
+}
+fun <T : BaseComponent> T.replaceOnAllHovers(oldValue: String, newValue: String, ignoreCase: Boolean = false) : T = apply{
+    replaceOnHover(oldValue, newValue, ignoreCase)
+    if(extra != null)
+        for (component in extra)
+            if(component.hoverEvent != null)
+                component.replaceOnAllHovers(oldValue, newValue, ignoreCase)
+}
+fun <T : BaseComponent> T.replaceOnShowText(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+    if(hoverEvent != null)
+        if(hoverEvent.action == HoverEvent.Action.SHOW_TEXT)
+            for (component in hoverEvent.value)
+                if(component is TextComponent)
+                    component.replaceOnAllTexts(oldValue, newValue, ignoreCase)
+}
+fun <T : BaseComponent> T.replaceOnAllShowText(oldValue: String, newValue: String, ignoreCase: Boolean = false) : T = apply {
+    replaceOnShowText(oldValue, newValue, ignoreCase)
+    if(extra != null)
+        for (component in extra) component.replaceOnAllShowText(oldValue, newValue, ignoreCase)
+}
+fun <T : BaseComponent> T.replaceOnClick(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+    if(clickEvent != null)
+        click(ClickEvent(clickEvent.action, clickEvent.value.replace(oldValue, newValue, ignoreCase)))
+}
+fun <T : BaseComponent> T.replaceOnAllClick(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+    replaceOnClick(oldValue, newValue, ignoreCase)
+    if(extra != null)
+        for (component in extra)
+            component.replaceOnClick(oldValue, newValue, ignoreCase)
+}
+fun <T : BaseComponent> T.replaceOnRunCommand(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+    if(clickEvent != null && clickEvent.action == ClickEvent.Action.RUN_COMMAND)
+        runCommand(clickEvent.value.replace(oldValue, newValue, ignoreCase))
+}
+fun <T : BaseComponent> T.replaceOnAllRunCommand(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+    replaceOnRunCommand(oldValue, newValue, ignoreCase)
+    if(extra != null)
+        for (component in extra)
+            component.replaceOnRunCommand(oldValue, newValue, ignoreCase)
+}
+
+fun TextComponent.replaceOnText(oldValue: String, newValue: String, ignoreCase: Boolean = false) {
+    this.text = text.replace(oldValue, newValue, ignoreCase)
+}
+fun TextComponent.replaceOnAllTexts(oldValue: String, newValue: String, ignoreCase: Boolean = false) : TextComponent = apply {
+    replaceOnText(oldValue, newValue, ignoreCase)
+    if(extra != null)
+        for (component in extra)
+            if(component is TextComponent)
+                component.replaceOnAllTexts(oldValue, newValue, ignoreCase)
+}
+
+fun TextComponent.replace(oldValue: String, newValue: TextComponent, ignoreCase: Boolean = false)
+        = split(oldValue, ignoreCase = ignoreCase, limit = 0).joinToText(newValue)
+
+fun TextComponent.replaceAll(oldValue: String, newValue: TextComponent, ignoreCase: Boolean = false) : TextComponent
+        = replace(oldValue, newValue, ignoreCase).apply {
+    if(extra != null)
+        extra = extra.map {
+            if(it is TextComponent)
+                it.replaceAll(oldValue, newValue, ignoreCase)
+            else it
+        }.toMutableList()
+}
+
+fun TextComponent.split(vararg delimiters: String, ignoreCase: Boolean = false, limit: Int = 0): List<TextComponent> {
+    val copy = duplicate().apply { extra?.clear() }
+    val list = text.split(*delimiters, ignoreCase = ignoreCase, limit = limit).map {
+        (copy.duplicate() as TextComponent).apply {
+            text = it
+        }
+    }
+    if(list.isNotEmpty()) {
+        duplicate().also { if(it.extra != null) list.last().extra = it.extra }
+    }
+    return list
+}
+
+fun List<TextComponent>.joinToText(separator: TextComponent? = null,
+                                   prefix: TextComponent? = null,
+                                   suffix: TextComponent? = null,
+                                   limit: Int = -1) : TextComponent {
+    if(isEmpty()) return TextComponent("")
+
+    var component = prefix?.append(get(0)) ?: get(0)
+
+    var count = 0
+    for (element in this) {
+        if (++count > 1 && separator != null) component.append(separator)
+        if (limit < 0 || count <= limit) {
+            if(count > 1) component.append(element)
+        } else break
+    }
+    if(suffix != null) component.append(suffix)
+    return component
+}
