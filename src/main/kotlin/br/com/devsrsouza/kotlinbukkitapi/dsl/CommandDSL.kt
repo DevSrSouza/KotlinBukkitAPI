@@ -24,24 +24,18 @@ typealias CommandMaker = KCommand.() -> Unit
 fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
                   description: String = "",
                   plugin: Plugin = KotlinBukkitAPI.INSTANCE,
-                  block: ExecutorBlock) {
-    val cmd = command(name, plugin) {
+                  block: ExecutorBlock) = command(name, plugin) {
 
-        if (description.isNotBlank()) this.description = description
-        if (aliases.isNotEmpty()) this.aliases = aliases.toList()
+    if (description.isNotBlank()) this.description = description
+    if (aliases.isNotEmpty()) this.aliases = aliases.toList()
 
-        executor(block)
-    }
+    executor(block)
 }
-
 
 fun command(name: String,
             plugin: Plugin = KotlinBukkitAPI.INSTANCE,
-            block: CommandMaker) {
-
-    val cmd = KCommand(name).apply(block)
-
-    serverCommands.register(plugin.name, cmd)
+            block: CommandMaker) = KCommand(name).apply(block).also {
+    serverCommands.register(plugin.name, it)
 }
 
 class Executor<E : CommandSender>(val sender: E,

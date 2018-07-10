@@ -6,10 +6,12 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
+import org.bukkit.plugin.Plugin
 
 inline fun <reified T : Event> Listener.event(priority: EventPriority = EventPriority.NORMAL,
-                                                               ignoreCancelled: Boolean = true,
-                                                               crossinline block: T.() -> Unit) {
+                                              ignoreCancelled: Boolean = true,
+                                              plugin: Plugin = KotlinBukkitAPI.INSTANCE,
+                                              crossinline block: T.() -> Unit) {
     Bukkit.getServer().pluginManager.registerEvent(
             T::class.java,
             this,
@@ -17,11 +19,16 @@ inline fun <reified T : Event> Listener.event(priority: EventPriority = EventPri
             { _, event ->
                 (event as T).block()
             },
-            KotlinBukkitAPI.INSTANCE,
+            plugin,
             ignoreCancelled
     )
 }
 
-fun events(block: Listener.() -> Unit) = object:Listener{}.apply(block)
+fun events(block: Listener.() -> Unit) = object : Listener {}.apply(block)
 
-fun Listener.unregisterAll() { HandlerList.unregisterAll(this) }
+fun Listener.unregisterAll() {
+    HandlerList.unregisterAll(this)
+}
+
+fun Listener.registerEvents(plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = plugin.server.pluginManager.registerEvents(this, plugin)
