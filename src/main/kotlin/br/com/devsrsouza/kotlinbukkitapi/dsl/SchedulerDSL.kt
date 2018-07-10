@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitRunnable
 
 inline fun scheduler(crossinline runnable: BukkitRunnable.() -> Unit) = object : BukkitRunnable() {
@@ -11,35 +12,42 @@ inline fun scheduler(crossinline runnable: BukkitRunnable.() -> Unit) = object :
 
 inline fun task(delayToRun: Long = 0,
                 repeatDelay: Long = -1,
-                crossinline runnable: BukkitRunnable.() -> Unit) = task(delayToRun, repeatDelay, false, runnable)
+                plugin: Plugin = KotlinBukkitAPI.INSTANCE,
+                crossinline runnable: BukkitRunnable.() -> Unit)
+        = task(delayToRun, repeatDelay, false, plugin, runnable)
 
 inline fun taskAsync(delayToRun: Long = 0,
                      repeatDelay: Long = -1,
-                     crossinline runnable: BukkitRunnable.() -> Unit) = task(delayToRun, repeatDelay, true, runnable)
+                     plugin: Plugin = KotlinBukkitAPI.INSTANCE,
+                     crossinline runnable: BukkitRunnable.() -> Unit)
+        = task(delayToRun, repeatDelay, true, plugin, runnable)
 
 inline fun task(delayToRun: Long,
-                        repeatDelay: Long = -1,
-                        async: Boolean,
-                        crossinline runnable: BukkitRunnable.() -> Unit) = scheduler(runnable).run {
-    if(repeatDelay > -1) if(async) runTaskTimerAsynchronously(repeatDelay, delayToRun) else runTaskTimer(repeatDelay, delayToRun)
-    else if(delayToRun > 0) if(async) runTaskLaterAsynchronously(delayToRun) else runTaskLater(delayToRun)
-    else if(async) runTaskAsynchronously() else runTask()
+                repeatDelay: Long = -1,
+                async: Boolean,
+                plugin: Plugin = KotlinBukkitAPI.INSTANCE,
+                crossinline runnable: BukkitRunnable.() -> Unit) = scheduler(runnable).run {
+    if (repeatDelay > -1) if (async) runTaskTimerAsynchronously(repeatDelay, delayToRun, plugin) else runTaskTimer(repeatDelay, delayToRun, plugin)
+    else if (delayToRun > 0) if (async) runTaskLaterAsynchronously(delayToRun, plugin) else runTaskLater(delayToRun, plugin)
+    else if (async) runTaskAsynchronously(plugin) else runTask(plugin)
 }
 
-fun BukkitRunnable.runTask()
-        = runTask(KotlinBukkitAPI.INSTANCE)
+fun BukkitRunnable.runTask(plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = runTask(plugin)
 
-fun BukkitRunnable.runTaskAsynchronously()
-        = runTaskAsynchronously(KotlinBukkitAPI.INSTANCE)
+fun BukkitRunnable.runTaskAsynchronously(plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = runTaskAsynchronously(plugin)
 
-fun BukkitRunnable.runTaskLater(delay: Long)
-        = runTaskLater(KotlinBukkitAPI.INSTANCE, delay)
+fun BukkitRunnable.runTaskLater(delay: Long, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = runTaskLater(plugin, delay)
 
-fun BukkitRunnable.runTaskLaterAsynchronously(delay: Long)
-        = runTaskLaterAsynchronously(KotlinBukkitAPI.INSTANCE, delay)
+fun BukkitRunnable.runTaskLaterAsynchronously(delay: Long, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = runTaskLaterAsynchronously(plugin, delay)
 
-fun BukkitRunnable.runTaskTimer(repeatDelay: Long, delayToStart: Long = 0)
-        = runTaskTimer(KotlinBukkitAPI.INSTANCE, delayToStart, repeatDelay)
+fun BukkitRunnable.runTaskTimer(repeatDelay: Long, delayToStart: Long = 0,
+                                plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = runTaskTimer(plugin, delayToStart, repeatDelay)
 
-fun BukkitRunnable.runTaskTimerAsynchronously(repeatDelay: Long, delayToStart: Long = 0)
-        = runTaskTimerAsynchronously(KotlinBukkitAPI.INSTANCE, delayToStart, repeatDelay)
+fun BukkitRunnable.runTaskTimerAsynchronously(repeatDelay: Long, delayToStart: Long = 0,
+                                              plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = runTaskTimerAsynchronously(plugin, delayToStart, repeatDelay)
