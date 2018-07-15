@@ -33,9 +33,13 @@ open class Serializable<T>(val default: T, val description: String = "") {
 
 fun <T> serializable(default: T, description: String = "", block: Serializable<T>.() -> Unit) = Serializable(default, description).apply { block() }
 
-fun Configuration.saveFrom(model: KClass<*>) : Int {
+fun <T : Any> Configuration.saveFrom(model: KClass<T>) : Int {
+    return saveFrom(model, model.objectInstance ?: model.createInstance())
+}
+
+fun <T : Any> Configuration.saveFrom(model: KClass<T>, instance: T) : Int {
     var change = 0
-    KConfig.setTo(model) {
+    KConfig.setTo(model, instance) {
         var path = ""
         var actualEntry = it
         while (true) {
@@ -53,9 +57,13 @@ fun Configuration.saveFrom(model: KClass<*>) : Int {
     return change
 }
 
-fun Configuration.loadAndSetDefault(model: KClass<*>) : Int {
+fun <T : Any> Configuration.loadAndSetDefault(model: KClass<T>) : Int {
+    return loadAndSetDefault(model, model.objectInstance ?: model.createInstance())
+}
+
+fun <T : Any> Configuration.loadAndSetDefault(model: KClass<T>, instance: T) : Int {
     var change = 0
-    KConfig.loadAndSetDefault(model, toMap()) {
+    KConfig.loadAndSetDefault(model, instance, toMap()) {
         var path = ""
         var actualEntry = it
         while (true) {
@@ -84,22 +92,20 @@ fun ConfigurationSection.toMap() : Map<String, Any> =
 
 object KConfig {
 
-    fun loadAndSetDefault(model: KClass<*>, map: Map<String, Any>, set: (Map.Entry<String, Any>) -> Unit) {
-        val objectI = model.objectInstance
-        var instance = objectI ?: model.createInstance()
-        loadAndSetDefaultR(instance, map, set, null, objectI != null)
+    fun loadAndSetDefault(model: KClass<*>, instance: Any, map: Map<String, Any>, set: (Map.Entry<String, Any>) -> Unit) {
+        loadAndSetDefaultR(model, instance, map, set, null, model.objectInstance === instance)
     }
 
     private fun loadAndSetDefaultR(
+        model: KClass<*>,
         instance: Any,
         map: Map<String, Any>,
         set: (Map.Entry<String, Any>) -> Unit,
         base: Entry<String, out Any?>?,
         isObject: Boolean
     ) {
-        val model = instance::class
 
-        val properties = model.declaredMemberProperties
+        val properties = model.memberProperties
             .filterIsInstance<KMutableProperty1<Any, Any>>()
             .filter { it.visibility == KVisibility.PUBLIC }
             .filterNot { it.isLateinit }
@@ -129,8 +135,10 @@ object KConfig {
                         else -> {
                             loadRecursive(propType, obj, prop, instance) { obj, propClass ->
                                 if(propClass.objectInstance == prop.get(instance)) {
-                                    loadAndSetDefaultR(prop.get(instance), obj, set, resolveEntry(null, prop.name, base), isObject)
+                                    val insta = prop.get(instance)
+                                    loadAndSetDefaultR(insta::class, insta, obj, set, resolveEntry(null, prop.name, base), isObject)
                                 }else {
+
                                     prop.set(instance, loadPojo(propClass, obj))
                                 }
                             }
@@ -143,21 +151,19 @@ object KConfig {
         }
     }
 
-    fun setTo(model: KClass<*>,  set: (Map.Entry<String, Any>) -> Unit) {
-        val objectI = model.objectInstance
-        var instance = objectI ?: model.createInstance()
-        setToR(instance, set, null, objectI != null)
+    fun setTo(model: KClass<*>, instance: Any,  set: (Map.Entry<String, Any>) -> Unit) {
+        setToR(model, instance, set, null, model.objectInstance === instance)
     }
 
     private fun setToR(
+        model: KClass<*>,
         instance: Any,
         set: (Map.Entry<String, Any>) -> Unit,
         base: Entry<String, out Any?>?,
         isObject: Boolean = false
     ) {
-        val model = instance::class
 
-        val properties = model.declaredMemberProperties
+        val properties = model.memberProperties
             .filterIsInstance<KMutableProperty1<Any, Any>>()
             .filter { it.visibility == KVisibility.PUBLIC }
             .filterNot { it.isLateinit }
@@ -198,7 +204,7 @@ object KConfig {
                             }
                         } else {
                             map.forEach { k, v ->
-                                setToR(v, set, resolveEntry(Entry(k, null), prop.name, base))
+                                setToR(v::class, v, set, resolveEntry(Entry(k, null), prop.name, base))
                             }
                         }
                     }
@@ -211,7 +217,7 @@ object KConfig {
                             val list = defaultObj as List<Any>
                             var count = 1
                             list.forEach { v ->
-                                setToR(v, set, resolveEntry(Entry(count.toString(), null), prop.name, base))
+                                setToR(v::class, v, set, resolveEntry(Entry(count.toString(), null), prop.name, base))
                                 count++
                             }
                         }
@@ -220,25 +226,26 @@ object KConfig {
                     val objectI = defaultObj.objectInstance
                     if (isObject) {
                         var newInstance = objectI ?: defaultObj.createInstance()
-                        setToR(newInstance, set, resolveEntry(null, prop.name, base), objectI == newInstance)
+                        setToR(newInstance::class, newInstance, set, resolveEntry(null, prop.name, base), objectI == newInstance)
                     } else {
                         if (objectI == null) {
                             var newInstance = defaultObj.createInstance()
-                            setToR(newInstance, set, resolveEntry(null, prop.name, base))
+                            setToR(newInstance::class, newInstance, set, resolveEntry(null, prop.name, base))
                         }
                     }
                 }
                 else -> {
                     if (isObject) {
                         setToR(
+                            defaultObj::class,
                             defaultObj,
                             set,
                             resolveEntry(null, prop.name, base),
                             defaultObj == defaultObj::class.objectInstance
                         )
                     } else {
-                        if (obj != defaultObj::class.objectInstance) {
-                            setToR(defaultObj, set, resolveEntry(null, prop.name, base))
+                        if (defaultObj != defaultObj::class.objectInstance) {
+                            setToR(defaultObj::class, defaultObj, set, resolveEntry(null, prop.name, base))
                         }
                     }
                 }
@@ -252,7 +259,7 @@ object KConfig {
 
         var instance =  model.createInstance()
 
-        val properties = model.declaredMemberProperties
+        val properties = model.memberProperties
             .filterIsInstance<KMutableProperty1<Any, Any>>()
             .filter { it.visibility == KVisibility.PUBLIC }
             .filterNot { it.isLateinit }
