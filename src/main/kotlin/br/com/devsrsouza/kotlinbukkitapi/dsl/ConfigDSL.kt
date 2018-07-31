@@ -1,6 +1,5 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.config
 
-import org.bukkit.configuration.Configuration
 import org.bukkit.configuration.ConfigurationSection
 import kotlin.reflect.*
 import kotlin.reflect.full.*
@@ -33,11 +32,11 @@ open class Serializable<T>(val default: T, val description: String = "") {
 
 fun <T> serializable(default: T, description: String = "", block: Serializable<T>.() -> Unit) = Serializable(default, description).apply { block() }
 
-fun <T : Any> Configuration.saveFrom(model: KClass<T>) : Int {
+fun <T : Any> ConfigurationSection.saveFrom(model: KClass<T>) : Int {
     return saveFrom(model, model.objectInstance ?: model.createInstance())
 }
 
-fun <T : Any> Configuration.saveFrom(model: KClass<T>, instance: T) : Int {
+fun <T : Any> ConfigurationSection.saveFrom(model: KClass<T>, instance: T) : Int {
     var change = 0
     KConfig.setTo(model, instance) {
         var path = ""
@@ -57,11 +56,11 @@ fun <T : Any> Configuration.saveFrom(model: KClass<T>, instance: T) : Int {
     return change
 }
 
-fun <T : Any> Configuration.loadAndSetDefault(model: KClass<T>) : Int {
+fun <T : Any> ConfigurationSection.loadAndSetDefault(model: KClass<T>) : Int {
     return loadAndSetDefault(model, model.objectInstance ?: model.createInstance())
 }
 
-fun <T : Any> Configuration.loadAndSetDefault(model: KClass<T>, instance: T) : Int {
+fun <T : Any> ConfigurationSection.loadAndSetDefault(model: KClass<T>, instance: T) : Int {
     var change = 0
     KConfig.loadAndSetDefault(model, instance, toMap()) {
         var path = ""
