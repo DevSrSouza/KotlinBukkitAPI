@@ -5,7 +5,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("java")
     id("maven-publish")
-    kotlin("jvm") version "1.2.41"
+    kotlin("jvm") version "1.2.51"
     id("com.github.johnrengelman.shadow") version "2.0.3"
     id("net.minecrell.plugin-yml.bukkit") version "0.2.1"
 }
@@ -29,12 +29,12 @@ val plugins = listOf(
         ),
         PluginDependency("direct-from-github", "https://jitpack.io",
                 mapOf(
-                        "ActionBarAPI" to "com.github.connorlinfoot:ActionBarAPI:master-SNAPSHOT",
-                        "TitleAPI" to "com.github.connorlinfoot:TitleAPI:master-SNAPSHOT"
+                        "ActionBarAPI" to "com.github.ConnorLinfoot:ActionBarAPI:e6e6ea2037",
+                        "TitleAPI" to "com.github.ConnorLinfoot:TitleAPI:d5095196bb"
                 )
         ),
         PluginDependency("WorldEdit", "http://maven.sk89q.com/repo/",
-                mapOf("Worldedit" to "com.sk89q.worldedit:worldedit-bukkit:6.1.5")
+                mapOf("WorldEdit" to "com.sk89q.worldedit:worldedit-bukkit:6.1.5")
         )
 )
 
@@ -48,6 +48,10 @@ repositories {
         name = "sonatype"
         url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
     }
+    maven {
+        name = "comphenix"
+        url = uri("http://repo.comphenix.net/content/repositories/snapshots/")
+    }
     plugins.forEach {
         maven {
             name = it.repoName
@@ -59,14 +63,16 @@ repositories {
 dependencies {
     compile(kotlin("stdlib"))
     compile(kotlin("reflect"))
+    compile("com.comphenix.attribute:AttributeStorage:0.0.2-SNAPSHOT")
 
-    compileOnly("org.bukkit:bukkit:1.8.8-R0.1-SNAPSHOT")
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
-    plugins.map { it.plugins }.flatMap { it.entries }.map{ it.value }.forEach {
+    plugins.map { it.plugins }.flatMap { it.entries }.map { it.value }.forEach {
         compileOnly(it) {
             exclude("org.spigotmc", "spigot")
+            exclude("org.bukkit", "bukkit")
             exclude("org.mcstats.bukkit", "metrics-lite")
+            exclude("org.inventivetalent.packetlistener", "api")
         }
     }
 }
@@ -79,7 +85,7 @@ bukkit {
     website = "https://github.com/DevSrSouza/KotlinBukkitAPI"
     authors = listOf("DevSrSouza")
 
-    softDepend = plugins.map { it.plugins }.flatMap { it.entries }.map{ it.key }
+    softDepend = plugins.map { it.plugins }.flatMap { it.entries }.map { it.key }
 }
 
 class PluginDependency(val repoName: String, val repo: String, val plugins: Map<String, String>)
@@ -112,8 +118,8 @@ publishing {
             pom.withXml {
                 asNode().apply {
                     appendNode(
-                        "description",
-                        "KotlinBukkitAPI is a API for Bukkit using the cool features of Kotlin to make your lifes much easely."
+                            "description",
+                            "KotlinBukkitAPI is a API for Bukkit using the cool features of Kotlin to make your lifes much easely."
                     )
                     appendNode("name", project.name)
                     appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI")
