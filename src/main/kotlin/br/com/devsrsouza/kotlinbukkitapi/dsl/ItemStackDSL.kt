@@ -12,7 +12,7 @@ import com.comphenix.attribute.NbtFactory.StreamOptions
 import java.io.ByteArrayInputStream
 import org.bukkit.Material
 
-inline fun <T : ItemMeta> ItemStack.meta(block: T.() -> Unit) {
+inline fun <T : ItemMeta> ItemStack.meta(block: T.() -> Unit) = apply {
     itemMeta = (itemMeta as T).apply(block)
 }
 
@@ -20,8 +20,8 @@ fun ItemStack.setStorageData(data: String, key: UUID): ItemStack {
     return AttributeStorage.newTarget(this, key).apply {
         setData(data)
     }.run {
-        target.apply {
-            meta<ItemMeta> { addItemFlags(ItemFlag.HIDE_ATTRIBUTES) }
+        target.meta<ItemMeta> {
+            addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
         }
     }
 }

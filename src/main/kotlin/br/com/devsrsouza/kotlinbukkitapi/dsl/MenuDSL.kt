@@ -14,7 +14,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitTask
 
 fun createMenu(displayname: String, lines: Int = 3, cancel: Boolean = false, block: Menu.() -> Unit) =
-    Menu(displayname, lines, cancel).apply { block() }.let { MenuController.registerMenu(it) }
+    Menu(displayname, lines, cancel).apply { block() }.also { MenuController.registerMenu(it) }
 
 typealias MenuUpdatetEvent = MenuUpdate.() -> Unit
 typealias MenuCloseEvent = MenuClose.() -> Unit
