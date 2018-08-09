@@ -1,11 +1,12 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import org.apache.xerces.dom.DeepNodeListImpl
 import org.gradle.api.tasks.bundling.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("java")
     id("maven-publish")
-    kotlin("jvm") version "1.2.51"
+    kotlin("jvm") version "1.2.60"
     id("com.github.johnrengelman.shadow") version "2.0.3"
     id("net.minecrell.plugin-yml.bukkit") version "0.2.1"
 }
@@ -22,7 +23,7 @@ val plugins = listOf(
                 mapOf("MVdWPlaceholderAPI" to "be.maximvdw:MVdWPlaceholderAPI:2.5.2-SNAPSHOT")),
         PluginDependency("inventive-repo", "https://repo.inventivetalent.org/content/groups/public/",
                 mapOf(
-                        "PacketListenerApi" to "org.inventivetalent.packetlistener:api:3.6.0-SNAPSHOT",
+                        "PacketListenerApi" to "org.inventivetalent.packetlistener:api:3.7.0-SNAPSHOT",
                         "HologramAPI" to "org.inventivetalent:hologramapi:1.6.0",
                         "BossBarAPI" to "org.inventivetalent:bossbarapi:2.4.1"
                 )
@@ -139,7 +140,7 @@ publishing {
                     appendNode("scm").appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master")
                 }
                 asElement().apply {
-                    removeAttribute("dependencies")
+                    removeChild(getElementsByTagName("dependencies").item(0))
                 }
             }
         }
