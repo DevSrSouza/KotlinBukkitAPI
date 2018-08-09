@@ -87,14 +87,13 @@ fun <T : BaseComponent> T.replaceAll(oldValue: String, newValue: String, ignoreC
 fun <T : BaseComponent> T.replaceOnHover(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
     if(hoverEvent != null)
         for (component in hoverEvent.value)
-            if(component is TextComponent) component.replaceOnAllTexts(oldValue, newValue, ignoreCase)
+            if (component is TextComponent) component.replaceOnAllTexts(oldValue, newValue, ignoreCase)
 }
 fun <T : BaseComponent> T.replaceOnAllHovers(oldValue: String, newValue: String, ignoreCase: Boolean = false) : T = apply{
     replaceOnHover(oldValue, newValue, ignoreCase)
     if(extra != null)
         for (component in extra)
-            if(component.hoverEvent != null)
-                component.replaceOnAllHovers(oldValue, newValue, ignoreCase)
+            component.replaceOnAllHovers(oldValue, newValue, ignoreCase)
 }
 fun <T : BaseComponent> T.replaceOnShowText(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
     if(hoverEvent != null)
@@ -112,11 +111,11 @@ fun <T : BaseComponent> T.replaceOnClick(oldValue: String, newValue: String, ign
     if(clickEvent != null)
         click(ClickEvent(clickEvent.action, clickEvent.value.replace(oldValue, newValue, ignoreCase)))
 }
-fun <T : BaseComponent> T.replaceOnAllClick(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+fun <T : BaseComponent> T.replaceOnAllClick(oldValue: String, newValue: String, ignoreCase: Boolean = false) : T = apply {
     replaceOnClick(oldValue, newValue, ignoreCase)
     if(extra != null)
         for (component in extra)
-            component.replaceOnClick(oldValue, newValue, ignoreCase)
+            component.replaceOnAllClick(oldValue, newValue, ignoreCase)
 }
 fun <T : BaseComponent> T.replaceOnRunCommand(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
     if(clickEvent != null && clickEvent.action == ClickEvent.Action.RUN_COMMAND)
@@ -129,7 +128,7 @@ fun <T : BaseComponent> T.replaceOnAllRunCommand(oldValue: String, newValue: Str
             component.replaceOnRunCommand(oldValue, newValue, ignoreCase)
 }
 
-fun TextComponent.replaceOnText(oldValue: String, newValue: String, ignoreCase: Boolean = false) {
+fun TextComponent.replaceOnText(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
     this.text = text.replace(oldValue, newValue, ignoreCase)
 }
 fun TextComponent.replaceOnAllTexts(oldValue: String, newValue: String, ignoreCase: Boolean = false) : TextComponent = apply {
