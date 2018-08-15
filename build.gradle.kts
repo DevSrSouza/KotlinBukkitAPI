@@ -36,6 +36,9 @@ val plugins = listOf(
         ),
         PluginDependency("WorldEdit", "http://maven.sk89q.com/repo/",
                 mapOf("WorldEdit" to "com.sk89q.worldedit:worldedit-bukkit:6.1.5")
+        ),
+        PluginDependency("ViaVersion", "https://repo.viaversion.com/",
+                mapOf("ViaVersion" to "us.myles:viaversion-common:1.4.1")
         )
 )
 
