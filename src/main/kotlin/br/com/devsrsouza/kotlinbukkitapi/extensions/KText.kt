@@ -30,6 +30,7 @@ operator fun <T : BaseComponent> T.plus(component: BaseComponent) = apply { addE
 operator fun <T : BaseComponent> T.plus(text: String) = apply { addExtra(text) }
 
 fun String.color(color: BungeeColor) = asText().color(color)
+fun String.color(color: ChatColor) = asText().color(BungeeColor.getByChar(color.char))
 fun String.bold() = asText().bold()
 fun String.italic() = asText().italic()
 fun String.underline() = asText().underline()
@@ -54,6 +55,7 @@ fun TextComponent.append(text: BaseComponent) = apply { addExtra(text) }
 fun TextComponent.breakLine() = apply { addExtra("\n") }
 
 fun <T : BaseComponent> T.color(color: BungeeColor) = apply { this.color = color }
+fun <T : BaseComponent> T.color(color: ChatColor) = apply { this.color = BungeeColor.getByChar(color.char) }
 fun <T : BaseComponent> T.bold() = apply { isBold = true }
 fun <T : BaseComponent> T.italic() = apply { isItalic = true }
 fun <T : BaseComponent> T.underline() = apply { isUnderlined = true }
