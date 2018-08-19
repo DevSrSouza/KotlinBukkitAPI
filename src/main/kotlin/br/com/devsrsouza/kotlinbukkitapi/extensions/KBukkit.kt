@@ -11,6 +11,8 @@ object Console {
     fun sendMessage(message: String) = message(message)
 }
 
+fun mainWorld() = Bukkit.getWorlds()[0]
+
 fun broadcast(message: String) {
     Bukkit.broadcastMessage(message)
 }
