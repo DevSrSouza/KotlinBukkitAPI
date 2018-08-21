@@ -7,6 +7,7 @@ import kotlin.reflect.jvm.isAccessible
 
 typealias LoadFunction<T> = (Any) -> T
 typealias SaveFunction<T> = T.() -> Any
+typealias PropertyTransformer = (KProperty1<*, *>, Any) -> Any
 
 open class Serializable<T>(val default: T, val description: String = "") {
 
@@ -24,7 +25,7 @@ open class Serializable<T>(val default: T, val description: String = "") {
     }
 
     internal fun load(any: Any) = Unit.apply { if(loadFunction != null) _value = loadFunction!!.invoke(any) }
-    internal fun save() = saveFunction?.invoke(_value)
+    internal fun save() = saveFunction?.invoke(_value) ?: default as Any
 
     fun load(block: LoadFunction<T>) { loadFunction = block }
     fun save(block: SaveFunction<T>) { saveFunction = block }
@@ -32,13 +33,11 @@ open class Serializable<T>(val default: T, val description: String = "") {
 
 fun <T> serializable(default: T, description: String = "", block: Serializable<T>.() -> Unit) = Serializable(default, description).apply { block() }
 
-fun <T : Any> ConfigurationSection.saveFrom(model: KClass<T>) : Int {
-    return saveFrom(model, model.objectInstance ?: model.createInstance())
-}
-
-fun <T : Any> ConfigurationSection.saveFrom(model: KClass<T>, instance: T) : Int {
+fun <T : Any> ConfigurationSection.saveFrom(model: KClass<T>,
+                                            instance: T = model.objectInstance ?: model.createInstance(),
+                                            saveTransformer: PropertyTransformer? = null) : Int {
     var change = 0
-    KConfig.setTo(model, instance) {
+    KConfig.setTo(model, instance, saveTransformer) {
         var path = ""
         var actualEntry = it
         while (true) {
@@ -56,13 +55,12 @@ fun <T : Any> ConfigurationSection.saveFrom(model: KClass<T>, instance: T) : Int
     return change
 }
 
-fun <T : Any> ConfigurationSection.loadAndSetDefault(model: KClass<T>) : Int {
-    return loadAndSetDefault(model, model.objectInstance ?: model.createInstance())
-}
-
-fun <T : Any> ConfigurationSection.loadAndSetDefault(model: KClass<T>, instance: T) : Int {
+fun <T : Any> ConfigurationSection.loadAndSetDefault(model: KClass<T>,
+                                                     instance: T = model.objectInstance ?: model.createInstance(),
+                                                     saveTransformer: PropertyTransformer? = null,
+                                                     loadTransformer: PropertyTransformer? = null) : Int {
     var change = 0
-    KConfig.loadAndSetDefault(model, instance, toMap()) {
+    KConfig.loadAndSetDefault(model, instance, toMap(), saveTransformer, loadTransformer) {
         var path = ""
         var actualEntry = it
         while (true) {
@@ -91,17 +89,23 @@ fun ConfigurationSection.toMap() : Map<String, Any> =
 
 object KConfig {
 
-    fun loadAndSetDefault(model: KClass<*>, instance: Any, map: Map<String, Any>, set: (Map.Entry<String, Any>) -> Unit) {
-        loadAndSetDefaultR(model, instance, map, set, null, model.objectInstance === instance)
+    fun loadAndSetDefault(model: KClass<*>, instance: Any, map: Map<String, Any>,
+                          saveTransformer: PropertyTransformer? = null,
+                          loadTransformer: PropertyTransformer? = null,
+                          set: (Map.Entry<String, Any>) -> Unit) {
+        loadAndSetDefaultR(model, instance, map, set, null,
+                model.objectInstance === instance, saveTransformer, loadTransformer)
     }
 
     private fun loadAndSetDefaultR(
-        model: KClass<*>,
-        instance: Any,
-        map: Map<String, Any>,
-        set: (Map.Entry<String, Any>) -> Unit,
-        base: Entry<String, out Any?>?,
-        isObject: Boolean
+            model: KClass<*>,
+            instance: Any,
+            map: Map<String, Any>,
+            set: (Map.Entry<String, Any>) -> Unit,
+            base: Entry<String, out Any?>?,
+            isObject: Boolean,
+            saveTransformer: PropertyTransformer? = null,
+            loadTransformer: PropertyTransformer? = null
     ) {
 
         val properties = model.memberProperties
@@ -119,47 +123,50 @@ object KConfig {
 
             if(obj != null) {
                 if (delegate?.loadFunction != null) {
-                    delegate.load(obj)
+                    delegate.load(loadTransformer?.invoke(prop, obj) ?: obj)
                 } else if(prop.returnType.classifier != null) {
                     val propType = prop.returnType.classifier
                     when(propType) {
                         String::class, Number::class, Boolean::class ->
-                            if(obj is String || obj is Number || obj is Boolean) prop.set(instance, obj)
+                            if(obj is String || obj is Number || obj is Boolean) prop.set(instance, loadTransformer?.invoke(prop, obj) ?: obj)
                         Map::class -> {
-                            loadMap(obj, prop, instance)
+                            loadMap(obj, prop, instance, loadTransformer)
                         }
                         List::class -> {
-                            loadList(obj, prop, instance)
+                            loadList(obj, prop, instance, loadTransformer)
                         }
                         else -> {
-                            loadRecursive(propType, obj, prop, instance) { obj, propClass ->
+                            loadRecursive(propType, obj, prop, instance, loadTransformer) { obj, propClass ->
                                 if(propClass.objectInstance == prop.get(instance)) {
                                     val insta = prop.get(instance)
                                     loadAndSetDefaultR(insta::class, insta, obj, set, resolveEntry(null, prop.name, base), isObject)
                                 }else {
-
-                                    prop.set(instance, loadPojo(propClass, obj))
+                                    val loadedPojo = loadPojo(propClass, obj)
+                                    prop.set(instance, loadTransformer?.invoke(prop, loadedPojo) ?: loadedPojo)
                                 }
                             }
                         }
                     }
                 }
             }else {
-                setProperty(delegate, set, prop, base, instance, isObject, obj)
+                setProperty(delegate, set, prop, base, instance, isObject, obj, saveTransformer)
             }
         }
     }
 
-    fun setTo(model: KClass<*>, instance: Any,  set: (Map.Entry<String, Any>) -> Unit) {
-        setToR(model, instance, set, null, model.objectInstance === instance)
+    fun setTo(model: KClass<*>, instance: Any,
+              saveTransformer: PropertyTransformer? = null,
+              set: (Map.Entry<String, Any>) -> Unit) {
+        setToR(model, instance, set, null, model.objectInstance === instance, saveTransformer)
     }
 
     private fun setToR(
-        model: KClass<*>,
-        instance: Any,
-        set: (Map.Entry<String, Any>) -> Unit,
-        base: Entry<String, out Any?>?,
-        isObject: Boolean = false
+            model: KClass<*>,
+            instance: Any,
+            set: (Map.Entry<String, Any>) -> Unit,
+            base: Entry<String, out Any?>?,
+            isObject: Boolean = false,
+            saveTransformer: PropertyTransformer? = null
     ) {
 
         val properties = model.memberProperties
@@ -174,23 +181,25 @@ object KConfig {
             val delegate = prop.getDelegate(instance).let { if (it is Serializable<*>) it as Serializable<Any> else null }
 
             val obj = prop.getter.apply { isAccessible = true }.call(instance)
-            setProperty(delegate, set, prop, base, instance, isObject, obj)
+            setProperty(delegate, set, prop, base, instance, isObject, obj, saveTransformer)
         }
     }
 
     private fun setProperty(
-        delegate: Serializable<Any>?,
-        set: (Map.Entry<String, Any>) -> Unit,
-        prop: KMutableProperty1<Any, Any>,
-        base: Entry<String, out Any?>?,
-        instance: Any,
-        isObject: Boolean,
-        obj: Any?
+            delegate: Serializable<Any>?,
+            set: (Map.Entry<String, Any>) -> Unit,
+            prop: KMutableProperty1<Any, Any>,
+            base: Entry<String, out Any?>?,
+            instance: Any,
+            isObject: Boolean,
+            obj: Any?,
+            saveTransformer: PropertyTransformer? = null
     ) {
         if (delegate?.saveFunction != null) {
-            set(resolveEntry(delegate.save(), prop.name, base) as Entry<String, Any>)
+            val toSave = delegate.save()
+            set(resolveEntry(saveTransformer?.invoke(prop, toSave) ?: toSave, prop.name, base) as Entry<String, Any>)
         } else {
-            val defaultObj = prop.getter.apply { isAccessible = true }.call(instance)
+            val defaultObj = prop.getter.apply { isAccessible = true }.call(instance).let { saveTransformer?.invoke(prop, it) ?: it }
 
             when (defaultObj) {
                 is String, is Number, is Boolean -> set(resolveEntry(defaultObj, prop.name, base) as Entry<String, Any>)
@@ -203,7 +212,7 @@ object KConfig {
                             }
                         } else {
                             map.forEach { k, v ->
-                                setToR(v::class, v, set, resolveEntry(Entry(k, null), prop.name, base))
+                                setToR(v::class, v, set, resolveEntry(Entry(k, null), prop.name, base), saveTransformer = saveTransformer)
                             }
                         }
                     }
@@ -216,7 +225,7 @@ object KConfig {
                             val list = defaultObj as List<Any>
                             var count = 1
                             list.forEach { v ->
-                                setToR(v::class, v, set, resolveEntry(Entry(count.toString(), null), prop.name, base))
+                                setToR(v::class, v, set, resolveEntry(Entry(count.toString(), null), prop.name, base), saveTransformer = saveTransformer)
                                 count++
                             }
                         }
@@ -225,11 +234,13 @@ object KConfig {
                     val objectI = defaultObj.objectInstance
                     if (isObject) {
                         var newInstance = objectI ?: defaultObj.createInstance()
-                        setToR(newInstance::class, newInstance, set, resolveEntry(null, prop.name, base), objectI == newInstance)
+                        setToR(newInstance::class, newInstance, set, resolveEntry(null, prop.name, base),
+                                objectI == newInstance,  saveTransformer)
                     } else {
                         if (objectI == null) {
                             var newInstance = defaultObj.createInstance()
-                            setToR(newInstance::class, newInstance, set, resolveEntry(null, prop.name, base))
+                            setToR(newInstance::class, newInstance, set, resolveEntry(null, prop.name, base),
+                                    saveTransformer = saveTransformer)
                         }
                     }
                 }
@@ -240,11 +251,16 @@ object KConfig {
                             defaultObj,
                             set,
                             resolveEntry(null, prop.name, base),
-                            defaultObj == defaultObj::class.objectInstance
+                            defaultObj == defaultObj::class.objectInstance,
+                            saveTransformer
                         )
                     } else {
                         if (defaultObj != defaultObj::class.objectInstance) {
-                            setToR(defaultObj::class, defaultObj, set, resolveEntry(null, prop.name, base))
+                            setToR(
+                                    defaultObj::class, defaultObj, set,
+                                    resolveEntry(null, prop.name, base),
+                                    saveTransformer = saveTransformer
+                            )
                         }
                     }
                 }
@@ -253,8 +269,9 @@ object KConfig {
     }
 
     private fun loadPojo(
-        model: KClass<*>,
-        map: Map<String, Any>) : Any {
+            model: KClass<*>,
+            map: Map<String, Any>,
+            loadTransformer: PropertyTransformer? = null) : Any {
 
         var instance =  model.createInstance()
 
@@ -275,21 +292,22 @@ object KConfig {
             if(obj != null) {
 
                 if (delegate?.loadFunction != null) {
-                    delegate.load(obj)
+                    delegate.load(loadTransformer?.invoke(prop, obj) ?: obj)
                 } else if (prop.returnType.classifier != null) {
                     val propType = prop.returnType.classifier
                     when (propType) {
                         String::class, Number::class, Boolean::class ->
-                            if (obj is String || obj is Number || obj is Boolean) prop.set(instance, obj)
+                            if (obj is String || obj is Number || obj is Boolean) prop.set(instance, loadTransformer?.invoke(prop, obj) ?: obj)
                         Map::class -> {
-                            loadMap(obj, prop, instance)
+                            loadMap(obj, prop, instance, loadTransformer)
                         }
                         List::class -> {
-                            loadList(obj, prop, instance)
+                            loadList(obj, prop, instance, loadTransformer)
                         }
                         else -> {
                             loadRecursive(propType, obj, prop, instance) { obj, propClass ->
-                                prop.set(instance, loadPojo(propClass, obj))
+                                val pojoLoaded = loadPojo(propClass, obj, loadTransformer)
+                                prop.set(instance, loadTransformer?.invoke(prop, pojoLoaded) ?: pojoLoaded)
                             }
                         }
                     }
@@ -301,12 +319,13 @@ object KConfig {
     }
 
     private fun loadList(
-        obj: Any?,
-        prop: KMutableProperty1<Any, Any>,
-        instance: Any
+            obj: Any?,
+            prop: KMutableProperty1<Any, Any>,
+            instance: Any,
+            loadTransformer: PropertyTransformer? = null
     ) {
         if (obj is List<*> && isPrimitiveList(prop, obj)) {
-            prop.set(instance, obj)
+            prop.set(instance, loadTransformer?.invoke(prop, obj) ?: obj)
         } else if (obj is Map<*, *>) {
             val typeClass = KClass::class.safeCast(
                 prop.returnType.arguments.getOrNull(0)
@@ -320,42 +339,45 @@ object KConfig {
                         list.add(loadPojo(typeClass, v as Map<String, Any>))
                     }
                 }
-                prop.set(instance, list)
+                prop.set(instance, loadTransformer?.invoke(prop, list) ?: list)
             }
         }
     }
 
     private fun loadMap(
-        obj: Any?,
-        prop: KMutableProperty1<Any, Any>,
-        instance: Any
+            obj: Any?,
+            prop: KMutableProperty1<Any, Any>,
+            instance: Any,
+            loadTransformer: PropertyTransformer? = null
     ) {
         if (obj is Map<*, *> && isMapCompatible(obj))
             if (isMapValuePrimitive(prop, obj)) {
-                prop.set(instance, obj)
+                prop.set(instance, loadTransformer?.invoke(prop, obj) ?: obj)
             } else {
                 val valueTypeClass = KClass::class.safeCast(
                     prop.returnType.arguments.getOrNull(1)
                         ?.type?.takeUnless { it.isMarkedNullable }?.classifier
                 )
                 if (valueTypeClass != null) {
-                    prop.apply { isAccessible = true }.set(instance, obj.mapValues {
+                    val mapLoaded = obj.mapValues {
                         it.value.let {
                             if (it is Map<*, *> && isMapCompatible(it)) {
                                 loadPojo(valueTypeClass, it as Map<String, Any>)
                             } else null
                         }
-                    }.filter { it.key != null && it.value != null } as Map<Any, Any>)
+                    }.filter { it.key != null && it.value != null } as Map<Any, Any>
+                    prop.apply { isAccessible = true }.set(instance, loadTransformer?.invoke(prop, mapLoaded) ?: mapLoaded)
                 }
             }
     }
 
     private fun loadRecursive(
-        propType: KClassifier?,
-        obj: Any,
-        prop: KMutableProperty1<Any, Any>,
-        instance: Any,
-        block: (obj: Map<String, Any>, propClass: KClass<*>) -> Unit
+            propType: KClassifier?,
+            obj: Any,
+            prop: KMutableProperty1<Any, Any>,
+            instance: Any,
+            loadTransformer: PropertyTransformer? = null,
+            block: (obj: Map<String, Any>, propClass: KClass<*>) -> Unit
     ) {
         val propClass = KClass::class.safeCast(propType)
         if (propClass != null)
@@ -364,7 +386,7 @@ object KConfig {
                     block(obj as Map<String, Any>, propClass)
                 }
             } else if (propClass.isInstance(obj)) {
-                prop.set(instance, obj)
+                prop.set(instance, loadTransformer?.invoke(prop, obj) ?: obj)
             }
     }
 
