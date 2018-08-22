@@ -7,7 +7,7 @@ import kotlin.reflect.jvm.isAccessible
 
 typealias LoadFunction<T> = (Any) -> T
 typealias SaveFunction<T> = T.() -> Any
-typealias PropertyTransformer = (KProperty1<*, *>, Any) -> Any
+typealias PropertyTransformer = KProperty1<*, *>.(Any) -> Any
 
 open class Serializable<T>(val default: T, val description: String = "") {
 
@@ -141,7 +141,7 @@ object KConfig {
                                     val insta = prop.get(instance)
                                     loadAndSetDefaultR(insta::class, insta, obj, set, resolveEntry(null, prop.name, base), isObject)
                                 }else {
-                                    val loadedPojo = loadPojo(propClass, obj)
+                                    val loadedPojo = loadPojo(propClass, obj, loadTransformer)
                                     prop.set(instance, loadTransformer?.invoke(prop, loadedPojo) ?: loadedPojo)
                                 }
                             }
@@ -336,7 +336,7 @@ object KConfig {
 
                 obj.forEach { _, v ->
                     if (v is Map<*, *> && isMapCompatible(v)) {
-                        list.add(loadPojo(typeClass, v as Map<String, Any>))
+                        list.add(loadPojo(typeClass, v as Map<String, Any>, loadTransformer))
                     }
                 }
                 prop.set(instance, loadTransformer?.invoke(prop, list) ?: list)
@@ -362,7 +362,7 @@ object KConfig {
                     val mapLoaded = obj.mapValues {
                         it.value.let {
                             if (it is Map<*, *> && isMapCompatible(it)) {
-                                loadPojo(valueTypeClass, it as Map<String, Any>)
+                                loadPojo(valueTypeClass, it as Map<String, Any>, loadTransformer)
                             } else null
                         }
                     }.filter { it.key != null && it.value != null } as Map<Any, Any>
