@@ -23,14 +23,14 @@ typealias SlotClickEvent = SlotClick.() -> Unit
 typealias SlotRenderItemEvent = SlotRenderItem.() -> Unit
 typealias SlotUpdateEvent = SlotUpdate.() -> Unit
 
-open class Menu(var displayname: String, var lines: Int, var cancel: Boolean) {
+open class Menu(var title: String, var lines: Int, var cancel: Boolean) {
 
     private var task: BukkitTask? = null
     var updateDelay: Long = 0
         set(value) {
             task?.cancel()
             task = null
-            if (value > 0) task = task(0, value) { update() }
+            if (value > 0) task = task(repeatDelay = value) { update() }
         }
 
     val viewers = mutableMapOf<Player, Inventory>()
@@ -57,7 +57,7 @@ open class Menu(var displayname: String, var lines: Int, var cancel: Boolean) {
     }
 
     fun update(vararg players: Player = viewers.keys.toTypedArray()) {
-        players.forEach { player ->
+        for (player in players) {
             viewers.entries.forEach {
                 if(it.key == player) {
                     if(update !== null) {
@@ -114,9 +114,9 @@ open class Menu(var displayname: String, var lines: Int, var cancel: Boolean) {
         inventory.setItem(pos, slotUpdate.showingItem)
     }
 
-    fun openToPlayer(player: Player) {
+    open fun openToPlayer(player: Player) {
         val menuLenght = lines*9
-        val inv = Bukkit.createInventory(player, menuLenght, displayname)
+        val inv = Bukkit.createInventory(player, menuLenght, title)
 
         for(i in 0 until menuLenght) {
             var slot = slots[i+1] ?: baseSlot
