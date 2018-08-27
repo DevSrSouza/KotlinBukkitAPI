@@ -9,6 +9,7 @@ import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.*
+import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitTask
@@ -323,5 +324,10 @@ object MenuController : Listener {
                 menu.viewers.remove(player)
             }
         }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun onPickupItemEvent(event: PlayerPickupItemEvent) {
+        if (getMenuFromPlayer(event.player) != null) event.isCancelled = true
     }
 }
