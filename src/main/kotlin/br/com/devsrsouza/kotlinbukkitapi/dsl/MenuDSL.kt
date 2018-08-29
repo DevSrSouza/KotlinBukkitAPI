@@ -162,19 +162,24 @@ class Slot(private val menu: Menu, val pos: Int, var item: ItemStack? = null) {
     }
 }
 
-open class MenuInteract(protected val menu: Menu, val player: Player, var cancel: Boolean) {
+open class MenuInteract(protected val menu: Menu, val player: Player, var cancel: Boolean,
+                        private val inventory: Inventory) {
     fun updateToPlayer() {
         menu.update(player)
     }
+
+    var Slot.showingItem
+        get() = inventory.getItem(pos)?.takeUnless { it.type == Material.AIR }
+        set(value) = inventory.setItem(pos, value)
 }
 
-class SlotClick(menu: Menu, player: Player, cancel: Boolean,
+class SlotClick(menu: Menu, player: Player, cancel: Boolean, inventory: Inventory,
                 private val slot: Slot,
                 val clickType: ClickType,
                 val inventoryAction: InventoryAction,
                 val itemClicked: ItemStack? = null,
                 val itemCursor: ItemStack? = null,
-                val hotbarKey: Int = -1) : MenuInteract(menu, player, cancel) {
+                val hotbarKey: Int = -1) : MenuInteract(menu, player, cancel, inventory) {
 
     fun updateSlotToPlayer() {
         menu.updateSlot(slot, player)
@@ -253,7 +258,7 @@ object MenuController : Listener {
                     val slot = menu.slots.get(clickedSlot) ?: menu.baseSlot
                     if (slot.click != null) {
                         val slotClick = SlotClick(menu, player,
-                            menu.cancel, slot, event.click, event.action,
+                            menu.cancel, event.inventory, slot, event.click, event.action,
                             event.currentItem, event.cursor)
                         slot.click?.invoke(slotClick)
                         if (slotClick.cancel) event.isCancelled = true
