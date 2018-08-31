@@ -162,15 +162,26 @@ class Slot(private val menu: Menu, val pos: Int, var item: ItemStack? = null) {
     }
 }
 
+abstract class MenuInventory(protected val inventory: Inventory) {
+    var Slot.showingItem
+        get() = inventory.getItem(pos - 1)?.takeUnless { it.type == Material.AIR }
+        set(value) = inventory.setItem(pos - 1, value)
+
+    fun item(line: Int, slot: Int): ItemStack? {
+        val slotExactly = ((line * 9) - 9) + slot
+        return item(slot)
+    }
+
+    fun item(slot: Int): ItemStack? = inventory.getItem(slot - 1)
+
+    fun line(line: Int): List<ItemStack?> = ((line * 9) - 9..line * 9).map { item(it) }
+}
+
 open class MenuInteract(protected val menu: Menu, val player: Player, var cancel: Boolean,
-                        private val inventory: Inventory) {
+                        inventory: Inventory) : MenuInventory(inventory) {
     fun updateToPlayer() {
         menu.update(player)
     }
-
-    var Slot.showingItem
-        get() = inventory.getItem(pos)?.takeUnless { it.type == Material.AIR }
-        set(value) = inventory.setItem(pos, value)
 }
 
 class SlotClick(menu: Menu, player: Player, cancel: Boolean, inventory: Inventory,
@@ -196,9 +207,9 @@ class SlotRenderItem(val player: Player, var renderItem: ItemStack?)
 class SlotUpdate(val player: Player, val templateItem: ItemStack?, var showingItem: ItemStack?)
 
 class MenuUpdate(val player: Player, var title: String)
-class MenuClose(val player: Player)
-class MoveToMenu(private val inventory: Inventory, val player: Player,
-                 var cancel: Boolean, targetSlot: Int, val item: ItemStack?) {
+class MenuClose(val player: Player, inventory: Inventory) : MenuInventory(inventory)
+class MoveToMenu(inventory: Inventory, val player: Player,
+                 var cancel: Boolean, targetSlot: Int, val item: ItemStack?) : MenuInventory(inventory) {
 
     private var getted = false
 
@@ -325,7 +336,7 @@ object MenuController : Listener {
             val player = event.player as Player
             val menu = getMenuFromPlayer(player)
             if(menu != null) {
-                menu.close?.invoke(MenuClose(player))
+                menu.close?.invoke(MenuClose(player, event.inventory))
                 menu.viewers.remove(player)
             }
         }
