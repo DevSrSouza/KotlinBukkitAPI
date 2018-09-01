@@ -174,7 +174,7 @@ abstract class MenuInventory(protected val inventory: Inventory) {
 
     fun item(slot: Int): ItemStack? = inventory.getItem(slot - 1)
 
-    fun line(line: Int): List<ItemStack?> = ((line * 9) - 9..line * 9).map { item(it) }
+    fun line(line: Int): List<ItemStack?> = (((line * 9) - 9)+1..line * 9).map { item(it) }
 }
 
 open class MenuInteract(protected val menu: Menu, val player: Player, var cancel: Boolean,
@@ -188,9 +188,9 @@ class SlotClick(menu: Menu, player: Player, cancel: Boolean, inventory: Inventor
                 private val slot: Slot,
                 val clickType: ClickType,
                 val inventoryAction: InventoryAction,
-                val itemClicked: ItemStack? = null,
-                val itemCursor: ItemStack? = null,
-                val hotbarKey: Int = -1) : MenuInteract(menu, player, cancel, inventory) {
+                val itemClicked: ItemStack?,
+                val itemCursor: ItemStack?,
+                val hotbarKey: Int) : MenuInteract(menu, player, cancel, inventory) {
 
     fun updateSlotToPlayer() {
         menu.updateSlot(slot, player)
@@ -270,7 +270,7 @@ object MenuController : Listener {
                     if (slot.click != null) {
                         val slotClick = SlotClick(menu, player,
                             menu.cancel, event.inventory, slot, event.click, event.action,
-                            event.currentItem, event.cursor)
+                            event.currentItem, event.cursor, event.hotbarButton)
                         slot.click?.invoke(slotClick)
                         if (slotClick.cancel) event.isCancelled = true
                     } else {
