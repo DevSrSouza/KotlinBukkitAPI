@@ -23,6 +23,7 @@ typealias MoveToMenuEvent = MoveToMenu.() -> Unit
 typealias SlotClickEvent = SlotClick.() -> Unit
 typealias SlotRenderItemEvent = SlotRenderItem.() -> Unit
 typealias SlotUpdateEvent = SlotUpdate.() -> Unit
+typealias MoveToSlotEvent = MoveToSlot.() -> Unit
 
 open class Menu(var title: String, var lines: Int, var cancel: Boolean) {
 
@@ -142,6 +143,7 @@ class Slot(private val menu: Menu, val pos: Int, var item: ItemStack? = null) {
     var click: SlotClickEvent? = null
     var render: SlotRenderItemEvent? = null
     var update: SlotUpdateEvent? = null
+    var moveToSlot: MoveToSlotEvent? = null
 
     fun onClick(click: SlotClickEvent?) {
         this.click = click
@@ -155,10 +157,15 @@ class Slot(private val menu: Menu, val pos: Int, var item: ItemStack? = null) {
         this.update = update
     }
 
+    fun onMoveToSlot(moveToSlot: MoveToSlotEvent) {
+        this.moveToSlot = moveToSlot
+    }
+
     fun clone(pos: Int) = Slot(menu, pos, item).apply {
         this@Slot.render = render
         this@Slot.click = click
         this@Slot.update = update
+        this@Slot.moveToSlot = moveToSlot
     }
 }
 
@@ -202,6 +209,8 @@ class SlotClick(menu: Menu, player: Player, cancel: Boolean, inventory: Inventor
 
     fun close() = player.closeInventory()
 }
+
+class MoveToSlot(val player: Player, var cancel: Boolean, val item: ItemStack?)
 
 class SlotRenderItem(val player: Player, var renderItem: ItemStack?)
 class SlotUpdate(val player: Player, val templateItem: ItemStack?, var showingItem: ItemStack?)
@@ -279,11 +288,18 @@ object MenuController : Listener {
                 }else{
                     val emptySlot = event.inventory.firstEmpty()
                     if(event.action == InventoryAction.MOVE_TO_OTHER_INVENTORY && emptySlot > -1) {
-                        if(menu.moveToMenu != null) {
-                            val auxCurrentItem = event.currentItem
-                            val moveToMenu = MoveToMenu(event.inventory, player, menu.cancel,
-                                emptySlot + 1,
-                                auxCurrentItem)
+                        val realEmptySlot = emptySlot + 1
+                        val slot = menu.slots.get(realEmptySlot) ?: menu.baseSlot
+                        val auxCurrentItem = event.currentItem
+
+                        if(slot.moveToSlot != null) {
+                            val moveToSlot = MoveToSlot(player, menu.cancel, auxCurrentItem)
+                            slot.moveToSlot?.invoke(moveToSlot)
+
+                            if(moveToSlot.cancel) event.isCancelled = true
+                        } else if(menu.moveToMenu != null) {
+                            val moveToMenu = MoveToMenu(event.inventory, player,
+                                    menu.cancel, realEmptySlot, auxCurrentItem)
                             val auxTargetItem = moveToMenu.targetCurrentItem
                             menu.moveToMenu?.invoke(moveToMenu)
 
