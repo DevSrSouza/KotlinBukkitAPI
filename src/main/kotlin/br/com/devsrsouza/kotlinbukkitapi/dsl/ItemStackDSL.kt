@@ -13,10 +13,14 @@ import com.google.common.collect.Multimap
 import java.io.ByteArrayInputStream
 import org.bukkit.Material
 import org.bukkit.inventory.meta.SkullMeta
+import org.bukkit.material.MaterialData
 
 inline fun <T : ItemMeta> ItemStack.meta(block: T.() -> Unit) = apply {
     itemMeta = (itemMeta as T).apply(block)
 }
+
+fun Material.asItemStack(amount: Int = 1, data: Short = 0) = ItemStack(this, amount, data)
+fun Material.asMaterialData(data: Byte = 0) = MaterialData(this, data)
 
 fun ItemStack.setStorageData(data: String, key: UUID): ItemStack {
     return AttributeStorage.newTarget(this, key).apply {
