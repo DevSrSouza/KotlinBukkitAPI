@@ -5,6 +5,7 @@ import br.com.devsrsouza.kotlinbukkitapi.dsl.item.toBase64
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.toJson
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.unaryMinus
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.unaryPlus
+import br.com.devsrsouza.kotlinbukkitapi.utils.javaUnicodeToCharacter
 import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorNull
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.TextComponent
@@ -59,7 +60,7 @@ fun locationListSerializer(locations: MutableList<Location>, description: String
 fun baseComponentSerializer(component: BaseComponent, description: String = "")
         = Serializable(component, description).apply {
     load { TextComponent(*ComponentSerializer.parse(+(it.toString()))) }
-    save { -toJson() }
+    save { -toJson().javaUnicodeToCharacter() }
 }
 
 fun itemBase64Serializer(item: ItemStack, description: String = "")
