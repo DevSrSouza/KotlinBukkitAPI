@@ -133,8 +133,8 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) {
             }
         }
 
-        viewers.put(player, inv)
         player.openInventory(inv)
+        viewers.put(player, inv)
     }
 }
 
