@@ -183,4 +183,25 @@ simpleCommand("warps") {
 }
 ```
 
+Expiration List
+```kotlin
+// this list auto expire values for you :3
+val list = ExpirationList<Player>()
 
+simpleCommand("cooldown") {
+  if(sender is Player) {
+    val player = sender as Player
+    val time = list.missingTime(player) // this return the missing time to expire in seconds or null if dont have the value in list
+    if(time == null) {
+      player.sendMessage("Hi, welcome my friend. Take this diamonds :3")
+      player.inventory.addItem(ItemStack(Material.DIAMOND))
+    } else {
+      // add(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null)
+      list.add(player, 60) {
+        player.sendMessage("hey, now you can get diamonds again :D")
+      }
+      player.sendMesage("Hi, wait $time seconds to use this command again")
+    }
+  }
+}
+```
