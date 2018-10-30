@@ -8,7 +8,7 @@ inline fun <T> whenErrorNull(block: () -> T): T? {
     }
 }
 
-inline fun <T> whenErrorDefault(block: () -> T, default: T): T {
+inline fun <T> whenErrorDefault(default: T, block: () -> T): T {
     return try {
         block()
     } catch (e: Throwable) {
