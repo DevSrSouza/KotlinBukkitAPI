@@ -8,7 +8,7 @@ val hasTitleAPI by lazy { Bukkit.getServer().pluginManager.getPlugin("TitleAPI")
 
 val Player.titleAPI get() = KTitleAPI(this)
 
-class KTitleAPI(val player: Player) {
+inline class KTitleAPI(val player: Player) {
     fun clearTitle() = TitleAPI.clearTitle(player)
     fun sendTitle(fadeIn: Long = 20,
                   stay: Long = 40,

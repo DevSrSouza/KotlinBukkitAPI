@@ -8,7 +8,7 @@ val viaAPI by lazy { Via.getAPI() as ViaAPI<Player> }
 
 val Player.viaVersion get() = KViaVersion(this)
 
-class KViaVersion(val player: Player) {
+inline class KViaVersion(val player: Player) {
     val playerVersion: Int
         get() = viaAPI.getPlayerVersion(player)
 }

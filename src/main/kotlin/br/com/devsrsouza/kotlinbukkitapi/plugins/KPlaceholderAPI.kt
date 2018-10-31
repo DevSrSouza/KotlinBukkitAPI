@@ -13,7 +13,7 @@ val hasPlaceholderAPI by lazy { Bukkit.getServer().pluginManager.getPlugin("Plac
 
 val Player.placeholderAPI get() = KPlaceholderAPI(this)
 
-class KPlaceholderAPI(val player: Player) {
+inline class KPlaceholderAPI(val player: Player) {
     fun setPlaceholders(message: String) = PlaceholderAPI.setPlaceholders(player, message)
     fun setPlaceholders(message: String, pattern: Pattern) = PlaceholderAPI.setPlaceholders(player, message, pattern)
     fun setPlaceholders(messages: List<String>) = PlaceholderAPI.setPlaceholders(player, messages)

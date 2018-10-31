@@ -61,7 +61,7 @@ class BungeeCordRequest(val player: Player,
     }
 }
 
-class BungeeCord(private val player: Player) {
+inline class BungeeCord(private val player: Player) {
 
     fun server(name: String) = BungeeCordRequest(player, "Connect").send()
 

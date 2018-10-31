@@ -30,8 +30,8 @@ val plugins = listOf(
         ),
         PluginDependency("direct-from-github", "https://jitpack.io",
                 mapOf(
-                        "ActionBarAPI" to "com.github.ConnorLinfoot:ActionBarAPI:e6e6ea2037",
-                        "TitleAPI" to "com.github.ConnorLinfoot:TitleAPI:d5095196bb"
+                        "ActionBarAPI" to "com.github.ConnorLinfoot:ActionBarAPI:d60c2aedb9",
+                        "TitleAPI" to "com.github.ConnorLinfoot:TitleAPI:1.7.6"
                 )
         ),
         PluginDependency("WorldEdit", "http://maven.sk89q.com/repo/",

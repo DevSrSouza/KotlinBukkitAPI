@@ -17,20 +17,20 @@ val OfflinePlayer.vault get() = VaultOffline(this)
 
 open class VaultOffline(private val player: OfflinePlayer) {
     val economy = br.com.devsrsouza.kotlinbukkitapi.plugins.vault.Economy(player)
-    //val PERMISSION = br.com.devsrsouza.kotlinbukkitapi.plugins.vault.Permission(player)
+    val permission = br.com.devsrsouza.kotlinbukkitapi.plugins.vault.Permission(player)
 }
 class Vault(player: Player) : VaultOffline(player){
     val chat = br.com.devsrsouza.kotlinbukkitapi.plugins.vault.Chat(player)
 }
 
-class Economy(private val player: OfflinePlayer) {
+inline class Economy(private val player: OfflinePlayer) {
     fun getBalance() = economy!!.getBalance(player)
     fun hasAccount() = economy!!.hasAccount(player)
     fun has(amount: Double) = economy!!.has(player, amount)
     fun withdraw(amount: Double) = economy!!.withdrawPlayer(player, amount)
     fun deposit(amount: Double) = economy!!.depositPlayer(player, amount)
 }
-class Chat(private val player: Player) {
+inline class Chat(private val player: Player) {
     fun getPrefix() = chat!!.getPlayerPrefix(player)
     fun setPrefix(prefix: String) = chat!!.setPlayerPrefix(player, prefix)
     fun getSuffix() = chat!!.getPlayerSuffix(player)
@@ -39,7 +39,7 @@ class Chat(private val player: Player) {
     fun getGroups() = chat!!.getPlayerGroups(player)
     fun getPrimaryGroup() = chat!!.getPrimaryGroup(player)
 }
-/*
-class Permission(private val player: Player) {
 
-}*/
+inline class Permission(private val player: OfflinePlayer) {
+
+}

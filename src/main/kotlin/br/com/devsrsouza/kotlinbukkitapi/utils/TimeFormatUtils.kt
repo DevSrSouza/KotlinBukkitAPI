@@ -22,7 +22,7 @@ interface FormatLang {
     val years: String
 }
 
-class TimeFormat(private val time: Int) {
+inline class TimeFormat(private val time: Int) {
     fun format(lang: FormatLang): String {
         val seconds = time % 60
         val minutes = time / 60 % 60

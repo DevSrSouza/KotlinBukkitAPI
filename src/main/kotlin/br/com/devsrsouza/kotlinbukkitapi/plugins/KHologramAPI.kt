@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.plugins.hologramAPI
+package br.com.devsrsouza.kotlinbukkitapi.plugins.hologramapi
 
 import de.inventivegames.hologram.Hologram
 import de.inventivegames.hologram.HologramAPI
@@ -13,7 +13,7 @@ val hasHologramAPI by lazy { Bukkit.getServer().pluginManager.getPlugin("Hologra
 
 val Location.hologramAPI get() = KHologramAPI(this)
 
-class KHologramAPI(val location: Location) {
+inline class KHologramAPI(val location: Location) {
     fun createHologram(text: String) = HologramAPI.createHologram(location, text)
 }
 

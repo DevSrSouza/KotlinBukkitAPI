@@ -1,20 +1,20 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils.time
 
-val Number.millisecond get() = Millisecond(this)
-val Number.tick get() = Tick(this)
-val Number.second get() = Second(this)
-val Number.minute get() = Minute(this)
-val Number.hour get() = Hour(this)
+val Number.millisecond: ConvertTime get() = Millisecond(this)
+val Number.tick: ConvertTime get() = Tick(this)
+val Number.second: ConvertTime get() = Second(this)
+val Number.minute: ConvertTime get() = Minute(this)
+val Number.hour: ConvertTime get() = Hour(this)
 
-abstract class ConvertTime(protected val number: Number) {
-    abstract fun toMillisecond() : Long
-    abstract fun toTick() : Long
-    abstract fun toSecond() : Int
-    abstract fun toMinute() : Int
-    abstract fun toHour() : Int
+interface ConvertTime {
+    fun toMillisecond(): Long
+    fun toTick(): Long
+    fun toSecond(): Int
+    fun toMinute(): Int
+    fun toHour(): Int
 }
 
-class Millisecond(number: Number) : ConvertTime(number) {
+inline class Millisecond(private val number: Number) : ConvertTime {
     override fun toMillisecond() = number.toLong()
     override fun toTick() = toMillisecond()/50
     override fun toSecond(): Int = (toTick()/20).toInt()
@@ -22,7 +22,7 @@ class Millisecond(number: Number) : ConvertTime(number) {
     override fun toHour(): Int = toMinute()/60
 }
 
-class Tick(number: Number) : ConvertTime(number) {
+inline class Tick(private val number: Number) : ConvertTime {
     override fun toMillisecond() = (number.toLong()*50)
     override fun toTick() = number.toLong()
     override fun toSecond(): Int = (number.toLong()/20).toInt()
@@ -30,7 +30,7 @@ class Tick(number: Number) : ConvertTime(number) {
     override fun toHour(): Int = toMinute()/60
 }
 
-class Second(number: Number) : ConvertTime(number) {
+inline class Second(private val number: Number) : ConvertTime {
     override fun toMillisecond() = toTick()*50
     override fun toTick() = number.toLong()*20
     override fun toSecond(): Int = number.toInt()
@@ -38,7 +38,7 @@ class Second(number: Number) : ConvertTime(number) {
     override fun toHour(): Int = toMinute()/60
 }
 
-class Minute(number: Number) : ConvertTime(number) {
+inline class Minute(private val number: Number) : ConvertTime {
     override fun toMillisecond() = toTick()*50
     override fun toTick() = toSecond().toLong()*20
     override fun toSecond(): Int = number.toInt()*60
@@ -46,7 +46,7 @@ class Minute(number: Number) : ConvertTime(number) {
     override fun toHour(): Int = number.toInt()/60
 }
 
-class Hour(number: Number) : ConvertTime(number) {
+inline class Hour(private val number: Number) : ConvertTime {
     override fun toMillisecond() = toTick()*50
     override fun toTick() = toSecond().toLong()*20
     override fun toSecond(): Int = toMinute()*60

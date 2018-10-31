@@ -11,7 +11,7 @@ val hasBossBarAPI by lazy { Bukkit.getServer().pluginManager.getPlugin("BossBarA
 val Player.bossBarAPI get() = KBossBarAPIPlayer(this)
 val Collection<Player>.bossBarAPI get() = KBossBarAPICollection(this)
 
-class KBossBarAPIPlayer(val player: Player) {
+inline class KBossBarAPIPlayer(val player: Player) {
 
     fun removeAllBars() = BossBarAPI.removeAllBars(player)
 
@@ -48,7 +48,7 @@ class KBossBarAPIPlayer(val player: Player) {
             = BossBarAPI.addBar(player, TextComponent(*TextComponent.fromLegacyText(message)), color, style, progress, timeout, interval, *properties)
 }
 
-class KBossBarAPICollection(val players: Collection<Player>) {
+inline class KBossBarAPICollection(val players: Collection<Player>) {
 
     fun removeAllBars() = players.forEach { BossBarAPI.removeAllBars(it) }
 
