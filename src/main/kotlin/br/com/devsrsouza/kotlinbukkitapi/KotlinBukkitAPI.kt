@@ -1,9 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi
 
-import org.bukkit.event.Listener
+import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.MenuController
+import br.com.devsrsouza.kotlinbukkitapi.extensions.registerEvents
 import org.bukkit.plugin.java.JavaPlugin
 
-class KotlinBukkitAPI : JavaPlugin(), Listener {
+class KotlinBukkitAPI : JavaPlugin() {
 
     companion object {
         @JvmStatic lateinit var INSTANCE: KotlinBukkitAPI
@@ -12,5 +13,9 @@ class KotlinBukkitAPI : JavaPlugin(), Listener {
 
     override fun onLoad() {
         INSTANCE = this
+    }
+
+    override fun onEnable() {
+        KotlinBukkitAPI.INSTANCE.registerEvents(MenuController)
     }
 }

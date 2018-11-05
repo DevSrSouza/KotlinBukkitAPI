@@ -11,11 +11,12 @@ import org.bukkit.event.Listener
 import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.inventory.Inventory
+import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitTask
 
 fun createMenu(displayname: String, lines: Int = 3, cancel: Boolean = false, block: Menu.() -> Unit) =
-    Menu(displayname, lines, cancel).apply { block() }.also { MenuController.registerMenu(it) }
+    Menu(displayname, lines, cancel).apply { block() }
 
 typealias MenuUpdatetEvent = MenuUpdate.() -> Unit
 typealias MenuCloseEvent = MenuClose.() -> Unit
@@ -25,7 +26,7 @@ typealias SlotRenderItemEvent = SlotRenderItem.() -> Unit
 typealias SlotUpdateEvent = SlotUpdate.() -> Unit
 typealias MoveToSlotEvent = MoveToSlot.() -> Unit
 
-open class Menu(var title: String, var lines: Int, var cancel: Boolean) {
+open class Menu(var title: String, var lines: Int, var cancel: Boolean) : InventoryHolder {
 
     private var task: BukkitTask? = null
     var updateDelay: Long = 0
@@ -116,20 +117,30 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) {
         inventory.setItem(pos, slotUpdate.showingItem)
     }
 
-    open fun openToPlayer(player: Player) {
+    override fun getInventory(): Inventory {
         val menuLenght = lines*9
-        val inv = Bukkit.createInventory(player, menuLenght, title)
+        val inv = Bukkit.createInventory(this, menuLenght, title)
 
         for(i in 0 until menuLenght) {
-            var slot = slots[i+1] ?: baseSlot
+            val slot = slots[i+1] ?: baseSlot
+
+            val item = slot.item?.clone()
+            inv.setItem(i, item)
+        }
+
+        return inv
+    }
+
+    open fun openToPlayer(player: Player) {
+        val inv = inventory
+
+        for(i in 0 until inv.size) {
+            val slot = slots[i+1] ?: baseSlot
             if (slot.render != null) {
                 val item = slot.item?.clone()
                 val render = SlotRenderItem(player, item)
                 slot.render?.invoke(render)
                 inv.setItem(i, render.renderItem)
-            } else {
-                val item = slot.item?.clone()
-                inv.setItem(i, item)
             }
         }
 
@@ -244,34 +255,11 @@ class MoveToMenu(inventory: Inventory, val player: Player,
 
 object MenuController : Listener {
 
-    private val menus = mutableListOf<Menu>()
-
-    init {
-        KotlinBukkitAPI.INSTANCE.registerEvents(this)
-    }
-
-    fun registerMenu(menu: Menu) = if (!menus.contains(menu)) {
-        menus.add(menu)
-        true
-    } else false
-
-
-    fun unregisterMenu(menu: Menu) {
-        menus.remove(menu)
-    }
-
-    private fun getMenuFromPlayer(player: Player) : Menu? {
-        for(menu in menus)
-            for(viewer in menu.viewers)
-                if(viewer.key.name == player.name) return menu
-        return null
-    }
-
     @EventHandler(ignoreCancelled = true)
     fun clickInventoryEvent(event: InventoryClickEvent) {
-        if(event.view.type == InventoryType.CHEST) {
+        if(event.view.type == InventoryType.CHEST && event.inventory.holder is Menu) {
             val player = event.whoClicked as Player
-            val menu = getMenuFromPlayer(player)
+            val menu = (event.inventory.holder as Menu).takeIf { it.viewers.containsKey(player) }
             if(menu != null) {
                 if(event.rawSlot == event.slot) {
                     val clickedSlot = event.slot + 1
@@ -328,9 +316,9 @@ object MenuController : Listener {
 
     @EventHandler(ignoreCancelled = true)
     fun clickInteractEvent(event: InventoryDragEvent) {
-        if (event.view.type == InventoryType.CHEST) {
+        if (event.view.type == InventoryType.CHEST && event.inventory.holder is Menu) {
             val player = event.whoClicked as Player
-            val menu = getMenuFromPlayer(player)
+            val menu = (event.inventory.holder as Menu).takeIf { it.viewers.containsKey(player) }
             if (menu != null) {
                 var pass = 0
                 for(i in event.inventorySlots) {
@@ -348,9 +336,9 @@ object MenuController : Listener {
 
     @EventHandler
     fun onClose(event: InventoryCloseEvent) {
-        if(event.view.type == InventoryType.CHEST) {
+        if(event.view.type == InventoryType.CHEST && event.inventory.holder is Menu) {
             val player = event.player as Player
-            val menu = getMenuFromPlayer(player)
+            val menu = (event.inventory.holder as Menu).takeIf { it.viewers.containsKey(player) }
             if(menu != null) {
                 menu.close?.invoke(MenuClose(player, event.inventory))
                 menu.viewers.remove(player)
@@ -360,6 +348,6 @@ object MenuController : Listener {
 
     @EventHandler(ignoreCancelled = true)
     fun onPickupItemEvent(event: PlayerPickupItemEvent) {
-        if (getMenuFromPlayer(event.player) != null) event.isCancelled = true
+        if (event.player.openInventory.topInventory.holder is Menu) event.isCancelled = true
     }
 }
