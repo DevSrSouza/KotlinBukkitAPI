@@ -1,8 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.menu
 
-import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.*
-import br.com.devsrsouza.kotlinbukkitapi.extensions.registerEvents
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -39,6 +37,7 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
     val viewers = mutableMapOf<Player, Inventory>()
     val slots = mutableMapOf<Int, Slot>()
     val data = mutableMapOf<String, Any>()
+    val playerData = mutableMapOf<Player, MutableMap<String, Any>>()
     val baseSlot = Slot(this, -1)
 
     private var update: MenuUpdatetEvent? = null
@@ -195,8 +194,23 @@ abstract class MenuInventory(protected val inventory: Inventory) {
     fun line(line: Int): List<ItemStack?> = (((line * 9) - 9)+1..line * 9).map { item(it) }
 }
 
-open class MenuInteract(protected val menu: Menu, val player: Player, var cancel: Boolean,
-                        inventory: Inventory) : MenuInventory(inventory) {
+interface PlayerInteractive {
+    val player: Player
+
+    fun putPlayerData(key: String, value: Any) {
+        val menu = player.openInventory.topInventory.holder as? Menu
+        if(menu != null) {
+            val map = menu.playerData[player]
+            if (map != null) map[key] = value
+            else menu.playerData[player] = mutableMapOf(key to value)
+        }
+    }
+
+    fun getPlayerData(key: String) = (player.openInventory.topInventory.holder as? Menu)?.playerData?.get(player)?.get(key)
+}
+
+open class MenuInteract(protected val menu: Menu, override val player: Player, var cancel: Boolean,
+                        inventory: Inventory) : MenuInventory(inventory), PlayerInteractive {
     fun updateToPlayer() {
         menu.update(player)
     }
@@ -221,15 +235,14 @@ class SlotClick(menu: Menu, player: Player, cancel: Boolean, inventory: Inventor
     fun close() = player.closeInventory()
 }
 
-class MoveToSlot(val player: Player, var cancel: Boolean, val item: ItemStack?)
+class MoveToSlot(override val player: Player, var cancel: Boolean, val item: ItemStack?) : PlayerInteractive
+class SlotRenderItem(override val player: Player, var renderItem: ItemStack?) : PlayerInteractive
+class SlotUpdate(override val player: Player, val templateItem: ItemStack?, var showingItem: ItemStack?) : PlayerInteractive
 
-class SlotRenderItem(val player: Player, var renderItem: ItemStack?)
-class SlotUpdate(val player: Player, val templateItem: ItemStack?, var showingItem: ItemStack?)
-
-class MenuUpdate(val player: Player, var title: String)
-class MenuClose(val player: Player, inventory: Inventory) : MenuInventory(inventory)
-class MoveToMenu(inventory: Inventory, val player: Player,
-                 var cancel: Boolean, targetSlot: Int, val item: ItemStack?) : MenuInventory(inventory) {
+class MenuUpdate(override val player: Player, var title: String) : PlayerInteractive
+class MenuClose(override val player: Player, inventory: Inventory) : MenuInventory(inventory), PlayerInteractive
+class MoveToMenu(inventory: Inventory, override val player: Player,
+                 var cancel: Boolean, targetSlot: Int, val item: ItemStack?) : MenuInventory(inventory), PlayerInteractive {
 
     private var getted = false
 
@@ -341,6 +354,7 @@ object MenuController : Listener {
             val menu = (event.inventory.holder as Menu).takeIf { it.viewers.containsKey(player) }
             if(menu != null) {
                 menu.close?.invoke(MenuClose(player, event.inventory))
+                menu.playerData.remove(player)
                 menu.viewers.remove(player)
             }
         }
