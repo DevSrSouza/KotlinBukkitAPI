@@ -26,12 +26,13 @@ typealias MoveToSlotEvent = MoveToSlot.() -> Unit
 
 open class Menu(var title: String, var lines: Int, var cancel: Boolean) : InventoryHolder {
 
-    private var task: BukkitTask? = null
+    internal var task: BukkitTask? = null
     var updateDelay: Long = 0
         set(value) {
+            field = value
             task?.cancel()
             task = null
-            if (value > 0) task = task(repeatDelay = value) { update() }
+            if (value > 0 && viewers.isNotEmpty()) task = task(repeatDelay = value) { update() }
         }
 
     val viewers = mutableMapOf<Player, Inventory>()
@@ -41,8 +42,8 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
     val baseSlot = Slot(this, -1)
 
     private var update: MenuUpdatetEvent? = null
-    var close: MenuCloseEvent? = null
-    var moveToMenu: MoveToMenuEvent? = null
+    internal var close: MenuCloseEvent? = null
+    internal var moveToMenu: MoveToMenuEvent? = null
 
     fun onUpdate(update: MenuUpdatetEvent) { this.update = update }
     fun onClose(close: MenuCloseEvent) { this.close = close }
@@ -145,15 +146,17 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
 
         player.openInventory(inv)
         viewers.put(player, inv)
+        if (task == null && updateDelay > 0 && viewers.isNotEmpty())
+            task = task(repeatDelay = updateDelay) { update() }
     }
 }
 
 class Slot(private val menu: Menu, val pos: Int, var item: ItemStack? = null) {
 
-    var click: SlotClickEvent? = null
-    var render: SlotRenderItemEvent? = null
-    var update: SlotUpdateEvent? = null
-    var moveToSlot: MoveToSlotEvent? = null
+    internal var click: SlotClickEvent? = null
+    internal var render: SlotRenderItemEvent? = null
+    internal var update: SlotUpdateEvent? = null
+    internal var moveToSlot: MoveToSlotEvent? = null
 
     fun onClick(click: SlotClickEvent?) {
         this.click = click
@@ -356,6 +359,10 @@ object MenuController : Listener {
                 menu.close?.invoke(MenuClose(player, event.inventory))
                 menu.playerData.remove(player)
                 menu.viewers.remove(player)
+                if (menu.task != null && menu.viewers.isNotEmpty()) {
+                    menu.task?.cancel()
+                    menu.task = null
+                }
             }
         }
     }
