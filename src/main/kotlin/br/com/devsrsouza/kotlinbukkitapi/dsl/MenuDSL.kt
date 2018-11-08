@@ -23,6 +23,8 @@ typealias SlotClickEvent = SlotClick.() -> Unit
 typealias SlotRenderItemEvent = SlotRenderItem.() -> Unit
 typealias SlotUpdateEvent = SlotUpdate.() -> Unit
 typealias MoveToSlotEvent = MoveToSlot.() -> Unit
+typealias MenuPreOpenEvent = PlayerInteractive.() -> Unit
+typealias MenuOpenEvent = PlayerInteractive.() -> Unit
 
 open class Menu(var title: String, var lines: Int, var cancel: Boolean) : InventoryHolder {
 
@@ -44,10 +46,14 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
     private var update: MenuUpdatetEvent? = null
     internal var close: MenuCloseEvent? = null
     internal var moveToMenu: MoveToMenuEvent? = null
+    internal var preOpen: MenuPreOpenEvent? = null
+    internal var open: MenuOpenEvent? = null
 
     fun onUpdate(update: MenuUpdatetEvent) { this.update = update }
     fun onClose(close: MenuCloseEvent) { this.close = close }
     fun onMoveToMenu(moveToMenu: MoveToMenuEvent) { this.moveToMenu = moveToMenu }
+    fun preOpen(preOpen: MenuPreOpenEvent) { this.preOpen = preOpen }
+    fun onOpen(open: MenuOpenEvent) { this.open = open }
 
     fun slot(line: Int, slot: Int, block: Slot.() -> Unit) : Slot {
         val slotExactly = ((line*9)-9)+slot
@@ -134,6 +140,10 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
     open fun openToPlayer(player: Player) {
         val inv = inventory
 
+        preOpen?.invoke(object : PlayerInteractive {
+            override val player: Player = player
+        })
+
         for(i in 0 until inv.size) {
             val slot = slots[i+1] ?: baseSlot
             if (slot.render != null) {
@@ -146,6 +156,11 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
 
         player.openInventory(inv)
         viewers.put(player, inv)
+
+        open?.invoke(object : PlayerInteractive {
+            override val player: Player = player
+        })
+
         if (task == null && updateDelay > 0 && viewers.isNotEmpty())
             task = task(repeatDelay = updateDelay) { update() }
     }
