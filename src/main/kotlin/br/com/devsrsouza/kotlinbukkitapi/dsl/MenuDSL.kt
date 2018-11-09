@@ -94,21 +94,17 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
             slots.forEach { pos, slot ->
                 for (i in 0 until (lines * 9)) {
                     if (slots[i + 1] === null) {
-                        players.forEach { player ->
-                            viewers.entries.forEach {
-                                updateSlot(player, slot, it.value, pos - 1)
-                            }
+                        players.associate { it to viewers[it] }.forEach {
+                            if(it.value != null) updateSlot(it.key, slot, it.value!!, pos - 1)
                         }
                     }
                 }
             }
         } else {
-            slots.forEach { pos, slot ->
-                if (slot === updateSlot@ slot) {
-                    players.forEach { player ->
-                        viewers.entries.forEach {
-                            updateSlot(player, slot, it.value, pos - 1)
-                        }
+            for ((pos, mslot) in slots) {
+                if (mslot === slot) {
+                    players.associate { it to viewers[it] }.forEach {
+                        if(it.value != null) updateSlot(it.key, slot, it.value!!, pos - 1)
                     }
                 }
             }
@@ -138,31 +134,41 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
     }
 
     open fun openToPlayer(player: Player) {
-        val inv = inventory
+        MenuController.close(player)
 
-        preOpen?.invoke(object : PlayerInteractive {
-            override val player: Player = player
-        })
+        try {
+            val inv = inventory
 
-        for(i in 0 until inv.size) {
-            val slot = slots[i+1] ?: baseSlot
-            if (slot.render != null) {
-                val item = slot.item?.clone()
-                val render = SlotRenderItem(player, item)
-                slot.render?.invoke(render)
-                inv.setItem(i, render.renderItem)
+            viewers.put(player, inv)
+
+            preOpen?.invoke(object : PlayerInteractive {
+                override val player: Player = player
+            })
+
+            for (i in 0 until inv.size) {
+                val slot = slots[i + 1] ?: baseSlot
+                if (slot.render != null) {
+                    val item = slot.item?.clone()
+                    val render = SlotRenderItem(player, item)
+                    slot.render?.invoke(render)
+                    inv.setItem(i, render.renderItem)
+                }
             }
+
+            player.openInventory(inv)
+
+            open?.invoke(object : PlayerInteractive {
+                override val player: Player = player
+            })
+
+            if (task == null && updateDelay > 0 && viewers.isNotEmpty())
+                task = task(repeatDelay = updateDelay) { update() }
+
+        } catch (e: Throwable) {
+            e.printStackTrace()
+            player.closeInventory()
+            viewers.remove(player)
         }
-
-        player.openInventory(inv)
-        viewers.put(player, inv)
-
-        open?.invoke(object : PlayerInteractive {
-            override val player: Player = player
-        })
-
-        if (task == null && updateDelay > 0 && viewers.isNotEmpty())
-            task = task(repeatDelay = updateDelay) { update() }
     }
 }
 
@@ -215,16 +221,13 @@ abstract class MenuInventory(protected val inventory: Inventory) {
 interface PlayerInteractive {
     val player: Player
 
-    fun putPlayerData(key: String, value: Any) {
-        val menu = player.openInventory.topInventory.holder as? Menu
-        if(menu != null) {
-            val map = menu.playerData[player]
-            if (map != null) map[key] = value
-            else menu.playerData[player] = mutableMapOf(key to value)
-        }
+    fun Menu.putPlayerData(key: String, value: Any) {
+        val map = playerData[player]
+        if (map != null) map[key] = value
+        else playerData[player] = mutableMapOf(key to value)
     }
 
-    fun getPlayerData(key: String) = (player.openInventory.topInventory.holder as? Menu)?.playerData?.get(player)?.get(key)
+    fun Menu.getPlayerData(key: String) = playerData.get(player)?.get(key)
 }
 
 open class MenuInteract(protected val menu: Menu, override val player: Player, var cancel: Boolean,
@@ -285,6 +288,19 @@ class MoveToMenu(inventory: Inventory, override val player: Player,
 }
 
 object MenuController : Listener {
+
+    internal fun close(player: Player) {
+        val menu = (player.openInventory.topInventory.holder as? Menu)?.takeIf { it.viewers.containsKey(player) }
+        if (menu != null) {
+            menu.close?.invoke(MenuClose(player, player.openInventory.topInventory))
+            menu.playerData.remove(player)
+            menu.viewers.remove(player)
+            if (menu.task != null && menu.viewers.isNotEmpty()) {
+                menu.task?.cancel()
+                menu.task = null
+            }
+        }
+    }
 
     @EventHandler(ignoreCancelled = true)
     fun clickInventoryEvent(event: InventoryClickEvent) {
@@ -367,18 +383,8 @@ object MenuController : Listener {
 
     @EventHandler
     fun onClose(event: InventoryCloseEvent) {
-        if(event.view.type == InventoryType.CHEST && event.inventory.holder is Menu) {
-            val player = event.player as Player
-            val menu = (event.inventory.holder as Menu).takeIf { it.viewers.containsKey(player) }
-            if(menu != null) {
-                menu.close?.invoke(MenuClose(player, event.inventory))
-                menu.playerData.remove(player)
-                menu.viewers.remove(player)
-                if (menu.task != null && menu.viewers.isNotEmpty()) {
-                    menu.task?.cancel()
-                    menu.task = null
-                }
-            }
+        if(event.view.type == InventoryType.CHEST) {
+            close(event.player as Player)
         }
     }
 
