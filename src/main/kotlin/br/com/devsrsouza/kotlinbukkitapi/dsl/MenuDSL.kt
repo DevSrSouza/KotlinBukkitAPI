@@ -23,7 +23,7 @@ typealias SlotClickEvent = SlotClick.() -> Unit
 typealias SlotRenderItemEvent = SlotRenderItem.() -> Unit
 typealias SlotUpdateEvent = SlotUpdate.() -> Unit
 typealias MoveToSlotEvent = MoveToSlot.() -> Unit
-typealias MenuPreOpenEvent = PlayerInteractive.() -> Unit
+typealias MenuPreOpenEvent = MenuPreOpen.() -> Unit
 typealias MenuOpenEvent = PlayerInteractive.() -> Unit
 
 open class Menu(var title: String, var lines: Int, var cancel: Boolean) : InventoryHolder {
@@ -141,9 +141,11 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
 
             viewers.put(player, inv)
 
-            preOpen?.invoke(object : PlayerInteractive {
-                override val player: Player = player
-            })
+            if (preOpen != null) {
+                MenuPreOpen(player).apply(preOpen!!).apply {
+                    if (canceled) return
+                }
+            }
 
             for (i in 0 until inv.size) {
                 val slot = slots[i + 1] ?: baseSlot
@@ -168,6 +170,7 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
             e.printStackTrace()
             player.closeInventory()
             viewers.remove(player)
+            playerData.remove(player)
         }
     }
 }
@@ -260,6 +263,7 @@ class MoveToSlot(override val player: Player, var cancel: Boolean, val item: Ite
 class SlotRenderItem(override val player: Player, var renderItem: ItemStack?) : PlayerInteractive
 class SlotUpdate(override val player: Player, val templateItem: ItemStack?, var showingItem: ItemStack?) : PlayerInteractive
 
+class MenuPreOpen(override val player: Player, var canceled: Boolean = false) : PlayerInteractive
 class MenuUpdate(override val player: Player, var title: String) : PlayerInteractive
 class MenuClose(override val player: Player, inventory: Inventory) : MenuInventory(inventory), PlayerInteractive
 class MoveToMenu(inventory: Inventory, override val player: Player,
