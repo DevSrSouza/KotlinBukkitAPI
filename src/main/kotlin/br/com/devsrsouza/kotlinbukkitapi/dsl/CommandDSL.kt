@@ -21,6 +21,8 @@ typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
 typealias TabCompleterBlock = TabCompleter.() -> MutableList<String>
 typealias CommandMaker = KCommand.() -> Unit
 
+class CommandException(val senderMessage: String = "", val execute: () -> Unit = {}) : RuntimeException()
+
 fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
                   description: String = "",
                   plugin: Plugin = KotlinBukkitAPI.INSTANCE,
@@ -71,12 +73,17 @@ open class KCommand(name: String,
                 return true
             }
         }
-        if (executorPlayer != null) {
-            if (sender is Player) {
-                executorPlayer!!.invoke(Executor(sender, label, args))
-            } else sender.sendMessage(onlyInGameMessage)
-        } else {
-            Executor(sender, label, args).executor()
+        try {
+            if (executorPlayer != null) {
+                if (sender is Player) {
+                    executorPlayer!!.invoke(Executor(sender, label, args))
+                } else sender.sendMessage(onlyInGameMessage)
+            } else {
+                Executor(sender, label, args).executor()
+            }
+        } catch (ex: CommandException) {
+            if(ex.senderMessage.isNotBlank()) sender.sendMessage(ex.senderMessage)
+            ex.execute()
         }
         return true
     }
