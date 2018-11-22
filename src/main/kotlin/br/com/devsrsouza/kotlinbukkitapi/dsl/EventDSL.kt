@@ -7,6 +7,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
+import kotlin.reflect.full.safeCast
 
 inline fun <reified T : Event> Listener.event(priority: EventPriority = EventPriority.NORMAL,
                                               ignoreCancelled: Boolean = true,
@@ -17,7 +18,7 @@ inline fun <reified T : Event> Listener.event(priority: EventPriority = EventPri
             this,
             priority,
             { _, event ->
-                (event as T).block()
+                T::class.safeCast(event)?.block()
             },
             plugin,
             ignoreCancelled
