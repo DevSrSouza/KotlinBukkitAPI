@@ -16,8 +16,8 @@ class OnlinePlayerList(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : 
     private val whenQuit: MutableMap<Player, Player.() -> Unit> = mutableMapOf()
 
     init {
-        event<PlayerQuitEvent> { tryRemove(player) }
-        event<PlayerKickEvent> { tryRemove(player) }
+        event<PlayerQuitEvent> { quit(player) }
+        event<PlayerKickEvent> { quit(player) }
     }
 
     fun add(player: Player, whenPlayerQuit: Player.() -> Unit) : Boolean {
@@ -26,7 +26,7 @@ class OnlinePlayerList(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : 
         return add(player)
     }
 
-    private fun tryRemove(player: Player) {
+    fun quit(player: Player) {
         if(remove(player)) {
             whenQuit.remove(player)?.also { block ->
                 block.invoke(player)
@@ -34,14 +34,39 @@ class OnlinePlayerList(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : 
             if(isEmpty()) unregisterAll()
         }
     }
+
+    override fun removeFirst(): Player {
+        if (isEmpty()) unregisterAll()
+        return super.removeFirst()
+    }
+
+    override fun removeLastOccurrence(p0: Any?): Boolean {
+        if (isEmpty()) unregisterAll()
+        return super.removeLastOccurrence(p0)
+    }
+
+    override fun removeAt(p0: Int): Player {
+        if (isEmpty()) unregisterAll()
+        return super.removeAt(p0)
+    }
+
+    override fun remove(element: Player): Boolean {
+        if (isEmpty()) unregisterAll()
+        return super.remove(element)
+    }
+
+    override fun removeLast(): Player {
+        if (isEmpty()) unregisterAll()
+        return super.removeLast()
+    }
 }
 
 class OnlinePlayerMap<V>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : LinkedHashMap<Player, V>(), Listener {
     private val whenQuit: MutableMap<Player, Player.(V) -> Unit> = mutableMapOf()
 
     init {
-        event<PlayerQuitEvent> { tryRemove(player) }
-        event<PlayerKickEvent> { tryRemove(player) }
+        event<PlayerQuitEvent> { quit(player) }
+        event<PlayerKickEvent> { quit(player) }
 
         registerEvents(plugin)
     }
@@ -52,12 +77,22 @@ class OnlinePlayerMap<V>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) 
         return put(key, value)
     }
 
-    private fun tryRemove(player: Player) {
+    fun quit(player: Player) {
         remove(player)?.also {
             whenQuit.remove(player)?.also { block ->
                 block.invoke(player, it)
             }
             if(isEmpty()) unregisterAll()
         }
+    }
+
+    override fun remove(key: Player): V? {
+        if(isEmpty()) unregisterAll()
+        return super.remove(key)
+    }
+
+    override fun remove(key: Player, value: V): Boolean {
+        if(isEmpty()) unregisterAll()
+        return super.remove(key, value)
     }
 }
