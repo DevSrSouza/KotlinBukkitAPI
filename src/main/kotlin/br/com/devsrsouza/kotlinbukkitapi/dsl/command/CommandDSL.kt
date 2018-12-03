@@ -1,7 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
+import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.Bukkit
+import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
 import org.bukkit.entity.Player
@@ -21,7 +24,9 @@ typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
 typealias TabCompleterBlock = TabCompleter.() -> MutableList<String>
 typealias CommandMaker = KCommand.() -> Unit
 
-class CommandException(val senderMessage: String = "", val execute: () -> Unit = {}) : RuntimeException()
+class CommandException(val senderMessage: BaseComponent? = null, val execute: () -> Unit = {}) : RuntimeException() {
+    constructor(senderMessage: String = "", execute: () -> Unit = {}) : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), execute)
+}
 
 fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
                   description: String = "",
@@ -36,8 +41,32 @@ fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
 
 fun command(name: String,
             plugin: Plugin = KotlinBukkitAPI.INSTANCE,
-            block: CommandMaker) = KCommand(name).apply(block).also {
-    serverCommands.register(plugin.name, it)
+            block: CommandMaker) = KCommand(name).apply(block).apply {
+    register(plugin)
+}
+
+fun Command.register(plugin: Plugin = KotlinBukkitAPI.INSTANCE) {
+    serverCommands.register(plugin.name, this)
+}
+
+fun Command.unregister() {
+    try {
+        val clazz = serverCommands.javaClass
+        val f = clazz.getDeclaredField("knownCommands")
+        f.isAccessible = true
+        val knownCommands = f.get(serverCommands) as MutableMap<String, Command>
+        val toRemove = ArrayList<String>()
+        for ((key, value) in knownCommands) {
+            if (value === this) {
+                toRemove.add(key)
+            }
+        }
+        for (str in toRemove) {
+            knownCommands.remove(str)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 class Executor<E : CommandSender>(val sender: E,
@@ -82,7 +111,7 @@ open class KCommand(name: String,
                 Executor(sender, label, args).executor()
             }
         } catch (ex: CommandException) {
-            if(ex.senderMessage.isNotBlank()) sender.sendMessage(ex.senderMessage)
+            ex.senderMessage?.also { sender.sendMessage(it) }
             ex.execute()
         }
         return true
