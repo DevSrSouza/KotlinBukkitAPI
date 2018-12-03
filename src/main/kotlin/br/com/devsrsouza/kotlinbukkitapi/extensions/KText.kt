@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.chat.ComponentSerializer
 import net.md_5.bungee.api.ChatColor as BungeeColor
 import org.bukkit.ChatColor
+import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 /**
@@ -18,7 +19,10 @@ operator fun String.unaryMinus() = replace('§', '&')
 
 fun Player.sendMessage(text: BaseComponent) = spigot().sendMessage(text)
 fun Player.sendMessage(text: Array<BaseComponent>) = spigot().sendMessage(TextComponent(*text))
-fun Player.sendMessage(text: List<BaseComponent>) = spigot().sendMessage(TextComponent(*text.toTypedArray()))
+fun Player.sendMessage(text: List<BaseComponent>) = sendMessage(text.toTypedArray())
+fun CommandSender.sendMessage(text: BaseComponent) = (this as? Player)?.let { it.sendMessage(text) } ?: sendMessage(TextComponent.toLegacyText(text))
+fun CommandSender.sendMessage(text: Array<BaseComponent>) = (this as? Player)?.let { it.sendMessage(text) } ?: sendMessage(TextComponent.toLegacyText(*text))
+fun CommandSender.sendMessage(text: List<BaseComponent>) = sendMessage(text.toTypedArray())
 
 //fun String.asText() = TextComponent(*TextComponent.fromLegacyText(this))
 fun String.asText() = TextComponent(this)
