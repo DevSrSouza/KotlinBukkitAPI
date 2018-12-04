@@ -2,6 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.command
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
+import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorDefault
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
@@ -9,15 +10,6 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
-
-private val serverCommands: SimpleCommandMap by lazy {
-    val packageName = Bukkit.getServer().javaClass.getPackage().getName()
-    val version = packageName.substring(packageName.lastIndexOf('.') + 1)
-    val bukkitclass = Class.forName("org.bukkit.craftbukkit.$version.CraftServer")
-    val f = bukkitclass.getDeclaredField("commandMap")
-    f.isAccessible = true
-    f.get(Bukkit.getServer()) as SimpleCommandMap
-}
 
 typealias ExecutorBlock = Executor<CommandSender>.() -> Unit
 typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
@@ -44,6 +36,14 @@ fun command(name: String,
             block: CommandMaker) = KCommand(name).apply(block).apply {
     register(plugin)
 }
+
+fun <T : CommandSender> Executor<T>.argumentExecutorBuilder(
+        posIndex: Int = 1, label: String
+) = Executor(
+        sender,
+        this@argumentExecutorBuilder.label + " " + label,
+        whenErrorDefault(emptyArray()) { args.sliceArray(posIndex..args.size) }
+)
 
 fun Command.register(plugin: Plugin = KotlinBukkitAPI.INSTANCE) {
     serverCommands.register(plugin.name, this)
@@ -76,6 +76,15 @@ class Executor<E : CommandSender>(val sender: E,
 class TabCompleter(val sender: CommandSender,
                    val alias: String,
                    val args: Array<out String>)
+
+private val serverCommands: SimpleCommandMap by lazy {
+    val packageName = Bukkit.getServer().javaClass.getPackage().getName()
+    val version = packageName.substring(packageName.lastIndexOf('.') + 1)
+    val bukkitclass = Class.forName("org.bukkit.craftbukkit.$version.CraftServer")
+    val f = bukkitclass.getDeclaredField("commandMap")
+    f.isAccessible = true
+    f.get(Bukkit.getServer()) as SimpleCommandMap
+}
 
 open class KCommand(name: String,
                     executor: ExecutorBlock = {}
