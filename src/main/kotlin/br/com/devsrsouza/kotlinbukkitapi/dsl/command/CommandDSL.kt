@@ -99,29 +99,33 @@ open class KCommand(name: String,
     var onlyInGameMessage = ""
 
     override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
-        if (subCommands.isNotEmpty()) {
-            val subCommand = args.getOrNull(0)?.let { arg ->
-                subCommands.find {
-                    it.name.equals(arg, true) ||
-                            it.aliases.find { it.equals(arg, true) } != null
+        if (!permission.isNullOrBlank() && !sender.hasPermission(permission)) {
+            sender.sendMessage(permissionMessage)
+        } else {
+            if (subCommands.isNotEmpty()) {
+                val subCommand = args.getOrNull(0)?.let { arg ->
+                    subCommands.find {
+                        it.name.equals(arg, true) ||
+                                it.aliases.find { it.equals(arg, true) } != null
+                    }
+                }
+                if (subCommand != null) {
+                    subCommand.execute(sender, "$label ${args.get(0)}", args.sliceArray(1 until args.size))
+                    return true
                 }
             }
-            if (subCommand != null) {
-                subCommand.execute(sender, "$label ${args.get(0)}", args.sliceArray(1 until args.size))
-                return true
+            try {
+                if (executorPlayer != null) {
+                    if (sender is Player) {
+                        executorPlayer!!.invoke(Executor(sender, label, args))
+                    } else sender.sendMessage(onlyInGameMessage)
+                } else {
+                    Executor(sender, label, args).executor()
+                }
+            } catch (ex: CommandException) {
+                ex.senderMessage?.also { sender.sendMessage(it) }
+                ex.execute()
             }
-        }
-        try {
-            if (executorPlayer != null) {
-                if (sender is Player) {
-                    executorPlayer!!.invoke(Executor(sender, label, args))
-                } else sender.sendMessage(onlyInGameMessage)
-            } else {
-                Executor(sender, label, args).executor()
-            }
-        } catch (ex: CommandException) {
-            ex.senderMessage?.also { sender.sendMessage(it) }
-            ex.execute()
         }
         return true
     }
