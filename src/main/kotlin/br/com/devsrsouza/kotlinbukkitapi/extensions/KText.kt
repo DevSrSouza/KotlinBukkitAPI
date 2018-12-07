@@ -1,5 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.text
 
+import br.com.devsrsouza.kotlinbukkitapi.extensions.Console
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.HoverEvent
@@ -9,6 +10,7 @@ import net.md_5.bungee.api.ChatColor as BungeeColor
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import kotlin.reflect.KProperty
 
 /**
  * ONLY WITH SPIGOT
@@ -16,6 +18,17 @@ import org.bukkit.entity.Player
 
 operator fun String.unaryPlus() = ChatColor.translateAlternateColorCodes('&', this)
 operator fun String.unaryMinus() = replace('§', '&')
+fun translateColor(default: String, colorChar: Char = '&') = TranslateChatColorDelegate(default, colorChar)
+
+class TranslateChatColorDelegate(val realValue: String, val colorChar: Char = '&') {
+    private var _value: String = ChatColor.translateAlternateColorCodes(colorChar, realValue)
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>) = _value
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: String) {
+        _value = ChatColor.translateAlternateColorCodes(colorChar, value)
+    }
+}
 
 fun Player.sendMessage(text: BaseComponent) = spigot().sendMessage(text)
 fun Player.sendMessage(text: Array<BaseComponent>) = spigot().sendMessage(TextComponent(*text))
