@@ -38,7 +38,7 @@ fun Executor<*>.double(
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,
         numberFormat: BaseComponent = NUMBER_FORMAT
 ): Double = (args.getOrNull(index) ?: throw CommandException(argMissing))
-        .toDoubleOrNull() ?: throw CommandException(numberFormat)
+        .toDoubleOrNull()?.takeUnless { it.isNaN() } ?: throw CommandException(numberFormat)
 
 inline fun <T : CommandSender> Executor<T>.argumentDouble(
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,
