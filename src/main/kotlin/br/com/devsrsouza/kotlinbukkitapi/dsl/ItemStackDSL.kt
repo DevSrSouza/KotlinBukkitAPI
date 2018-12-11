@@ -16,7 +16,7 @@ import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.material.MaterialData
 
 inline fun <T : ItemMeta> ItemStack.meta(block: T.() -> Unit) = apply {
-    itemMeta = (itemMeta as T).apply(block)
+    itemMeta = (itemMeta as? T)?.apply(block) ?: itemMeta
 }
 
 fun Material.asItemStack(amount: Int = 1, data: Short = 0) = ItemStack(this, amount, data)
