@@ -87,10 +87,10 @@ private val serverCommands: SimpleCommandMap by lazy {
 }
 
 open class KCommand(name: String,
-                    executor: ExecutorBlock = {}
+                    executor: ExecutorBlock? = null
 ) : org.bukkit.command.Command(name.trim()) {
 
-    private var executor: ExecutorBlock = executor
+    private var executor: ExecutorBlock? = null
     private var executorPlayer: ExecutorPlayerBlock? = null
     private var tabCompleter: TabCompleterBlock? = null
 
@@ -118,9 +118,13 @@ open class KCommand(name: String,
                 if (executorPlayer != null) {
                     if (sender is Player) {
                         executorPlayer!!.invoke(Executor(sender, label, args))
-                    } else sender.sendMessage(onlyInGameMessage)
+                    } else {
+                        if(executor != null) {
+                            executor?.invoke(Executor(sender, label, args))
+                        } else sender.sendMessage(onlyInGameMessage)
+                    }
                 } else {
-                    Executor(sender, label, args).executor()
+                    executor?.invoke(Executor(sender, label, args))
                 }
             } catch (ex: CommandException) {
                 ex.senderMessage?.also { sender.sendMessage(it) }
