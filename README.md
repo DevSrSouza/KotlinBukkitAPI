@@ -1,9 +1,8 @@
 ![logo](logo.png)
 
-KotlinBukkitAPI is a API for Bukkit/SpigotAPI using the cool features of Kotlin to make your lifes much easely.
+KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features Kotlin has to make your life more easier.
 
-* Need help? contact me on [Twitter](twitter.com/DevSrSouza)
-
+* Need help? contact me on [Twitter](https://twitter.com/DevSrSouza)
 
 ## Prerequisites
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
@@ -27,7 +26,7 @@ gradlew shadowJar
 
 # Setup for development
 
-### Adding KotlinBukkitAPI to maven local
+### Adding KotlinBukkitAPI to the local maven repo
 
 #### Unix (Linux / Mac)
 ```
@@ -65,7 +64,7 @@ dependencies {
 
 # Getting Started
 
-First of all, you need to put KotlinBukkitAPI as dependency on your **plugin.yml**
+First of all, you need to put KotlinBukkitAPI as a dependency on your **plugin.yml**
 ```yaml
 depend: [KotlinBukkitAPI]
 ```
@@ -77,12 +76,12 @@ events {
   // the "event" method need to be on a Listener class
   event<PlayerJoinEvent> {
     // inside of this block is the Event type you chose, we chose PlayerJoinEvent
-    player.sendMessage(+"&3Welcome ${player.name}") // The plus sign converts the "&" prefixed characters to Minecraft text formatting
+    player.sendMessage(+"&3Welcome ${player.name}") // The plus sign converts the "&" prefixed characters to Minecraft's text formatting
   }
   
-  // you can put more of one event method inside of "events" block
+  // you can put more than one event method inside of "events" block
   event<PlayerQuitEvent> {
-    broadcast(+"&eThe player &c${player.name} &eleft :(") // broadcast method send message to player players
+    broadcast(+"&eThe player &c${player.name} &eleft :(") // broadcast method send message to other players
   }
 }
 
@@ -97,11 +96,11 @@ simpleCommand("twitter") {
   // label - String
   // args - Array<String>
   
-  sender.sendMessage(+"&eFollow me on Twitter :D &atwitter.com/DevSrSouza")
+  sender.sendMessage(+"&eFollow me on Twitter :D &ahttps://twitter.com/DevSrSouza")
 }
 ```
 
-Item meta DSL and another stuffs
+Item meta DSL and other stuff
 ```kotlin
 simpleCommand("some-name") {
 
@@ -109,20 +108,20 @@ simpleCommand("some-name") {
     val player = sender as Player
     player.vault.economy.deposit(2500.0) // you can see more about the vault api on KVault.kt
     
-    // lets make a item more easy with kotlin and ItemMeta DSL
+    // let's make an item with kotlin and ItemMeta DSL
     val gem = ItemStack(Material.DIAMOND).apply {
       amount = 5
-      meta<ItemMeta> { // here you can put any meta type you wont, like BannerMeta(if the item is a banner)
+      meta<ItemMeta> { // here you can put any meta type you want, like BannerMeta (if the item is a banner)
         // here is the same idea of event block but here you only que put the ItemMeta type, like BannerMeta, BookMeta
         displayName = +"&bGem"
       }
     }
     
-    player.inventory.addItem(gem) // putting the item to the inventory
+    player.inventory.addItem(gem) // adding the item to the inventory
     
     // okay, now lets use the real power of meta block
     
-    if(player.hasPermission("powerful.book")) { // here he verify if player has the permission to get our book
+    if(player.hasPermission("powerful.book")) { // here we verify if player has the permission to get our book
       val encbook = ItemStack(Material.ENCHANTED_BOOK).apply {
         meta<EnchantmentStorageMeta> { // the EnchantmentStorageMeta implement ItemMeta, then we have the methods of ItemMeta and EnchantmentStorageMeta on this block
           displayName = +"&4&lThe powerful BOOK"
@@ -138,7 +137,7 @@ simpleCommand("some-name") {
 
 Menu creator DSL
 ```kotlin
-// okay, lets make a Menu
+// okay, let's make a Menu
 // fun createMenu(displayname: String, lines: Int = 3, cancel: Boolean = false, block: Menu.() -> Unit)
 val myMenu = createMenu(+"&cWarps", cancel = true) { // cancel true to cancel player interact with inventory by default
   // this menu will be a menu with 3 lines (27 slots) and the name "Warps" in red
@@ -191,16 +190,16 @@ val list = ExpirationList<Player>()
 simpleCommand("cooldown") {
   if(sender is Player) {
     val player = sender as Player
-    val time = list.missingTime(player) // this return the missing time to expire in seconds or null if dont have the value in list
+    val time = list.missingTime(player) // this return the missing time to expire in seconds or null if don't have the value in list
     if(time == null) {
       player.sendMessage("Hi, welcome my friend. Take this diamonds :3")
       player.inventory.addItem(ItemStack(Material.DIAMOND))
     } else {
       // add(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null)
       list.add(player, 60) {
-        player.sendMessage("hey, now you can get diamonds again :D")
+        player.sendMessage("Hey, now you can get diamonds again :D")
       }
-      player.sendMesage("Hi, wait $time seconds to use this command again")
+      player.sendMesage("Hi, wait $time seconds before using this command!")
     }
   }
 }
