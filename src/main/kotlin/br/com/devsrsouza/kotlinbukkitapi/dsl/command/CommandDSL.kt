@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender
 import org.bukkit.command.SimpleCommandMap
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
+import kotlin.reflect.KClass
 
 typealias ExecutorBlock = Executor<CommandSender>.() -> Unit
 typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
@@ -90,9 +91,10 @@ open class KCommand(name: String,
                     executor: ExecutorBlock? = null
 ) : org.bukkit.command.Command(name.trim()) {
 
-    private var executor: ExecutorBlock? = null
-    private var executorPlayer: ExecutorPlayerBlock? = null
+    private var executor: ExecutorBlock? = executor
     private var tabCompleter: TabCompleterBlock? = null
+
+    private val executors: MutableMap<KClass<out CommandSender>, Executor<CommandSender>.() -> Unit> = mutableMapOf()
 
     val subCommands: MutableList<KCommand> = mutableListOf()
 
@@ -115,16 +117,18 @@ open class KCommand(name: String,
                 }
             }
             try {
-                if (executorPlayer != null) {
-                    if (sender is Player) {
-                        executorPlayer!!.invoke(Executor(sender, label, args))
-                    } else {
-                        if(executor != null) {
+                val genericExecutor = executors.getByInstance(sender::class)
+                if (genericExecutor != null) {
+                    genericExecutor.invoke(Executor(sender, label, args))
+                } else {
+                    val hasPlayer = executors.getByInstance(Player::class)
+                    if (hasPlayer != null) {
+                        if (executor != null) {
                             executor?.invoke(Executor(sender, label, args))
                         } else sender.sendMessage(onlyInGameMessage)
+                    } else {
+                        executor?.invoke(Executor(sender, label, args))
                     }
-                } else {
-                    executor?.invoke(Executor(sender, label, args))
                 }
             } catch (ex: CommandException) {
                 ex.senderMessage?.also { sender.sendMessage(it) }
@@ -171,11 +175,23 @@ open class KCommand(name: String,
     }
 
     open fun executorPlayer(block: ExecutorPlayerBlock) {
-        executorPlayer = block
+        genericExecutor(Player::class, block)
     }
 
     open fun tabComplete(block: TabCompleterBlock) {
         tabCompleter = block
+    }
+
+    open fun <T : CommandSender> genericExecutor(clazz: KClass<T>, block: Executor<T>.() -> Unit) {
+        executors.put(clazz, block as Executor<CommandSender>.() -> Unit)
+    }
+
+    inline fun <reified T : CommandSender> genericExecutor(noinline block: Executor<T>.() -> Unit) {
+        genericExecutor(T::class, block)
+    }
+
+    private fun <T> MutableMap<KClass<out CommandSender>, T>.getByInstance(clazz: KClass<*>): T? {
+        return entries.find { it.key.isInstance(clazz) }?.value
     }
 
 }
