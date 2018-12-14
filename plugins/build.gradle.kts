@@ -18,10 +18,9 @@ bukkitPlugins {
     repository("ViaVersion", "https://repo.viaversion.com/") {
         plugin("ViaVersion", "us.myles:viaversion-common:1.4.1")
     }
-    repository("inventive-repo", "https://repo.inventivetalent.org/content/groups/public/") {
-        plugin("PacketListenerApi", "org.inventivetalent.packetlistener:api:3.7.1-SNAPSHOT")
-        plugin("HologramAPI", "org.inventivetalent:hologramapi:1.6.0")
+    repository("perfectdreams", "https://repo.perfectdreams.net/") {
         plugin("BossBarAPI", "org.inventivetalent:bossbarapi:2.4.1")
+        plugin("HologramAPI", "org.inventivetalent:hologramapi:1.4.0") // need update
     }
 }
 
