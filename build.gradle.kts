@@ -1,46 +1,47 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import org.apache.xerces.dom.DeepNodeListImpl
 import org.gradle.api.tasks.bundling.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
+    id("bukkit-dependecies")
     id("java")
     id("maven-publish")
     kotlin("jvm") version "1.3.0"
     id("com.github.johnrengelman.shadow") version "2.0.3"
-    id("net.minecrell.plugin-yml.bukkit") version "0.2.1"
 }
+
 
 group = "br.com.devsrsouza"
 version = "0.1.0-SNAPSHOT"
 
-val plugins = listOf(
-        PluginDependency("vault-repo", "http://nexus.hc.to/content/repositories/pub_releases",
-                mapOf("Vault" to "net.milkbowl.vault:VaultAPI:1.6")),
-        PluginDependency("placeholderapi", "http://repo.extendedclip.com/content/repositories/placeholderapi/",
-                mapOf("PlaceholderAPI" to "me.clip:placeholderapi:2.8.5")),
-        PluginDependency("mvdw-software", "http://repo.mvdw-software.be/content/groups/public/",
-                mapOf("MVdWPlaceholderAPI" to "be.maximvdw:MVdWPlaceholderAPI:2.5.2-SNAPSHOT")),
-        PluginDependency("inventive-repo", "https://repo.inventivetalent.org/content/groups/public/",
-                mapOf(
-                        "PacketListenerApi" to "org.inventivetalent.packetlistener:api:3.7.1-SNAPSHOT",
-                        "HologramAPI" to "org.inventivetalent:hologramapi:1.6.0",
-                        "BossBarAPI" to "org.inventivetalent:bossbarapi:2.4.1"
-                )
-        ),
-        PluginDependency("direct-from-github", "https://jitpack.io",
-                mapOf(
-                        "ActionBarAPI" to "com.github.ConnorLinfoot:ActionBarAPI:d60c2aedb9",
-                        "TitleAPI" to "com.github.ConnorLinfoot:TitleAPI:1.7.6"
-                )
-        ),
-        PluginDependency("WorldEdit", "http://maven.sk89q.com/repo/",
-                mapOf("WorldEdit" to "com.sk89q.worldedit:worldedit-bukkit:6.1.5")
-        ),
-        PluginDependency("ViaVersion", "https://repo.viaversion.com/",
-                mapOf("ViaVersion" to "us.myles:viaversion-common:1.4.1")
-        )
-)
+bukkitPlugins {
+    repository("vault-repo", "http://nexus.hc.to/content/repositories/pub_releases") {
+        plugin("Vault", "net.milkbowl.vault:VaultAPI:1.6")
+    }
+    repository("placeholderapi", "http://repo.extendedclip.com/content/repositories/placeholderapi/") {
+        plugin("PlaceholderAPI", "me.clip:placeholderapi:2.8.5")
+    }
+    repository("mvdw-software", "http://repo.mvdw-software.be/content/groups/public/") {
+        plugin("MVdWPlaceholderAPI", "be.maximvdw:MVdWPlaceholderAPI:2.5.2-SNAPSHOT")
+    }
+    repository("direct-from-github", "https://jitpack.io") {
+        plugin("ActionBarAPI", "com.github.ConnorLinfoot:ActionBarAPI:d60c2aedb9")
+        plugin("TitleAPI", "com.github.ConnorLinfoot:TitleAPI:1.7.6")
+    }
+    repository("WorldEdit", "http://maven.sk89q.com/repo/") {
+        plugin("WorldEdit", "com.sk89q.worldedit:worldedit-bukkit:6.1.5")
+    }
+    repository("ViaVersion", "https://repo.viaversion.com/") {
+        plugin("ViaVersion", "us.myles:viaversion-common:1.4.1")
+    }
+    repository("inventive-repo", "https://repo.inventivetalent.org/content/groups/public/") {
+        plugin("PacketListenerApi", "org.inventivetalent.packetlistener:api:3.7.1-SNAPSHOT")
+        plugin("HologramAPI", "org.inventivetalent:hologramapi:1.6.0")
+        plugin("BossBarAPI", "org.inventivetalent:bossbarapi:2.4.1")
+    }
+}
 
 repositories {
     jcenter()
@@ -56,12 +57,6 @@ repositories {
         name = "comphenix"
         url = uri("http://repo.comphenix.net/content/repositories/snapshots/")
     }
-    plugins.forEach {
-        maven {
-            name = it.repoName
-            url = uri(it.repo)
-        }
-    }
 }
 
 dependencies {
@@ -71,8 +66,8 @@ dependencies {
 
     compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
-    plugins.map { it.plugins }.flatMap { it.entries }.map { it.value }.forEach {
-        compileOnly(it) {
+    for (plugin in bukkitPlugins.plugins.flatMap { it.plugins.map { it.artifact } }) {
+        compile(plugin) {
             exclude("org.spigotmc", "spigot")
             exclude("org.bukkit", "bukkit")
             exclude("org.mcstats.bukkit", "metrics-lite")
@@ -89,7 +84,10 @@ bukkit {
     website = "https://github.com/DevSrSouza/KotlinBukkitAPI"
     authors = listOf("DevSrSouza")
 
-    softDepend = plugins.map { it.plugins }.flatMap { it.entries }.map { it.key }
+    softDepend = bukkitPlugins.plugins.flatMap { it.plugins.filter { it.softDepend } }.map { it.name }
+    depend = bukkitPlugins.plugins.flatMap { it.plugins.filter { it.depend } }.map { it.name }
+
+    load = BukkitPluginDescription.PluginLoadOrder.STARTUP
 }
 
 class PluginDependency(val repoName: String, val repo: String, val plugins: Map<String, String>)
@@ -106,16 +104,16 @@ tasks {
     }
 }
 
-val sourcesJar by tasks.creating(Jar::class) {
+val sourcesJar by tasks.registering(Jar::class) {
     classifier = "sources"
-    from(java.sourceSets["main"].allSource)
+    from(sourceSets.main.get().allSource)
 }
 
 publishing {
-    (publications) {
-        "mavenJava"(MavenPublication::class) {
+    publications {
+        register("mavenJava", MavenPublication::class) {
             from(components["java"])
-            artifact(sourcesJar)
+            artifact(sourcesJar.get())
             groupId = project.group.toString()
             artifactId = project.name.toLowerCase()
             version = project.version.toString()
