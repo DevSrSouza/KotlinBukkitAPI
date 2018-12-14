@@ -1,4 +1,3 @@
-import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -7,8 +6,6 @@ import org.gradle.kotlin.dsl.*
 class BukkitPlugins : Plugin<Project> {
 
     override fun apply(project: Project): Unit = project.run {
-
-        plugins.apply("net.minecrell.plugin-yml.bukkit")
 
         val bukkitPlugins = BukkitPlugins()
 

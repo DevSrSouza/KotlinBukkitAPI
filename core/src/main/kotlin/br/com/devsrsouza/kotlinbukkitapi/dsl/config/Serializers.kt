@@ -1,12 +1,9 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.config
 
-import br.com.devsrsouza.kotlinbukkitapi.dsl.item.fromBase64Item
-import br.com.devsrsouza.kotlinbukkitapi.dsl.item.toBase64
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.toJson
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.unaryMinus
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.unaryPlus
 import br.com.devsrsouza.kotlinbukkitapi.utils.javaUnicodeToCharacter
-import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorNull
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.chat.ComponentSerializer
@@ -61,20 +58,4 @@ fun baseComponentSerializer(component: BaseComponent, description: String = "")
         = Serializable(component, description).apply {
     load { TextComponent(*ComponentSerializer.parse(+(it.toString()))) }
     save { -toJson().javaUnicodeToCharacter() }
-}
-
-fun itemBase64Serializer(item: ItemStack, description: String = "")
-        = Serializable(item, description).apply {
-    load { (it as? String)?.let { fromBase64Item(it) } ?: default }
-    save { toBase64() }
-}
-
-fun itemBase64ListSerializer(items: MutableList<ItemStack>, description: String = "")
-        = Serializable(items, description).apply {
-    load {
-        (it as? List<String>)?.mapNotNull {
-            whenErrorNull { fromBase64Item(it) }
-        }?.toMutableList() ?: default
-    }
-    save { map { it.toBase64() } }
 }

@@ -10,6 +10,8 @@ import org.bukkit.util.Vector
 operator fun Location.component1() = x
 operator fun Location.component2() = y
 operator fun Location.component3() = z
+operator fun Location.component4() = yaw
+operator fun Location.component5() = pitch
 
 operator fun Block.component1() = x
 operator fun Block.component2() = y

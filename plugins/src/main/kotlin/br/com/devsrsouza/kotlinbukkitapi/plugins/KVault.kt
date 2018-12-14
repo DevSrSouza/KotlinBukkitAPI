@@ -5,6 +5,7 @@ import net.milkbowl.vault.economy.Economy
 import net.milkbowl.vault.permission.Permission
 import org.bukkit.Bukkit
 import org.bukkit.OfflinePlayer
+import org.bukkit.World
 import org.bukkit.entity.Player
 
 val hasVault by lazy { Bukkit.getServer().pluginManager.getPlugin("Vault") != null }
@@ -41,5 +42,6 @@ inline class Chat(private val player: Player) {
 }
 
 inline class Permission(private val player: OfflinePlayer) {
-
+    fun has(permission_: String) = permission!!.playerHas(null, player, permission_)
+    fun has(world: World, permission_: String) = permission!!.playerHas(world.name, player, permission_)
 }

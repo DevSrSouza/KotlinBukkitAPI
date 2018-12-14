@@ -8,89 +8,111 @@ plugins {
     id("bukkit-dependecies")
     id("java")
     id("maven-publish")
-    kotlin("jvm") version "1.3.0"
-    id("com.github.johnrengelman.shadow") version "2.0.3"
+    kotlin("jvm") version "1.3.10"
+    id("com.github.johnrengelman.shadow") version "4.0.3"
+    id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
 }
 
+val groupPrefix = "br.com.devsrsouza.kotlinbukkitapi"
+val pVersion = "0.1.0-SNAPSHOT"
+group = groupPrefix
+version = pVersion
 
-group = "br.com.devsrsouza"
-version = "0.1.0-SNAPSHOT"
+subprojects {
+    plugins.apply("bukkit-dependecies")
+    plugins.apply("org.jetbrains.kotlin.jvm")
+    plugins.apply("maven-publish")
+    plugins.apply("com.github.johnrengelman.shadow")
 
-bukkitPlugins {
-    repository("vault-repo", "http://nexus.hc.to/content/repositories/pub_releases") {
-        plugin("Vault", "net.milkbowl.vault:VaultAPI:1.6")
+    group = groupPrefix
+    version = pVersion
+
+    repositories {
+        jcenter()
+        maven {
+            name = "spigot"
+            url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+        }
+        maven {
+            name = "sonatype"
+            url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+        }
     }
-    repository("placeholderapi", "http://repo.extendedclip.com/content/repositories/placeholderapi/") {
-        plugin("PlaceholderAPI", "me.clip:placeholderapi:2.8.5")
+
+    dependencies {
+        compileOnly(kotlin("stdlib"))
+        compileOnly(kotlin("reflect"))
+
+        compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
     }
-    repository("mvdw-software", "http://repo.mvdw-software.be/content/groups/public/") {
-        plugin("MVdWPlaceholderAPI", "be.maximvdw:MVdWPlaceholderAPI:2.5.2-SNAPSHOT")
+
+    tasks {
+        "shadowJar"(ShadowJar::class) {
+            baseName = "KotlinBukkitAPI-$name"
+            classifier = null
+        }
     }
-    repository("direct-from-github", "https://jitpack.io") {
-        plugin("ActionBarAPI", "com.github.ConnorLinfoot:ActionBarAPI:d60c2aedb9")
-        plugin("TitleAPI", "com.github.ConnorLinfoot:TitleAPI:1.7.6")
+
+    val sourcesJar by tasks.registering(Jar::class) {
+        baseName = "KotlinBukkitAPI-$name"
+        classifier = "sources"
+        from(sourceSets.main.get().allSource)
     }
-    repository("WorldEdit", "http://maven.sk89q.com/repo/") {
-        plugin("WorldEdit", "com.sk89q.worldedit:worldedit-bukkit:6.1.5")
-    }
-    repository("ViaVersion", "https://repo.viaversion.com/") {
-        plugin("ViaVersion", "us.myles:viaversion-common:1.4.1")
-    }
-    repository("inventive-repo", "https://repo.inventivetalent.org/content/groups/public/") {
-        plugin("PacketListenerApi", "org.inventivetalent.packetlistener:api:3.7.1-SNAPSHOT")
-        plugin("HologramAPI", "org.inventivetalent:hologramapi:1.6.0")
-        plugin("BossBarAPI", "org.inventivetalent:bossbarapi:2.4.1")
+
+    fun <T> T.print() = apply { println(this.toString()) }
+
+    publishing {
+        publications {
+            register("mavenJava", MavenPublication::class) {
+                from(components["java"])
+                artifact(sourcesJar.get())
+                groupId = project.group.toString()
+                artifactId = project.name.toLowerCase()
+                version = project.version.toString()
+                pom.withXml {
+                    asNode().apply {
+                        appendNode(
+                                "description",
+                                "KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features Kotlin has to make your life more easier."
+                        )
+                        appendNode("name", "KotlinBukkitAPI-${project.name}")
+                        appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI")
+
+                        appendNode("licenses").appendNode("license").apply {
+                            appendNode("name", "MIT License")
+                            appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI/blob/master/LICENSE")
+                            appendNode("distribution", "repo")
+                        }
+                        appendNode("developers").apply {
+                            appendNode("developer").apply {
+                                appendNode("id", "DevSrSouza")
+                                appendNode("name", "Gabriel Souza")
+                                appendNode("email", "devsrsouza@gmail.com")
+                            }
+                        }
+                        appendNode("scm").appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master/${project.name}")
+                    }
+                    asElement().apply {
+                        getElementsByTagName("dependencies")?.item(0)?.also { removeChild(it) }
+                    }
+                }
+            }
+        }
     }
 }
 
 repositories {
     jcenter()
-    maven {
-        name = "spigot"
-        url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-    }
-    maven {
-        name = "sonatype"
-        url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
-    }
-    maven {
-        name = "comphenix"
-        url = uri("http://repo.comphenix.net/content/repositories/snapshots/")
-    }
 }
 
 dependencies {
     compile(kotlin("stdlib"))
     compile(kotlin("reflect"))
-    compile("com.comphenix.attribute:AttributeStorage:0.0.2-SNAPSHOT")
 
-    compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
-
-    for (plugin in bukkitPlugins.plugins.flatMap { it.plugins.map { it.artifact } }) {
-        compile(plugin) {
-            exclude("org.spigotmc", "spigot")
-            exclude("org.bukkit", "bukkit")
-            exclude("org.mcstats.bukkit", "metrics-lite")
-            exclude("org.inventivetalent.packetlistener", "api")
-        }
+    subprojects.forEach {
+        compile(project(":${it.name}", configuration = "shadow"))
     }
 }
-
-bukkit {
-    name = project.name
-    version = project.version.toString()
-    main = "br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI"
-
-    website = "https://github.com/DevSrSouza/KotlinBukkitAPI"
-    authors = listOf("DevSrSouza")
-
-    softDepend = bukkitPlugins.plugins.flatMap { it.plugins.filter { it.softDepend } }.map { it.name }
-    depend = bukkitPlugins.plugins.flatMap { it.plugins.filter { it.depend } }.map { it.name }
-
-    load = BukkitPluginDescription.PluginLoadOrder.STARTUP
-}
-
-class PluginDependency(val repoName: String, val repo: String, val plugins: Map<String, String>)
 
 tasks {
     "compileKotlin"(KotlinCompile::class) {
@@ -104,46 +126,20 @@ tasks {
     }
 }
 
-val sourcesJar by tasks.registering(Jar::class) {
-    classifier = "sources"
-    from(sourceSets.main.get().allSource)
-}
+bukkit {
+    name = project.name
+    version = project.version.toString()
+    main = "br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI"
 
-publishing {
-    publications {
-        register("mavenJava", MavenPublication::class) {
-            from(components["java"])
-            artifact(sourcesJar.get())
-            groupId = project.group.toString()
-            artifactId = project.name.toLowerCase()
-            version = project.version.toString()
-            pom.withXml {
-                asNode().apply {
-                    appendNode(
-                            "description",
-                            "KotlinBukkitAPI is a API for Bukkit using the cool features of Kotlin to make your lifes much easely."
-                    )
-                    appendNode("name", project.name)
-                    appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI")
+    website = "https://github.com/DevSrSouza/KotlinBukkitAPI"
+    authors = listOf("DevSrSouza")
 
-                    appendNode("licenses").appendNode("license").apply {
-                        appendNode("name", "MIT License")
-                        appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI/blob/master/LICENSE")
-                        appendNode("distribution", "repo")
-                    }
-                    appendNode("developers").apply {
-                        appendNode("developer").apply {
-                            appendNode("id", "DevSrSouza")
-                            appendNode("name", "Gabriel Souza")
-                            appendNode("email", "devsrsouza@gmail.com")
-                        }
-                    }
-                    appendNode("scm").appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master")
-                }
-                asElement().apply {
-                    removeChild(getElementsByTagName("dependencies").item(0))
-                }
-            }
-        }
+    subprojects.forEach {
+        softDepend = (softDepend
+                ?: mutableListOf()) + it.bukkitPlugins.plugins.flatMap { it.plugins.filter { it.softDepend } }.map { it.name }
+        depend = (softDepend
+                ?: mutableListOf()) + it.bukkitPlugins.plugins.flatMap { it.plugins.filter { it.depend } }.map { it.name }
     }
+
+    load = BukkitPluginDescription.PluginLoadOrder.STARTUP
 }

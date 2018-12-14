@@ -16,6 +16,7 @@ repositories {
     gradlePluginPortal()
 }
 
+/*
 dependencies {
-    compile("gradle.plugin.net.minecrell:plugin-yml:0.3.0")
-}
+    compileOnly("gradle.plugin.net.minecrell:plugin-yml:0.3.0")
+}*/
