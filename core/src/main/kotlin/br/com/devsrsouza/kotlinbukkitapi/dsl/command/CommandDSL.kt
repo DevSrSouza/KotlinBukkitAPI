@@ -11,6 +11,7 @@ import org.bukkit.command.SimpleCommandMap
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.KClass
+import kotlin.reflect.full.isSubclassOf
 
 typealias ExecutorBlock = Executor<CommandSender>.() -> Unit
 typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
@@ -195,7 +196,7 @@ open class KCommand(name: String,
     }
 
     private fun <T> MutableMap<KClass<out CommandSender>, T>.getByInstance(clazz: KClass<*>): T? {
-        return entries.find { it.key.isInstance(clazz) }?.value
+        return entries.find { clazz.isSubclassOf(it.key) }?.value
     }
 
 }
