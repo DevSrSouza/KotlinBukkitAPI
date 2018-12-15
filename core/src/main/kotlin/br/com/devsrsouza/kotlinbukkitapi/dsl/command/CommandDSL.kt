@@ -24,17 +24,17 @@ class CommandException(val senderMessage: BaseComponent? = null, val execute: ()
 fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
                   description: String = "",
                   plugin: Plugin = KotlinBukkitAPI.INSTANCE,
-                  block: ExecutorBlock) = command(name, plugin) {
+                  block: ExecutorBlock) = command(name, *aliases, plugin = plugin) {
 
     if (description.isNotBlank()) this.description = description
-    if (aliases.isNotEmpty()) this.aliases = aliases.toList()
 
     executor(block)
 }
 
 fun command(name: String,
+            vararg aliases: String = arrayOf(),
             plugin: Plugin = KotlinBukkitAPI.INSTANCE,
-            block: CommandMaker) = KCommand(name).apply(block).apply {
+            block: CommandMaker) = KCommand(name, *aliases).apply(block).apply {
     register(plugin)
 }
 
@@ -88,6 +88,7 @@ private val serverCommands: SimpleCommandMap by lazy {
 }
 
 open class KCommand(name: String,
+                    vararg aliases: String = arrayOf(),
                     executor: ExecutorBlock? = null
 ) : org.bukkit.command.Command(name.trim()) {
 
@@ -138,7 +139,7 @@ open class KCommand(name: String,
         return true
     }
 
-    override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>): MutableList<String> {
+    override fun tabComplete(sender: CommandSender, alias: String, args: Array<out String>): List<String> {
         return if (tabCompleter != null) {
             tabCompleter!!.invoke(TabCompleter(sender, alias, args))
         } else {
@@ -146,27 +147,30 @@ open class KCommand(name: String,
         }
     }
 
-    open fun defaultTabComplete(sender: CommandSender, alias: String, args: Array<out String>): MutableList<String> {
+    open fun defaultTabComplete(sender: CommandSender, alias: String, args: Array<out String>): List<String> {
         if (args.size > 1) {
             val subCommand = subCommands.find { it.name.equals(args.getOrNull(0), true) }
             if (subCommand != null) {
                 return subCommand.tabComplete(sender, args.get(0), args.sliceArray(1 until args.size))
             } else {
-                emptyList<String>().toMutableList()
+                emptyList<String>()
             }
         } else if (args.size > 0) {
-            return subCommands
-                    .filter { it.name.startsWith(args.get(0), true) }
-                    .map { it.name }
-                    .toMutableList()
+            if (subCommands.isNotEmpty()) {
+                return subCommands
+                        .filter { it.name.startsWith(args.get(0), true) }
+                        .map { it.name }
+            } else return super.tabComplete(sender, alias, args)
         }
         return super.tabComplete(sender, alias, args)
     }
 
-    open fun command(name: String, block: CommandMaker) {
+    open fun command(name: String, vararg aliases: String = arrayOf(), block: CommandMaker) {
         subCommands.add(KCommand(name).also {
             it.permission = this.permission
             it.permissionMessage = this.permissionMessage
+            it.onlyInGameMessage = this.onlyInGameMessage
+            it.usageMessage = this.usageMessage
         }.apply(block))
     }
 
