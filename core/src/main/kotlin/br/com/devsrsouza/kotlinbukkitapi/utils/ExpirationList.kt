@@ -7,6 +7,12 @@ import org.bukkit.scheduler.BukkitTask
 
 typealias OnExipereBlock<T> = (T) -> Unit
 
+inline fun <reified E> expirationListOf(expireTime: Int, vararg elements: E = emptyArray(), plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+    = ExpirationList<E>(plugin).apply { elements.forEach { add(it, expireTime) } }
+
+fun <E> expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>> = emptyArray(), plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = ExpirationList<E>(plugin).apply { elements.forEach { (element, onExpire) -> add(element, expireTime, onExpire) } }
+
 private class ExpirationNode<E>(var element: E, val expireTime: Int) {
 
     var next: ExpirationNode<E>? = null
