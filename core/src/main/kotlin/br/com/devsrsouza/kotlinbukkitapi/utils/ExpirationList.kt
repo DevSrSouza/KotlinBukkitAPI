@@ -47,6 +47,10 @@ class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) :
         return getNode(index)?.element
     }
 
+    fun first() = head?.element
+
+    fun last() = tail?.element
+
     override operator fun iterator(): MutableIterator<E> {
         return object : MutableIterator<E> {
             private val nodeIterator = nodeIterator()
@@ -90,6 +94,19 @@ class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) :
         generateTask()
     }
 
+    fun addFirst(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null) {
+        val newNode = ExpirationNode(element, expireTime).also { it.onExpire = onExpire }
+        if (head == null) {
+            head = newNode
+            tail = newNode
+        } else {
+            head?.previous = newNode
+            head = newNode
+        }
+        size++
+        generateTask()
+    }
+
     fun removeAt(index: Int): E? {
         return getNode(index)?.also {
             removeNode(it)
@@ -97,6 +114,28 @@ class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) :
     }
 
     fun remove(element: E) = getNodeByElement(element)?.let { true.apply { removeNode(it) } } ?: false
+
+    fun removeFirst() {
+        val next = head?.next
+        if(next == null) {
+            tail = null
+            head = null
+        } else {
+            head = next
+            next.previous = null
+        }
+    }
+
+    fun removeLast() {
+        val previous = tail?.previous
+        if(previous == null) {
+            tail = null
+            head = null
+        } else {
+            tail = previous
+            previous.next = null
+        }
+    }
 
     private fun getNode(index: Int): ExpirationNode<E>? {
         if (index < 0 || index >= size) return null
