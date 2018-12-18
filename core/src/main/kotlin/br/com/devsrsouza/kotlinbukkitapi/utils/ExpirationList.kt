@@ -22,7 +22,7 @@ private class ExpirationNode<E>(var element: E, val expireTime: Int) {
     val startTime: Long = System.currentTimeMillis()
 }
 
-class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : Iterable<E> {
+class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : MutableIterable<E> {
 
     private var head: ExpirationNode<E>? = null
     private var tail: ExpirationNode<E>? = null
@@ -47,12 +47,13 @@ class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) :
         return getNode(index)?.element
     }
 
-    override operator fun iterator(): Iterator<E> {
-        return object : Iterator<E> {
+    override operator fun iterator(): MutableIterator<E> {
+        return object : MutableIterator<E> {
             private val nodeIterator = nodeIterator()
 
             override fun hasNext() = nodeIterator.hasNext()
             override fun next() = nodeIterator.next().element
+            override fun remove() = nodeIterator.remove()
         }
     }
 
@@ -130,8 +131,8 @@ class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) :
         return current!!
     }
 
-    private fun nodeIterator(): Iterator<ExpirationNode<E>> {
-        return object : Iterator<ExpirationNode<E>> {
+    private fun nodeIterator(): MutableIterator<ExpirationNode<E>> {
+        return object : MutableIterator<ExpirationNode<E>> {
 
             private var current = head
 
@@ -143,6 +144,11 @@ class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) :
                 val aux = current
                 current = current?.next
                 return aux!!
+            }
+
+            override fun remove() {
+                if (current != null)
+                    removeNode(current!!)
             }
         }
     }
