@@ -15,15 +15,20 @@ import kotlin.collections.LinkedHashMap
 typealias WhenPlayerQuitList = Player.() -> Unit
 typealias WhenPlayerQuitMap<V> = Player.(V) -> Unit
 
-fun onlinePlayerListOf(vararg players: Player = emptyArray(), plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun onlinePlayerListOf(plugin: Plugin = KotlinBukkitAPI.INSTANCE) = OnlinePlayerList(plugin)
+
+fun onlinePlayerListOf(vararg players: Player, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
         = OnlinePlayerList(plugin).apply { addAll(players) }
-fun onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitList> = emptyArray(), plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+
+fun onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitList>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
         = OnlinePlayerList(plugin).apply { pair.forEach { (player, whenPlayerQuit) -> add(player, whenPlayerQuit) } }
 
-fun <V> onlinePlayerMapOf(vararg pair: Pair<Player, V> = emptyArray(), plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun <V> onlinePlayerMapOf(plugin: Plugin = KotlinBukkitAPI.INSTANCE) = OnlinePlayerMap<V>(plugin)
+
+fun <V> onlinePlayerMapOf(vararg pair: Pair<Player, V>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
         = OnlinePlayerMap<V>(plugin).apply { putAll(pair) }
 
-fun <V> onlinePlayerMapOf(vararg triple: Triple<Player, V, WhenPlayerQuitMap<V>> = emptyArray(), plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun <V> onlinePlayerMapOf(vararg triple: Triple<Player, V, WhenPlayerQuitMap<V>>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
         = OnlinePlayerMap<V>(plugin).apply { triple.forEach { (player, value, whenPlayerQuit) -> put(player, value, whenPlayerQuit) } }
 
 class OnlinePlayerList(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : LinkedList<Player>(), Listener {
