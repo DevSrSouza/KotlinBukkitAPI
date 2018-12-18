@@ -5,7 +5,6 @@ import org.gradle.api.tasks.bundling.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    id("bukkit-dependecies")
     id("java")
     id("maven-publish")
     kotlin("jvm") version "1.3.10"
@@ -13,13 +12,14 @@ plugins {
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
 }
 
+val softPlugins by extra(mutableListOf<String>())
+
 val groupPrefix = "br.com.devsrsouza.kotlinbukkitapi"
 val pVersion = "0.1.0-SNAPSHOT"
 group = groupPrefix
 version = pVersion
 
 subprojects {
-    plugins.apply("bukkit-dependecies")
     plugins.apply("org.jetbrains.kotlin.jvm")
     plugins.apply("maven-publish")
     plugins.apply("com.github.johnrengelman.shadow")
@@ -53,7 +53,7 @@ subprojects {
         }
     }
 
-    val sourcesJar by tasks.registering(Jar::class) {
+    val sources by tasks.registering(Jar::class) {
         baseName = "KotlinBukkitAPI-$name"
         classifier = "sources"
         from(sourceSets.main.get().allSource)
@@ -65,7 +65,7 @@ subprojects {
         publications {
             register("mavenJava", MavenPublication::class) {
                 from(components["java"])
-                artifact(sourcesJar.get())
+                artifact(sources.get())
                 groupId = project.group.toString()
                 artifactId = project.name.toLowerCase()
                 version = project.version.toString()
@@ -134,12 +134,7 @@ bukkit {
     website = "https://github.com/DevSrSouza/KotlinBukkitAPI"
     authors = listOf("DevSrSouza")
 
-    subprojects.forEach {
-        softDepend = (softDepend
-                ?: mutableListOf()) + it.bukkitPlugins.plugins.flatMap { it.plugins.filter { it.softDepend } }.map { it.name }
-        depend = (softDepend
-                ?: mutableListOf()) + it.bukkitPlugins.plugins.flatMap { it.plugins.filter { it.depend } }.map { it.name }
-    }
+    softDepend = softPlugins
 
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
 }
