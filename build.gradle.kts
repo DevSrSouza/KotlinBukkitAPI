@@ -48,14 +48,16 @@ subprojects {
 
     tasks {
         "shadowJar"(ShadowJar::class) {
-            baseName = "KotlinBukkitAPI-$name"
+            baseName = "KotlinBukkitAPI-${project.name}"
             classifier = null
+            version = null
         }
     }
 
     val sources by tasks.registering(Jar::class) {
-        baseName = "KotlinBukkitAPI-$name"
+        baseName = "KotlinBukkitAPI-${project.name}"
         classifier = "sources"
+        version = null
         from(sourceSets.main.get().allSource)
     }
 
