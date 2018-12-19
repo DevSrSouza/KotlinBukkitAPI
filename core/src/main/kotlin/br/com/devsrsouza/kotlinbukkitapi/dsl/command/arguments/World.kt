@@ -17,12 +17,17 @@ import org.bukkit.entity.Player
 val MISSING_WORLD_ARGUMENT = "Missing a world argument.".color(RED)
 val WORLD_NOT_FOUND = "World typed not found.".color(RED)
 
+fun Executor<*>.worldOrNull(
+        index: Int,
+        argMissing: BaseComponent = MISSING_WORLD_ARGUMENT
+): World? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true))
+        .let { Bukkit.getWorld(it) }
+
 fun Executor<*>.world(
         index: Int,
         argMissing: BaseComponent = MISSING_WORLD_ARGUMENT,
         notFound: BaseComponent = WORLD_NOT_FOUND
-): World = (args.getOrNull(index) ?: throw CommandException(argMissing))
-        .let { Bukkit.getWorld(it) } ?: throw CommandException(notFound)
+): World = worldOrNull(index, argMissing) ?: throw CommandException(notFound)
 
 inline fun <T : CommandSender> Executor<T>.argumentWorld(
         argMissing: BaseComponent = MISSING_WORLD_ARGUMENT,

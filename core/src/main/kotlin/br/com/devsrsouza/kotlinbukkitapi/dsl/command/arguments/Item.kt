@@ -19,13 +19,18 @@ val MATERIAL_MISSING_PARAMETER = "Missing item argument.".color(ChatColor.RED)
 private fun toMaterial(string: String) = string.toIntOrNull()?.let { Material.getMaterial(it) }
         ?: Material.getMaterial(string)
 
+fun Executor<*>.materialOrNull(
+        index: Int,
+        argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER
+): Material? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)).run {
+    toMaterial(this)
+}
+
 fun Executor<*>.material(
         index: Int,
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
         notFound: BaseComponent = MATERIAL_NOT_FOUND
-): Material = (args.getOrNull(index) ?: throw CommandException(argMissing)).run {
-    toMaterial(this)
-} ?: throw CommandException(notFound)
+): Material = materialOrNull(index, argMissing) ?: throw CommandException(notFound)
 
 inline fun <T : CommandSender> Executor<T>.argumentMaterial(
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
@@ -42,18 +47,24 @@ inline fun <T : CommandSender> Executor<T>.argumentMaterial(
 
 val DATA_FORMAT = "The item data need be in number.".color(ChatColor.RED)
 
+fun Executor<*>.materialDataOrNull(
+        index: Int,
+        argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
+        dataFormat: BaseComponent = DATA_FORMAT
+): MaterialData? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)).run {
+    val sliced = this.split(":")
+    sliced.getOrNull(1)?.run {
+        (toMaterial(sliced[0]))
+                ?.asMaterialData(toIntOrNull()?.toByte() ?: throw CommandException(dataFormat))
+    } ?: materialOrNull(index, argMissing)?.asMaterialData()
+}
+
 fun Executor<*>.materialData(
         index: Int,
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
         notFound: BaseComponent = MATERIAL_NOT_FOUND,
         dataFormat: BaseComponent = DATA_FORMAT
-): MaterialData = (args.getOrNull(index) ?: throw CommandException(argMissing)).run {
-    val sliced = this.split(":")
-    sliced.getOrNull(1)?.run {
-        (toMaterial(sliced[0]) ?: throw CommandException(notFound))
-                .asMaterialData(toIntOrNull()?.toByte() ?: throw CommandException(dataFormat))
-    } ?: material(index, argMissing, notFound).asMaterialData()
-}
+): MaterialData = materialDataOrNull(index, argMissing, dataFormat) ?: throw CommandException(notFound)
 
 inline fun <T : CommandSender> Executor<T>.argumentMaterialData(
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,

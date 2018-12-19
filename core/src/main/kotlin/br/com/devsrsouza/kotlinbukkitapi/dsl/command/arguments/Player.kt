@@ -15,13 +15,17 @@ import org.bukkit.entity.Player
 val PLAYER_MISSING_PARAMETER = "Missing player parameter!".color(ChatColor.RED)
 val PLAYER_NOT_ONLINE = "The player specified is not online.".color(ChatColor.RED)
 
+fun Executor<*>.playerOrNull(
+        index: Int,
+        argMissing: BaseComponent = PLAYER_MISSING_PARAMETER
+): Player? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true))
+        .let { Bukkit.getPlayerExact(it) }
+
 fun Executor<*>.player(
         index: Int,
         argMissing: BaseComponent = PLAYER_MISSING_PARAMETER,
         notOnline: BaseComponent = PLAYER_NOT_ONLINE
-): Player = (args.getOrNull(index) ?: throw CommandException(argMissing))
-        .let { Bukkit.getPlayerExact(it) }
-        ?: throw CommandException(notOnline)
+): Player = playerOrNull(index, argMissing) ?: throw CommandException(notOnline)
 
 inline fun <T : CommandSender> Executor<T>.argumentPlayer(
         notOnline: BaseComponent = PLAYER_NOT_ONLINE,
@@ -39,7 +43,7 @@ inline fun <T : CommandSender> Executor<T>.argumentPlayer(
 fun Executor<*>.offlinePlayer(
         index: Int,
         argMissing: BaseComponent = PLAYER_MISSING_PARAMETER
-): OfflinePlayer = (args.getOrNull(index) ?: throw CommandException(argMissing))
+): OfflinePlayer = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true))
         .let { Bukkit.getOfflinePlayer(it) }
 
 inline fun <T : CommandSender> Executor<T>.argumentOfflinePlayer(
@@ -57,14 +61,18 @@ inline fun <T : CommandSender> Executor<T>.argumentOfflinePlayer(
 val GAMEMODE_MISSING_PARAMETER = "Missing GameMode argument.".color(ChatColor.RED)
 val GAMEMODE_NOT_FOUND = "The gamemode specified not found.".color(ChatColor.RED)
 
+fun Executor<*>.gameModeOrNull(
+        index: Int,
+        argMissing: BaseComponent = GAMEMODE_MISSING_PARAMETER
+): GameMode? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)).run {
+    toIntOrNull()?.let { GameMode.getByValue(it) } ?: whenErrorNull { GameMode.valueOf(this.toUpperCase()) }
+}
+
 fun Executor<*>.gameMode(
         index: Int,
         argMissing: BaseComponent = GAMEMODE_MISSING_PARAMETER,
         notFound: BaseComponent = GAMEMODE_NOT_FOUND
-): GameMode = (args.getOrNull(index) ?: throw CommandException(argMissing)).run {
-    toIntOrNull()?.let { GameMode.getByValue(it) } ?: whenErrorNull { GameMode.valueOf(this.toUpperCase()) }
-} ?: throw CommandException(notFound)
-
+): GameMode = gameModeOrNull(index, argMissing) ?: throw CommandException(notFound)
 
 inline fun <T : CommandSender> Executor<T>.argumentGameMode(
         argMissing: BaseComponent = GAMEMODE_MISSING_PARAMETER,

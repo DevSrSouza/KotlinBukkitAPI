@@ -18,8 +18,11 @@ typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
 typealias TabCompleterBlock = TabCompleter.() -> MutableList<String>
 typealias CommandMaker = KCommand.() -> Unit
 
-class CommandException(val senderMessage: BaseComponent? = null, val execute: () -> Unit = {}) : RuntimeException() {
-    constructor(senderMessage: String = "", execute: () -> Unit = {}) : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), execute)
+class CommandException(val senderMessage: BaseComponent? = null,
+                       val execute: () -> Unit = {},
+                       val argMissing: Boolean = false) : RuntimeException() {
+    constructor(senderMessage: String = "", execute: () -> Unit = {}, argMissing: Boolean = false)
+            : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), execute, argMissing)
 }
 
 fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
@@ -46,6 +49,15 @@ fun <T : CommandSender> Executor<T>.argumentExecutorBuilder(
         this@argumentExecutorBuilder.label + " " + label,
         whenErrorDefault(emptyArray()) { args.sliceArray(posIndex..args.size) }
 )
+
+inline fun <T> Executor<*>.optional(block: () -> T): T? {
+    try {
+        return block()
+    }catch (exception: CommandException) {
+        if(exception.argMissing) return null
+        else throw exception
+    }
+}
 
 fun Command.register(plugin: Plugin = KotlinBukkitAPI.INSTANCE) {
     serverCommands.register(plugin.name, this)

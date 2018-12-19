@@ -13,12 +13,16 @@ val NUMBER_FORMAT = "The parameter needs only numbers.".color(ChatColor.RED)
 
 // INT
 
+fun Executor<*>.intOrNull(
+        index: Int,
+        argMissing: BaseComponent = MISSING_NUMBER_PARAMETER
+): Int? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)).toIntOrNull()
+
 fun Executor<*>.int(
         index: Int,
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,
         numberFormat: BaseComponent = NUMBER_FORMAT
-): Int = (args.getOrNull(index) ?: throw CommandException(argMissing))
-        .toIntOrNull() ?: throw CommandException(numberFormat)
+): Int = intOrNull(index, argMissing) ?: throw CommandException(numberFormat)
 
 inline fun <T : CommandSender> Executor<T>.argumentInt(
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,
@@ -33,12 +37,17 @@ inline fun <T : CommandSender> Executor<T>.argumentInt(
 
 // DOUBLE
 
+fun Executor<*>.doubleOrNull(
+        index: Int,
+        argMissing: BaseComponent = MISSING_NUMBER_PARAMETER
+): Double? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true))
+        .toDoubleOrNull()?.takeUnless { it.isNaN() }
+
 fun Executor<*>.double(
         index: Int,
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,
         numberFormat: BaseComponent = NUMBER_FORMAT
-): Double = (args.getOrNull(index) ?: throw CommandException(argMissing))
-        .toDoubleOrNull()?.takeUnless { it.isNaN() } ?: throw CommandException(numberFormat)
+): Double = doubleOrNull(index, argMissing) ?: throw CommandException(numberFormat)
 
 inline fun <T : CommandSender> Executor<T>.argumentDouble(
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,
