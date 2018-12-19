@@ -11,77 +11,159 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.Plugin
 import java.util.*
 import kotlin.collections.LinkedHashMap
+import kotlin.collections.LinkedHashSet
 
-typealias WhenPlayerQuitList = Player.() -> Unit
-typealias WhenPlayerQuitMap<V> = Player.(V) -> Unit
+typealias WhenPlayerQuitCollectionCallback = Player.() -> Unit
+typealias WhenPlayerQuitMapCallback<V> = Player.(V) -> Unit
 
 fun onlinePlayerListOf(plugin: Plugin = KotlinBukkitAPI.INSTANCE) = OnlinePlayerList(plugin)
 
 fun onlinePlayerListOf(vararg players: Player, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
         = OnlinePlayerList(plugin).apply { addAll(players) }
 
-fun onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitList>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
         = OnlinePlayerList(plugin).apply { pair.forEach { (player, whenPlayerQuit) -> add(player, whenPlayerQuit) } }
+
+fun onlinePlayerSetOf(plugin: Plugin = KotlinBukkitAPI.INSTANCE) = OnlinePlayerSet(plugin)
+
+fun onlinePlayerSetOf(vararg players: Player, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = OnlinePlayerSet(plugin).apply { addAll(players) }
+
+fun onlinePlayerSetOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+        = OnlinePlayerSet(plugin).apply { pair.forEach { (player, whenPlayerQuit) -> add(player, whenPlayerQuit) } }
 
 fun <V> onlinePlayerMapOf(plugin: Plugin = KotlinBukkitAPI.INSTANCE) = OnlinePlayerMap<V>(plugin)
 
 fun <V> onlinePlayerMapOf(vararg pair: Pair<Player, V>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
         = OnlinePlayerMap<V>(plugin).apply { putAll(pair) }
 
-fun <V> onlinePlayerMapOf(vararg triple: Triple<Player, V, WhenPlayerQuitMap<V>>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun <V> onlinePlayerMapOf(vararg triple: Triple<Player, V, WhenPlayerQuitMapCallback<V>>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
         = OnlinePlayerMap<V>(plugin).apply { triple.forEach { (player, value, whenPlayerQuit) -> put(player, value, whenPlayerQuit) } }
 
-class OnlinePlayerList(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : LinkedList<Player>(), Listener {
-    private val whenQuit: MutableMap<Player, WhenPlayerQuitList> = mutableMapOf()
+class OnlinePlayerList(override val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : LinkedList<Player>(), OnlinePlayerCollection {
+    private val whenQuit: MutableList<Pair<Player, WhenPlayerQuitCollectionCallback>> = LinkedList()
 
-    init {
+    init { init() }
+
+    override fun add(player: Player, whenPlayerQuitCallback: Player.() -> Unit): Boolean {
+        if(super<OnlinePlayerCollection>.add(player, whenPlayerQuitCallback)) {
+            whenQuit.add(player to whenPlayerQuitCallback)
+            return true
+        } else return false
+    }
+
+    override fun add(element: Player): Boolean {
+        if (isEmpty()) registerEvents(plugin)
+        return super<LinkedList>.add(element)
+    }
+
+    override fun quit(player: Player): Boolean {
+        if(super.quit(player)) {
+            val iterator = whenQuit.iterator()
+            for (pair in iterator) {
+                if(pair.first == player) {
+                    iterator.remove()
+                    pair.second.invoke(pair.first)
+                }
+            }
+            return true
+        } else return false
+    }
+
+    override fun removeFirst(): Player {
+        return super.removeFirst().also {
+            if (isEmpty()) unregisterAll()
+        }
+    }
+
+    override fun removeLastOccurrence(p0: Any?): Boolean {
+        return super.removeLastOccurrence(p0).also {
+            if (isEmpty()) unregisterAll()
+        }
+    }
+
+    override fun removeAt(p0: Int): Player {
+        return super.removeAt(p0).also {
+            if (isEmpty()) unregisterAll()
+        }
+    }
+
+    override fun remove(element: Player): Boolean {
+        if(super.remove(element)) {
+            if (isEmpty()) unregisterAll()
+            return true
+        } else return false
+    }
+
+    override fun removeLast(): Player {
+        return super.removeLast().also {
+            if (isEmpty()) unregisterAll()
+        }
+    }
+}
+
+class OnlinePlayerSet(override val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : LinkedHashSet<Player>(), OnlinePlayerCollection {
+    private val whenQuit: MutableMap<Player, WhenPlayerQuitCollectionCallback> = mutableMapOf()
+
+    init { init() }
+
+    override fun add(player: Player, whenPlayerQuitCallback: Player.() -> Unit): Boolean {
+        if(super<OnlinePlayerCollection>.add(player, whenPlayerQuitCallback)) {
+            whenQuit.put(player, whenPlayerQuitCallback)
+            return true
+        } else return false
+    }
+
+    override fun add(element: Player): Boolean {
+        val empty = isEmpty()
+        val added = super<LinkedHashSet>.add(element)
+
+        if(added && empty) registerEvents(plugin)
+
+        return added
+    }
+
+    override fun remove(element: Player): Boolean {
+        if(super.remove(element)) {
+            if (isEmpty()) unregisterAll()
+            return true
+        } else return false
+    }
+
+    override fun quit(player: Player): Boolean {
+        if(super.quit(player)) {
+            whenQuit.remove(player)?.also { block ->
+                block.invoke(player)
+            }
+            return true
+        } else return false
+    }
+}
+
+interface OnlinePlayerCollection : MutableCollection<Player>, Listener {
+
+    val plugin: Plugin
+
+    fun init() {
         event<PlayerQuitEvent> { quit(player) }
         event<PlayerKickEvent> { quit(player) }
     }
 
-    fun add(player: Player, whenPlayerQuit: Player.() -> Unit) : Boolean {
-        whenQuit.put(player, whenPlayerQuit)
-        if(isEmpty()) registerEvents(plugin)
+    fun add(player: Player, whenPlayerQuit: Player.() -> Unit): Boolean {
+        if (isEmpty()) registerEvents(plugin)
         return add(player)
     }
 
-    fun quit(player: Player) {
-        if(remove(player)) {
-            whenQuit.remove(player)?.also { block ->
-                block.invoke(player)
-            }
-            if(isEmpty()) unregisterAll()
-        }
-    }
-
-    override fun removeFirst(): Player {
-        if (isEmpty()) unregisterAll()
-        return super.removeFirst()
-    }
-
-    override fun removeLastOccurrence(p0: Any?): Boolean {
-        if (isEmpty()) unregisterAll()
-        return super.removeLastOccurrence(p0)
-    }
-
-    override fun removeAt(p0: Int): Player {
-        if (isEmpty()) unregisterAll()
-        return super.removeAt(p0)
-    }
-
-    override fun remove(element: Player): Boolean {
-        if (isEmpty()) unregisterAll()
-        return super.remove(element)
-    }
-
-    override fun removeLast(): Player {
-        if (isEmpty()) unregisterAll()
-        return super.removeLast()
+    fun quit(player: Player): Boolean {
+        if (remove(player)) {
+            if (isEmpty()) unregisterAll()
+            return true
+        } else return false
     }
 }
 
 class OnlinePlayerMap<V>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : LinkedHashMap<Player, V>(), Listener {
-    private val whenQuit: MutableMap<Player, WhenPlayerQuitMap<V>> = mutableMapOf()
+    private val whenQuit: MutableMap<Player, WhenPlayerQuitMapCallback<V>> = mutableMapOf()
 
     init {
         event<PlayerQuitEvent> { quit(player) }
@@ -106,12 +188,14 @@ class OnlinePlayerMap<V>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) 
     }
 
     override fun remove(key: Player): V? {
-        if(isEmpty()) unregisterAll()
-        return super.remove(key)
+        return super.remove(key).also {
+            if(isEmpty()) unregisterAll()
+        }
     }
 
     override fun remove(key: Player, value: V): Boolean {
-        if(isEmpty()) unregisterAll()
-        return super.remove(key, value)
+        return super.remove(key, value).also {
+            if(isEmpty()) unregisterAll()
+        }
     }
 }
