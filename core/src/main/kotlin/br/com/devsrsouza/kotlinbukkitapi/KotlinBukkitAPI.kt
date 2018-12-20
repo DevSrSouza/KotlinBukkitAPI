@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi
 
-import br.com.devsrsouza.kotlinbukkitapi.dsl.ChatInputController
 import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.MenuController
+import br.com.devsrsouza.kotlinbukkitapi.dsl.player.PlayerController
 import br.com.devsrsouza.kotlinbukkitapi.extensions.registerEvents
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -18,6 +18,6 @@ class KotlinBukkitAPI : JavaPlugin() {
 
     override fun onEnable() {
         registerEvents(MenuController)
-        registerEvents(ChatInputController)
+        registerEvents(PlayerController)
     }
 }

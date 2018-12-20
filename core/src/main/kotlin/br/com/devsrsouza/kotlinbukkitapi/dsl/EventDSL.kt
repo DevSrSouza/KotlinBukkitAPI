@@ -6,6 +6,7 @@ import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.full.safeCast
 
@@ -33,3 +34,6 @@ fun Listener.unregisterAll() {
 
 fun Listener.registerEvents(plugin: Plugin = KotlinBukkitAPI.INSTANCE)
         = plugin.server.pluginManager.registerEvents(this, plugin)
+
+val PlayerMoveEvent.displaced: Boolean
+    get() = this.from.x != this.to.x || this.from.y != this.to.y || this.from.z != this.to.z
