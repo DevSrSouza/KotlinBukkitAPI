@@ -22,7 +22,7 @@ private fun toMaterial(string: String) = string.toIntOrNull()?.let { Material.ge
 fun Executor<*>.materialOrNull(
         index: Int,
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER
-): Material? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)).run {
+): Material? = string(index, argMissing).run {
     toMaterial(this)
 }
 
@@ -51,7 +51,7 @@ fun Executor<*>.materialDataOrNull(
         index: Int,
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
         dataFormat: BaseComponent = DATA_FORMAT
-): MaterialData? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)).run {
+): MaterialData? = string(index, argMissing).run {
     val sliced = this.split(":")
     sliced.getOrNull(1)?.run {
         (toMaterial(sliced[0]))

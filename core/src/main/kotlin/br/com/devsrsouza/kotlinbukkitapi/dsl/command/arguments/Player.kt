@@ -18,8 +18,7 @@ val PLAYER_NOT_ONLINE = "The player specified is not online.".color(ChatColor.RE
 fun Executor<*>.playerOrNull(
         index: Int,
         argMissing: BaseComponent = PLAYER_MISSING_PARAMETER
-): Player? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true))
-        .let { Bukkit.getPlayerExact(it) }
+): Player? = string(index, argMissing).let { Bukkit.getPlayerExact(it) }
 
 fun Executor<*>.player(
         index: Int,
@@ -43,8 +42,7 @@ inline fun <T : CommandSender> Executor<T>.argumentPlayer(
 fun Executor<*>.offlinePlayer(
         index: Int,
         argMissing: BaseComponent = PLAYER_MISSING_PARAMETER
-): OfflinePlayer = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true))
-        .let { Bukkit.getOfflinePlayer(it) }
+): OfflinePlayer = string(index, argMissing).let { Bukkit.getOfflinePlayer(it) }
 
 inline fun <T : CommandSender> Executor<T>.argumentOfflinePlayer(
         argMissing: BaseComponent = PLAYER_MISSING_PARAMETER,
@@ -64,7 +62,7 @@ val GAMEMODE_NOT_FOUND = "The gamemode specified not found.".color(ChatColor.RED
 fun Executor<*>.gameModeOrNull(
         index: Int,
         argMissing: BaseComponent = GAMEMODE_MISSING_PARAMETER
-): GameMode? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)).run {
+): GameMode? = string(index, argMissing).run {
     toIntOrNull()?.let { GameMode.getByValue(it) } ?: whenErrorNull { GameMode.valueOf(this.toUpperCase()) }
 }
 

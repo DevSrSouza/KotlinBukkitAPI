@@ -8,6 +8,15 @@ import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
 
+// STRING
+
+val MISSING_STRING_PARAMETER = "Missing a word argument.".color(ChatColor.RED)
+
+fun Executor<*>.string(
+        index: Int,
+        argMissing: BaseComponent = MISSING_STRING_PARAMETER
+): String = args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)
+
 val MISSING_NUMBER_PARAMETER = "Missing a number argument.".color(ChatColor.RED)
 val NUMBER_FORMAT = "The parameter needs only numbers.".color(ChatColor.RED)
 
@@ -16,7 +25,7 @@ val NUMBER_FORMAT = "The parameter needs only numbers.".color(ChatColor.RED)
 fun Executor<*>.intOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER
-): Int? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)).toIntOrNull()
+): Int? = string(index, argMissing).toIntOrNull()
 
 fun Executor<*>.int(
         index: Int,
@@ -40,8 +49,7 @@ inline fun <T : CommandSender> Executor<T>.argumentInt(
 fun Executor<*>.doubleOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER
-): Double? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true))
-        .toDoubleOrNull()?.takeUnless { it.isNaN() }
+): Double? = string(index, argMissing).toDoubleOrNull()?.takeUnless { it.isNaN() }
 
 fun Executor<*>.double(
         index: Int,

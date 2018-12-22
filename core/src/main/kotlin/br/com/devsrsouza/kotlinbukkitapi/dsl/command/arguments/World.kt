@@ -20,8 +20,7 @@ val WORLD_NOT_FOUND = "World typed not found.".color(RED)
 fun Executor<*>.worldOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_WORLD_ARGUMENT
-): World? = (args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true))
-        .let { Bukkit.getWorld(it) }
+): World? = string(index, argMissing).let { Bukkit.getWorld(it) }
 
 fun Executor<*>.world(
         index: Int,
