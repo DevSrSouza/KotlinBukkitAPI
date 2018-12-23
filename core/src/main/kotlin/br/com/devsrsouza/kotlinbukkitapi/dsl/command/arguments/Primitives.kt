@@ -3,6 +3,7 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandException
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.argumentExecutorBuilder
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import br.com.devsrsouza.kotlinbukkitapi.utils.FALSE_CASES
 import br.com.devsrsouza.kotlinbukkitapi.utils.TRUE_CASES
@@ -18,7 +19,7 @@ val MISSING_STRING_PARAMETER = "Missing a word argument.".color(ChatColor.RED)
 fun Executor<*>.string(
         index: Int,
         argMissing: BaseComponent = MISSING_STRING_PARAMETER
-): String = args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)
+): String = args.getOrNull(index) ?: throw CommandException(argMissing, true)
 
 // BOOLEAN
 
@@ -38,7 +39,7 @@ fun Executor<*>.boolean(
         booleanFormat: BaseComponent = BOOLEAN_FORMAT,
         trueCases: Array<String> = TRUE_CASES,
         falseCases: Array<String> = FALSE_CASES
-): Boolean = booleanOrNull(index, argMissing, trueCases, falseCases) ?: throw CommandException(booleanFormat)
+): Boolean = booleanOrNull(index, argMissing, trueCases, falseCases) ?: exception(booleanFormat)
 
 inline fun <T : CommandSender> Executor<T>.booleanArgument(
         argMissing: BaseComponent = MISSING_BOOLEAN_PARAMETER,
@@ -50,7 +51,7 @@ inline fun <T : CommandSender> Executor<T>.booleanArgument(
 ) {
     val boolean = boolean(index, argMissing, booleanFormat, trueCases, falseCases)
 
-    argumentExecutorBuilder(index +1, "$boolean").block(boolean)
+    argumentExecutorBuilder(index + 1, "$boolean").block(boolean)
 }
 
 val MISSING_NUMBER_PARAMETER = "Missing a number argument.".color(ChatColor.RED)
@@ -67,7 +68,7 @@ fun Executor<*>.int(
         index: Int,
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,
         numberFormat: BaseComponent = NUMBER_FORMAT
-): Int = intOrNull(index, argMissing) ?: throw CommandException(numberFormat)
+): Int = intOrNull(index, argMissing) ?: exception(numberFormat)
 
 inline fun <T : CommandSender> Executor<T>.argumentInt(
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,
@@ -91,7 +92,7 @@ fun Executor<*>.double(
         index: Int,
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,
         numberFormat: BaseComponent = NUMBER_FORMAT
-): Double = doubleOrNull(index, argMissing) ?: throw CommandException(numberFormat)
+): Double = doubleOrNull(index, argMissing) ?: exception(numberFormat)
 
 inline fun <T : CommandSender> Executor<T>.argumentDouble(
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER,

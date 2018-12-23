@@ -3,6 +3,7 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandException
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.argumentExecutorBuilder
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception
 import br.com.devsrsouza.kotlinbukkitapi.dsl.item.asMaterialData
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import net.md_5.bungee.api.chat.BaseComponent
@@ -30,7 +31,7 @@ fun Executor<*>.material(
         index: Int,
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
         notFound: BaseComponent = MATERIAL_NOT_FOUND
-): Material = materialOrNull(index, argMissing) ?: throw CommandException(notFound)
+): Material = materialOrNull(index, argMissing) ?: exception(notFound)
 
 inline fun <T : CommandSender> Executor<T>.argumentMaterial(
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
@@ -55,7 +56,7 @@ fun Executor<*>.materialDataOrNull(
     val sliced = this.split(":")
     sliced.getOrNull(1)?.run {
         (toMaterial(sliced[0]))
-                ?.asMaterialData(toIntOrNull()?.toByte() ?: throw CommandException(dataFormat))
+                ?.asMaterialData(toIntOrNull()?.toByte() ?: exception(dataFormat))
     } ?: materialOrNull(index, argMissing)?.asMaterialData()
 }
 
@@ -64,7 +65,7 @@ fun Executor<*>.materialData(
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
         notFound: BaseComponent = MATERIAL_NOT_FOUND,
         dataFormat: BaseComponent = DATA_FORMAT
-): MaterialData = materialDataOrNull(index, argMissing, dataFormat) ?: throw CommandException(notFound)
+): MaterialData = materialDataOrNull(index, argMissing, dataFormat) ?: exception(notFound)
 
 inline fun <T : CommandSender> Executor<T>.argumentMaterialData(
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,

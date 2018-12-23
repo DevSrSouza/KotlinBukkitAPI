@@ -3,6 +3,7 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandException
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.argumentExecutorBuilder
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.Bukkit
@@ -26,7 +27,7 @@ fun Executor<*>.world(
         index: Int,
         argMissing: BaseComponent = MISSING_WORLD_ARGUMENT,
         notFound: BaseComponent = WORLD_NOT_FOUND
-): World = worldOrNull(index, argMissing) ?: throw CommandException(notFound)
+): World = worldOrNull(index, argMissing) ?: exception(notFound)
 
 inline fun <T : CommandSender> Executor<T>.argumentWorld(
         argMissing: BaseComponent = MISSING_WORLD_ARGUMENT,

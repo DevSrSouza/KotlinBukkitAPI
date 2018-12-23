@@ -19,11 +19,21 @@ typealias TabCompleterBlock = TabCompleter.() -> List<String>
 typealias CommandMaker = KCommand.() -> Unit
 
 class CommandException(val senderMessage: BaseComponent? = null,
-                       val execute: () -> Unit = {},
-                       val argMissing: Boolean = false) : RuntimeException() {
-    constructor(senderMessage: String = "", execute: () -> Unit = {}, argMissing: Boolean = false)
-            : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), execute, argMissing)
+                       val argMissing: Boolean = false,
+                       val execute: () -> Unit = {}) : RuntimeException() {
+    constructor(senderMessage: String = "", argMissing: Boolean = false, execute: () -> Unit = {})
+            : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), argMissing, execute)
 }
+
+inline fun Executor<*>.exception(
+        senderMessage: BaseComponent? = null,
+        noinline execute: () -> Unit = {}
+): Nothing = throw CommandException(senderMessage, execute = execute)
+
+inline fun Executor<*>.exception(
+        senderMessage: String = "",
+        noinline execute: () -> Unit = {}
+): Nothing = throw CommandException(senderMessage, execute = execute)
 
 fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
                   description: String = "",

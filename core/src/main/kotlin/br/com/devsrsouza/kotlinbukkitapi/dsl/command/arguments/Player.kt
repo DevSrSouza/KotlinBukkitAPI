@@ -3,6 +3,7 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandException
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.argumentExecutorBuilder
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorNull
 import net.md_5.bungee.api.chat.BaseComponent
@@ -24,7 +25,7 @@ fun Executor<*>.player(
         index: Int,
         argMissing: BaseComponent = PLAYER_MISSING_PARAMETER,
         notOnline: BaseComponent = PLAYER_NOT_ONLINE
-): Player = playerOrNull(index, argMissing) ?: throw CommandException(notOnline)
+): Player = playerOrNull(index, argMissing) ?: exception(notOnline)
 
 inline fun <T : CommandSender> Executor<T>.argumentPlayer(
         notOnline: BaseComponent = PLAYER_NOT_ONLINE,
@@ -70,7 +71,7 @@ fun Executor<*>.gameMode(
         index: Int,
         argMissing: BaseComponent = GAMEMODE_MISSING_PARAMETER,
         notFound: BaseComponent = GAMEMODE_NOT_FOUND
-): GameMode = gameModeOrNull(index, argMissing) ?: throw CommandException(notFound)
+): GameMode = gameModeOrNull(index, argMissing) ?: exception(notFound)
 
 inline fun <T : CommandSender> Executor<T>.argumentGameMode(
         argMissing: BaseComponent = GAMEMODE_MISSING_PARAMETER,
