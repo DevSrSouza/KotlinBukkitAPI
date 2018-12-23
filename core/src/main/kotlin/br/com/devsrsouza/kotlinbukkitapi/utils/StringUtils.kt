@@ -13,3 +13,17 @@ fun String.centralize(length: Int, spacer: String = " ", prefix: String = "", su
     val part = prefix + spacer.repeat((length - this.length) / 2) + suffix
     return part + this + part
 }
+
+val TRUE_CASES = arrayOf("true")
+    get() = field.clone()
+val FALSE_CASES = arrayOf("false")
+    get() = field.clone()
+
+fun String.toBooleanOrNull(trueCases: Array<String> = TRUE_CASES,
+                           falseCases: Array<String> = FALSE_CASES): Boolean? {
+    return when {
+        trueCases.any { it.equals(this, true) } -> true
+        falseCases.any { it.equals(this, true) } -> false
+        else -> null
+    }
+}

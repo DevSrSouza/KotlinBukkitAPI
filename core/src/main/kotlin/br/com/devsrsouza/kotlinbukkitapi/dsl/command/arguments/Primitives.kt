@@ -4,6 +4,9 @@ import br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandException
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.argumentExecutorBuilder
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
+import br.com.devsrsouza.kotlinbukkitapi.utils.FALSE_CASES
+import br.com.devsrsouza.kotlinbukkitapi.utils.TRUE_CASES
+import br.com.devsrsouza.kotlinbukkitapi.utils.toBooleanOrNull
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.ChatColor
 import org.bukkit.command.CommandSender
@@ -16,6 +19,39 @@ fun Executor<*>.string(
         index: Int,
         argMissing: BaseComponent = MISSING_STRING_PARAMETER
 ): String = args.getOrNull(index) ?: throw CommandException(argMissing, argMissing = true)
+
+// BOOLEAN
+
+val MISSING_BOOLEAN_PARAMETER = "Missing a true/false argument.".color(ChatColor.RED)
+val BOOLEAN_FORMAT = "The parameter needs only true or false.".color(ChatColor.RED)
+
+fun Executor<*>.booleanOrNull(
+        index: Int,
+        argMissing: BaseComponent = MISSING_BOOLEAN_PARAMETER,
+        trueCases: Array<String> = TRUE_CASES,
+        falseCases: Array<String> = FALSE_CASES
+): Boolean? = string(index, argMissing).toBooleanOrNull(trueCases, falseCases)
+
+fun Executor<*>.boolean(
+        index: Int,
+        argMissing: BaseComponent = MISSING_BOOLEAN_PARAMETER,
+        booleanFormat: BaseComponent = BOOLEAN_FORMAT,
+        trueCases: Array<String> = TRUE_CASES,
+        falseCases: Array<String> = FALSE_CASES
+): Boolean = booleanOrNull(index, argMissing, trueCases, falseCases) ?: throw CommandException(booleanFormat)
+
+inline fun <T : CommandSender> Executor<T>.booleanArgument(
+        argMissing: BaseComponent = MISSING_BOOLEAN_PARAMETER,
+        booleanFormat: BaseComponent = BOOLEAN_FORMAT,
+        trueCases: Array<String> = TRUE_CASES,
+        falseCases: Array<String> = FALSE_CASES,
+        index: Int = 0,
+        block: Executor<T>.(Boolean) -> Unit
+) {
+    val boolean = boolean(index, argMissing, booleanFormat, trueCases, falseCases)
+
+    argumentExecutorBuilder(index +1, "$boolean").block(boolean)
+}
 
 val MISSING_NUMBER_PARAMETER = "Missing a number argument.".color(ChatColor.RED)
 val NUMBER_FORMAT = "The parameter needs only numbers.".color(ChatColor.RED)
