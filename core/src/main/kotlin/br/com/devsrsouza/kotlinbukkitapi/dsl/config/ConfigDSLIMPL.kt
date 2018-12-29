@@ -43,7 +43,7 @@ object ConfigDSLIMPL {
 
             if (obj != null) {
                 if (delegate?.loadFunction != null) {
-                    delegate.load(loadTransformer?.invoke(prop, obj) ?: obj)
+                    delegate.deserialize(loadTransformer?.invoke(prop, obj) ?: obj)
                 } else if (prop.returnType.classifier != null) {
                     val propType = prop.returnType.classifier
                     when (propType) {
@@ -117,7 +117,7 @@ object ConfigDSLIMPL {
             saveTransformer: PropertyTransformer? = null
     ) {
         if (delegate?.saveFunction != null) {
-            val toSave = delegate.save()
+            val toSave = delegate.serialize()
             set(resolveEntry(saveTransformer?.invoke(prop, toSave) ?: toSave, prop.name, base) as Entry<String, Any>)
         } else {
             val defaultObj = prop.getter.apply { isAccessible = true }.call(instance).let {
@@ -215,7 +215,7 @@ object ConfigDSLIMPL {
             if (obj != null) {
 
                 if (delegate?.loadFunction != null) {
-                    delegate.load(loadTransformer?.invoke(prop, obj) ?: obj)
+                    delegate.deserialize(loadTransformer?.invoke(prop, obj) ?: obj)
                 } else if (prop.returnType.classifier != null) {
                     val propType = prop.returnType.classifier
                     when (propType) {

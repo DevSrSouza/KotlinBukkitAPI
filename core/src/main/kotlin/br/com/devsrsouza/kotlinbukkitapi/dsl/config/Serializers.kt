@@ -9,30 +9,28 @@ import net.md_5.bungee.api.chat.TextComponent
 import net.md_5.bungee.chat.ComponentSerializer
 import org.bukkit.Bukkit
 import org.bukkit.Location
-import org.bukkit.inventory.ItemStack
 import kotlin.reflect.KProperty
-import kotlin.reflect.KProperty1
 
 typealias LoadFunction<T> = (Any) -> T
 typealias SaveFunction<T> = T.() -> Any
 
 open class Serializable<T>(val default: T, val description: String = "") {
 
-    private var _value: T = default
+    var value: T = default
 
     internal var loadFunction: LoadFunction<T>? = null
     internal var saveFunction: SaveFunction<T>? = null
 
     operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return _value
+        return value
     }
 
     operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
-        _value = value
+        this.value = value
     }
 
-    internal fun load(any: Any) = Unit.apply { if (loadFunction != null) _value = loadFunction!!.invoke(any) }
-    internal fun save() = saveFunction?.invoke(_value) ?: default as Any
+    fun deserialize(any: Any) { if (loadFunction != null) value = loadFunction!!.invoke(any) }
+    fun serialize() = saveFunction?.invoke(value) ?: default as Any
 
     fun load(block: LoadFunction<T>) {
         loadFunction = block
