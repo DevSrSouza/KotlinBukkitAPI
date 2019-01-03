@@ -1,6 +1,5 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.text
 
-import br.com.devsrsouza.kotlinbukkitapi.extensions.Console
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.ClickEvent
 import net.md_5.bungee.api.chat.HoverEvent
@@ -12,9 +11,14 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import kotlin.reflect.KProperty
 
+fun CommandSender.msg(message: String) = sendMessage(message)
+fun CommandSender.msg(message: Array<String>) = sendMessage(message)
+
 /**
  * ONLY WITH SPIGOT
  */
+
+fun textOf(text: String) = text.asText()
 
 operator fun String.unaryPlus() = ChatColor.translateAlternateColorCodes('&', this)
 operator fun String.unaryMinus() = replace('§', '&')
@@ -37,8 +41,15 @@ fun CommandSender.sendMessage(text: BaseComponent) = (this as? Player)?.let { it
 fun CommandSender.sendMessage(text: Array<BaseComponent>) = (this as? Player)?.let { it.sendMessage(text) } ?: sendMessage(TextComponent.toLegacyText(*text))
 fun CommandSender.sendMessage(text: List<BaseComponent>) = sendMessage(text.toTypedArray())
 
-//fun String.asText() = TextComponent(*TextComponent.fromLegacyText(this))
-fun String.asText() = TextComponent(this)
+fun Player.msg(text: BaseComponent) = sendMessage(text)
+fun Player.msg(text: Array<BaseComponent>) = sendMessage(text)
+fun Player.msg(text: List<BaseComponent>) = sendMessage(text)
+fun CommandSender.msg(text: BaseComponent) = sendMessage(text)
+fun CommandSender.msg(text: Array<BaseComponent>) = sendMessage(text)
+fun CommandSender.msg(text: List<BaseComponent>) = sendMessage(text)
+
+fun String.asText() = TextComponent(*TextComponent.fromLegacyText(this))
+//fun String.asText() = TextComponent(this)
 fun BaseComponent.toJson() = ComponentSerializer.toString(this)
 fun Array<BaseComponent>.toJson() = ComponentSerializer.toString(*this)
 
