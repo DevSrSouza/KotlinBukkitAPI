@@ -1,14 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions
 
 import org.bukkit.Bukkit
+import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
 
-object Console {
-    val sender get() = Bukkit.getConsoleSender()
-
-    fun command(command: String) = Bukkit.dispatchCommand(sender, command)
-    fun message(message: String) = sender.sendMessage(message)
-    fun sendMessage(message: String) = message(message)
+object Console : ConsoleCommandSender by Bukkit.getConsoleSender() {
+    fun command(command: String) = Bukkit.dispatchCommand(this, command)
 }
 
 fun mainWorld() = Bukkit.getWorlds()[0]
