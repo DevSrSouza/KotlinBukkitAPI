@@ -177,6 +177,9 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
 
 class Slot(private val menu: Menu, val pos: Int, var item: ItemStack? = null) {
 
+    val slotData = mutableMapOf<String, Any>()
+    val playerSlotData = mutableMapOf<Player, MutableMap<String, Any>>()
+
     internal var click: SlotClickEvent? = null
     internal var render: SlotRenderItemEvent? = null
     internal var update: SlotUpdateEvent? = null
@@ -197,6 +200,12 @@ class Slot(private val menu: Menu, val pos: Int, var item: ItemStack? = null) {
     fun onMoveToSlot(moveToSlot: MoveToSlotEvent) {
         this.moveToSlot = moveToSlot
     }
+
+    fun PlayerInteractive.putPlayerSlotData(key: String, value: Any) {
+        playerSlotData[player]?.also { it[key] = value } ?: run { playerSlotData[player] = mutableMapOf(key to value) }
+    }
+
+    fun PlayerInteractive.getPlayerSlotData(key: String) = playerSlotData.get(player)?.get(key)
 
     fun clone(pos: Int) = Slot(menu, pos, item).apply {
         this@Slot.render = render
@@ -298,6 +307,8 @@ object MenuController : Listener {
         if (menu != null) {
             menu.close?.invoke(MenuClose(player, player.openInventory.topInventory))
             menu.playerData.remove(player)
+            menu.baseSlot.playerSlotData.remove(player)
+            menu.slots.forEach { it.value.playerSlotData.remove(player) }
             menu.viewers.remove(player)
             if (menu.task != null && menu.viewers.isNotEmpty()) {
                 menu.task?.cancel()
