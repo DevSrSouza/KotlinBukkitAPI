@@ -30,8 +30,7 @@ fun ItemStack.getStorageData(key: UUID): String? {
     }
 }
 
-fun ItemStack.toBase64(): String {
-
+fun ItemStack.toByteArray(): ByteArray {
     val craftItemStack = NbtFactory.getCraftItemStack(this)
 
     val nbt = NbtFactory.createCompound().apply {
@@ -46,15 +45,16 @@ fun ItemStack.toBase64(): String {
 
     val output = ByteArrayOutputStream()
 
-    NbtFactory.saveStream(nbt, {output}, NbtFactory.StreamOptions.GZIP_COMPRESSION)
+    NbtFactory.saveStream(nbt, { output }, NbtFactory.StreamOptions.GZIP_COMPRESSION)
 
-    return Base64Coder.encodeLines(output.toByteArray())
+    return output.toByteArray()
 }
 
-fun fromBase64Item(data: String): ItemStack {
+fun ItemStack.toBase64(): String = Base64Coder.encodeLines(toByteArray())
 
+fun fromByteArrayItem(byteArray: ByteArray): ItemStack {
     val nbt = NbtFactory.fromStream(
-            { ByteArrayInputStream(Base64Coder.decodeLines(data)) },
+            { ByteArrayInputStream(byteArray) },
             NbtFactory.StreamOptions.GZIP_COMPRESSION
     )
     var stack = ItemStack(
@@ -70,6 +70,8 @@ fun fromBase64Item(data: String): ItemStack {
 
     return stack
 }
+
+fun fromBase64Item(data: String): ItemStack = fromByteArrayItem(Base64Coder.decodeLines(data))
 
 // serializers
 
