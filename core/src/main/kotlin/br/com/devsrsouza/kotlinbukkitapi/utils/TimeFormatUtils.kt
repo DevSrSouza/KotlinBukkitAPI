@@ -1,9 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
+const val DEFAULT_FORMAT = "%YEAR %MONTH %WEEK %DAY %HOUR %MIN %SEC"
+
 val Int.formater: TimeFormat get() = TimeFormat(this)
 
 val TimeFormat.PTBR get() = format(PTBRFormat)
-val TimeFormat.EN get() = format(PTBRFormat)
+val TimeFormat.EN get() = format(ENFormat)
 
 interface FormatLang {
     val second: String
@@ -23,7 +25,7 @@ interface FormatLang {
 }
 
 inline class TimeFormat(private val time: Int) {
-    fun format(lang: FormatLang): String {
+    fun format(lang: FormatLang, format: String = DEFAULT_FORMAT): String {
         val seconds = time % 60
         val minutes = time / 60 % 60
         val hours = time / 3600 % 24
@@ -32,28 +34,20 @@ inline class TimeFormat(private val time: Int) {
         val months = time / 2419200 % 12
         val years = time / 29030400
 
-        var formated = ""
-        if (seconds > 0) {
-            formated = "$seconds ${if (seconds > 1) lang.seconds else lang.second}"
-        }
-        if (minutes > 0) {
-            formated = "$minutes ${if (minutes > 1) lang.minutes else lang.minute} " + formated
-        }
-        if (hours > 0) {
-            formated = "$hours ${if (hours > 1) lang.hours else lang.hour} " + formated
-        }
-        if (days > 0) {
-            formated = "$days ${if (days > 1) lang.days else lang.day} " + formated
-        }
-        if (weeks > 0) {
-            formated = "$weeks ${if (weeks > 1) lang.weeks else lang.week} " + formated
-        }
-        if (months > 0) {
-            formated = "$months ${if (months > 1) lang.months else lang.month} " + formated
-        }
-        if (years > 0) {
-            formated = "$years ${if (years > 1) lang.years else lang.year} " + formated
-        }
+        var formated = format.replace(if (seconds > 0) "$seconds ${if (seconds > 1) lang.seconds else lang.second}" else "", "%SEC", true)
+
+        formated = formated.replace(if (minutes > 0) "$minutes ${if (minutes > 1) lang.minutes else lang.minute}" else "", "%MIN", true)
+
+        formated = formated.replace(if (hours > 0) "$hours ${if (hours > 1) lang.hours else lang.hour}" else "", "%HOUR", true)
+
+        formated = formated.replace(if (days > 0) "$days ${if (days > 1) lang.days else lang.day}" else "", "%DAY", true)
+
+        formated = formated.replace(if (weeks > 0) "$weeks ${if (weeks > 1) lang.weeks else lang.week}" else "", "%WEEK", true)
+
+        formated = formated.replace(if (months > 0) "$months ${if (months > 1) lang.months else lang.month}" else "", "%MONTH", true)
+
+        formated = formated.replace(if (years > 0) "$years ${if (years > 1) lang.years else lang.year}" else "", "%YEAR", true)
+
         return formated.trim()
     }
 }
