@@ -3,12 +3,16 @@ package br.com.devsrsouza.kotlinbukkitapi.extensions
 import org.bukkit.Bukkit
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
+import java.util.*
 
 object Console : ConsoleCommandSender by Bukkit.getConsoleSender() {
     fun command(command: String) = Bukkit.dispatchCommand(this, command)
 }
 
 fun mainWorld() = Bukkit.getWorlds()[0]
+fun offlinePlayer(uuid: UUID) = Bukkit.getOfflinePlayer(uuid)
+fun offlinePlayer(name: String) = Bukkit.getOfflinePlayer(name)
+fun onlinePlayers() = Bukkit.getOfflinePlayers()
 
 fun broadcast(message: String) {
     Bukkit.broadcastMessage(message)
