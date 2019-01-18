@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions
+package br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit
 
 import org.bukkit.Bukkit
 import org.bukkit.command.ConsoleCommandSender
@@ -13,6 +13,14 @@ fun mainWorld() = Bukkit.getWorlds()[0]
 fun offlinePlayer(uuid: UUID) = Bukkit.getOfflinePlayer(uuid)
 fun offlinePlayer(name: String) = Bukkit.getOfflinePlayer(name)
 fun onlinePlayers() = Bukkit.getOfflinePlayers()
+
+// logger
+object Log {
+    fun info(message: String) = Bukkit.getLogger().info(message)
+    fun warn(message: String) = Bukkit.getLogger().warning(message)
+    fun severe(message: String) = Bukkit.getLogger().severe(message)
+    fun fine(message: String) = Bukkit.getLogger().fine(message)
+}
 
 fun broadcast(message: String) {
     Bukkit.broadcastMessage(message)
