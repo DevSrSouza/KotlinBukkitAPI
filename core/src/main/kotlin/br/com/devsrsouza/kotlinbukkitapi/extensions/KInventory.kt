@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions
+package br.com.devsrsouza.kotlinbukkitapi.extensions.inventory
 
 import org.bukkit.Material
 import org.bukkit.inventory.Inventory

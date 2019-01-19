@@ -1,5 +1,6 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions
+package br.com.devsrsouza.kotlinbukkitapi.extensions.location
 
+import br.com.devsrsouza.kotlinbukkitapi.extensions.world.spawn
 import org.bukkit.*
 import org.bukkit.block.Block
 import org.bukkit.entity.Entity

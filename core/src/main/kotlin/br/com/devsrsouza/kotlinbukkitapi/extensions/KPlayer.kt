@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.extensions
+package br.com.devsrsouza.kotlinbukkitapi.extensions.player
 
 import org.bukkit.Instrument
 import org.bukkit.Note

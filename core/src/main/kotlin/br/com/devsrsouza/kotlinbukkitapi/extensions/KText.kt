@@ -22,6 +22,7 @@ fun textOf(text: String) = text.asText()
 
 operator fun String.unaryPlus() = ChatColor.translateAlternateColorCodes('&', this)
 operator fun String.unaryMinus() = replace('§', '&')
+operator fun ChatColor.plus(text: String) = toString() + text
 fun translateColor(default: String, colorChar: Char = '&') = TranslateChatColorDelegate(default, colorChar)
 
 class TranslateChatColorDelegate(val realValue: String, val colorChar: Char = '&') {
@@ -53,7 +54,6 @@ fun String.asText() = TextComponent(*TextComponent.fromLegacyText(this))
 fun BaseComponent.toJson() = ComponentSerializer.toString(this)
 fun Array<BaseComponent>.toJson() = ComponentSerializer.toString(*this)
 
-operator fun String.plus(text: BaseComponent) = asText().apply { addExtra(text) }
 operator fun <T : BaseComponent> T.plus(component: BaseComponent) = apply { addExtra(component) }
 operator fun <T : BaseComponent> T.plus(text: String) = apply { addExtra(text) }
 
