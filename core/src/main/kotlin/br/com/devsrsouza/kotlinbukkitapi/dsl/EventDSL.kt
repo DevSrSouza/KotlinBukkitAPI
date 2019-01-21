@@ -36,9 +36,5 @@ fun Event.callEvent() {
     Bukkit.getServer().pluginManager.callEvent(this)
 }
 
-abstract class EventHandlerList {
-    val handlerList = HandlerList()
-}
-
 val PlayerMoveEvent.displaced: Boolean
     get() = this.from.x != this.to.x || this.from.y != this.to.y || this.from.z != this.to.z

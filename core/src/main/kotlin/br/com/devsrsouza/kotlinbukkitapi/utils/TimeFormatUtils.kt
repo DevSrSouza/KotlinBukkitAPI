@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
-const val DEFAULT_FORMAT = "%YEAR %MONTH %WEEK %DAY %HOUR %MIN %SEC"
+const val DEFAULT_SPACER = ' '
+const val DEFAULT_FORMAT_STYLE = "%YEAR %MONTH %WEEK %DAY %HOUR %MIN %SEC"
 
 val Int.formater: TimeFormat get() = TimeFormat(this)
 
@@ -25,7 +26,10 @@ interface FormatLang {
 }
 
 inline class TimeFormat(private val time: Int) {
-    fun format(lang: FormatLang, format: String = DEFAULT_FORMAT): String {
+    fun format(lang: FormatLang,
+               formatStyle: String = DEFAULT_FORMAT_STYLE,
+               formatSpacer: Char = DEFAULT_SPACER): String {
+
         val seconds = time % 60
         val minutes = time / 60 % 60
         val hours = time / 3600 % 24
@@ -34,7 +38,7 @@ inline class TimeFormat(private val time: Int) {
         val months = time / 2419200 % 12
         val years = time / 29030400
 
-        var formated = format.replace(if (seconds > 0) "$seconds ${if (seconds > 1) lang.seconds else lang.second}" else "", "%SEC", true)
+        var formated = formatStyle.replace(if (seconds > 0) "$seconds ${if (seconds > 1) lang.seconds else lang.second}" else "", "%SEC", true)
 
         formated = formated.replace(if (minutes > 0) "$minutes ${if (minutes > 1) lang.minutes else lang.minute}" else "", "%MIN", true)
 
@@ -48,7 +52,7 @@ inline class TimeFormat(private val time: Int) {
 
         formated = formated.replace(if (years > 0) "$years ${if (years > 1) lang.years else lang.year}" else "", "%YEAR", true)
 
-        return formated.trim()
+        return formated.trim { it == formatSpacer }
     }
 }
 
