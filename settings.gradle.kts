@@ -1,2 +1,2 @@
-include("core", "plugins", "attributestorage")
+include("core", "plugins", "attributestorage", "exposed")
 rootProject.name = "KotlinBukkitAPI"
