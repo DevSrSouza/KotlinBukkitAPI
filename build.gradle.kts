@@ -40,10 +40,18 @@ subprojects {
     }
 
     dependencies {
-        compileOnly(kotlin("stdlib"))
-        compileOnly(kotlin("reflect"))
+        api(kotlin("stdlib"))
+        api(kotlin("reflect"))
 
-        compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+        api("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+
+        testRuntime("org.junit.platform:junit-platform-launcher:1.3.2")
+        testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
+        testRuntime("org.junit.vintage:junit-vintage-engine:5.3.2")
+    }
+
+    tasks.withType<Test> {
+        useJUnitPlatform()
     }
 
     kotlin {
