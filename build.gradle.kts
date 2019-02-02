@@ -46,6 +46,12 @@ subprojects {
         compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
     }
 
+    kotlin {
+        sourceSets.all {
+            languageSettings.useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
+        }
+    }
+
     tasks {
         "shadowJar"(ShadowJar::class) {
             baseName = "KotlinBukkitAPI-${project.name}"
