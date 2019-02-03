@@ -41,11 +41,42 @@ gradlew publishToMavenLocal
 
 ### Maven
 
+##### Core
 ```xml
 <dependency>
-  <groupId>br.com.devsrsouza</groupId>
-  <artifactId>kotlinbukkitapi</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <groupId>br.com.devsrsouza.kotlinbukkitapi</groupId>
+  <artifactId>core</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <scope>provided</scope>
+</dependency>
+```
+
+##### Plugins
+```xml
+<dependency>
+  <groupId>br.com.devsrsouza.kotlinbukkitapi</groupId>
+  <artifactId>plugins</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <scope>provided</scope>
+</dependency>
+```
+
+##### Attribute Storage
+```xml
+<dependency>
+  <groupId>br.com.devsrsouza.kotlinbukkitapi</groupId>
+  <artifactId>core</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
+  <scope>provided</scope>
+</dependency>
+```
+
+##### [Exposed](https://github.com/JetBrains/Exposed)
+```xml
+<dependency>
+  <groupId>br.com.devsrsouza.kotlinbukkitapi</groupId>
+  <artifactId>core</artifactId>
+  <version>0.1.0-SNAPSHOT</version>
   <scope>provided</scope>
 </dependency>
 ```
@@ -58,7 +89,10 @@ repositories {
 }
 
 dependencies {
-  compileOnly 'br.com.devsrsouza:kotlinbukkitapi:0.1.0-SNAPSHOT'
+  compileOnly 'br.com.devsrsouza.kotlinbukkitapi:core:0.1.0-SNAPSHOT' // core
+  compileOnly 'br.com.devsrsouza.kotlinbukkitapi:plugins:0.1.0-SNAPSHOT' // plugins
+  compileOnly 'br.com.devsrsouza.kotlinbukkitapi:attributestorage:0.1.0-SNAPSHOT' // attribute storage
+  compileOnly 'br.com.devsrsouza.kotlinbukkitapi:exposed:0.1.0-SNAPSHOT' // exposed
 }
 ```
 
