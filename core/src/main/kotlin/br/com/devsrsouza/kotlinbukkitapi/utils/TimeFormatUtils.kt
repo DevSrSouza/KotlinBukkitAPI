@@ -38,19 +38,21 @@ inline class TimeFormat(private val time: Int) {
         val months = time / 2419200 % 12
         val years = time / 29030400
 
-        var formated = formatStyle.replace(if (seconds > 0) "$seconds ${if (seconds > 1) lang.seconds else lang.second}" else "", "%SEC", true)
+        var formated = formatStyle.replace("%SEC", if (seconds > 0) "$seconds ${if (seconds > 1) lang.seconds else lang.second}" else "", true)
 
-        formated = formated.replace(if (minutes > 0) "$minutes ${if (minutes > 1) lang.minutes else lang.minute}" else "", "%MIN", true)
+        formated = formated.replace("%MIN", if (minutes > 0) "$minutes ${if (minutes > 1) lang.minutes else lang.minute}" else "", true)
 
-        formated = formated.replace(if (hours > 0) "$hours ${if (hours > 1) lang.hours else lang.hour}" else "", "%HOUR", true)
+        formated = formated.replace("%HOUR", if (hours > 0) "$hours ${if (hours > 1) lang.hours else lang.hour}" else "", true)
 
-        formated = formated.replace(if (days > 0) "$days ${if (days > 1) lang.days else lang.day}" else "", "%DAY", true)
+        formated = formated.replace("%DAY", if (days > 0) "$days ${if (days > 1) lang.days else lang.day}" else "", true)
 
-        formated = formated.replace(if (weeks > 0) "$weeks ${if (weeks > 1) lang.weeks else lang.week}" else "", "%WEEK", true)
+        formated = formated.replace("%WEEK", if (weeks > 0) "$weeks ${if (weeks > 1) lang.weeks else lang.week}" else "", true)
 
-        formated = formated.replace(if (months > 0) "$months ${if (months > 1) lang.months else lang.month}" else "", "%MONTH", true)
+        formated = formated.replace("%MONTH", if (months > 0) "$months ${if (months > 1) lang.months else lang.month}" else "", true)
 
-        formated = formated.replace(if (years > 0) "$years ${if (years > 1) lang.years else lang.year}" else "", "%YEAR", true)
+        formated = formated.replace("%YEAR", if (years > 0) "$years ${if (years > 1) lang.years else lang.year}" else "", true)
+
+        formated = formated.replace("$formatSpacer$formatSpacer", "$formatSpacer")
 
         return formated.trim { it == formatSpacer }
     }

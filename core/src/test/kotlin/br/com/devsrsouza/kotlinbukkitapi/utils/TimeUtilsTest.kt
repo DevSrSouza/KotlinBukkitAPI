@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
 import br.com.devsrsouza.kotlinbukkitapi.utils.time.*
-import org.junit.Assert
+import org.junit.Assert.*
 import org.junit.Test
 
 class TimeUtilsTest {
@@ -11,7 +11,7 @@ class TimeUtilsTest {
         val time = 300L
         val millisecond = 300L
 
-        Assert.assertEquals(millisecond, time.millisecond.toMillisecond())
+        assertEquals(millisecond, time.millisecond.toMillisecond())
     }
 
     @Test
@@ -19,7 +19,7 @@ class TimeUtilsTest {
         val time = 250L
         val tick = 5L
 
-        Assert.assertEquals(tick, time.millisecond.toTick())
+        assertEquals(tick, time.millisecond.toTick())
     }
 
     @Test
@@ -27,7 +27,7 @@ class TimeUtilsTest {
         val time = 5000L
         val second = 5
 
-        Assert.assertEquals(second, time.millisecond.toSecond())
+        assertEquals(second, time.millisecond.toSecond())
     }
 
     @Test
@@ -35,7 +35,7 @@ class TimeUtilsTest {
         val time = 60_000L
         val minute = 1
 
-        Assert.assertEquals(minute, time.millisecond.toMinute())
+        assertEquals(minute, time.millisecond.toMinute())
     }
 
     @Test
@@ -43,7 +43,7 @@ class TimeUtilsTest {
         val time = 7_200_000L
         val hour = 2
 
-        Assert.assertEquals(hour, time.millisecond.toHour())
+        assertEquals(hour, time.millisecond.toHour())
     }
 
     @Test
@@ -51,7 +51,7 @@ class TimeUtilsTest {
         val time = 20L
         val millisecond = 1000L
 
-        Assert.assertEquals(millisecond, time.tick.toMillisecond())
+        assertEquals(millisecond, time.tick.toMillisecond())
     }
 
     @Test
@@ -59,7 +59,7 @@ class TimeUtilsTest {
         val time = 20L
         val tick = 20L
 
-        Assert.assertEquals(tick, time.tick.toTick())
+        assertEquals(tick, time.tick.toTick())
     }
 
     @Test
@@ -67,7 +67,7 @@ class TimeUtilsTest {
         val time = 20L
         val second = 1
 
-        Assert.assertEquals(second, time.tick.toSecond())
+        assertEquals(second, time.tick.toSecond())
     }
 
     @Test
@@ -75,7 +75,7 @@ class TimeUtilsTest {
         val time = 2_400L
         val minute = 2
 
-        Assert.assertEquals(minute, time.tick.toMinute())
+        assertEquals(minute, time.tick.toMinute())
     }
 
     @Test
@@ -83,7 +83,7 @@ class TimeUtilsTest {
         val time = 144_000L
         val hour = 2
 
-        Assert.assertEquals(hour, time.tick.toHour())
+        assertEquals(hour, time.tick.toHour())
     }
 
     @Test
@@ -91,7 +91,7 @@ class TimeUtilsTest {
         val time = 8
         val millisecond = 8000L
 
-        Assert.assertEquals(millisecond, time.second.toMillisecond())
+        assertEquals(millisecond, time.second.toMillisecond())
     }
 
     @Test
@@ -99,7 +99,7 @@ class TimeUtilsTest {
         val time = 2
         val tick = 40L
 
-        Assert.assertEquals(tick, time.second.toTick())
+        assertEquals(tick, time.second.toTick())
     }
 
     @Test
@@ -107,7 +107,7 @@ class TimeUtilsTest {
         val time = 20
         val second = 20
 
-        Assert.assertEquals(second, time.second.toSecond())
+        assertEquals(second, time.second.toSecond())
     }
 
     @Test
@@ -115,7 +115,7 @@ class TimeUtilsTest {
         val time = 120
         val minute = 2
 
-        Assert.assertEquals(minute, time.second.toMinute())
+        assertEquals(minute, time.second.toMinute())
     }
 
     @Test
@@ -123,7 +123,7 @@ class TimeUtilsTest {
         val time = 7_200
         val hour = 2
 
-        Assert.assertEquals(hour, time.second.toHour())
+        assertEquals(hour, time.second.toHour())
     }
 
     @Test
@@ -131,7 +131,7 @@ class TimeUtilsTest {
         val time = 1
         val millisecond = 60_000L
 
-        Assert.assertEquals(millisecond, time.minute.toMillisecond())
+        assertEquals(millisecond, time.minute.toMillisecond())
     }
 
     @Test
@@ -139,7 +139,7 @@ class TimeUtilsTest {
         val time = 1
         val tick = 1_200L
 
-        Assert.assertEquals(tick, time.minute.toTick())
+        assertEquals(tick, time.minute.toTick())
     }
 
     @Test
@@ -147,7 +147,7 @@ class TimeUtilsTest {
         val time = 1
         val second = 60
 
-        Assert.assertEquals(second, time.minute.toSecond())
+        assertEquals(second, time.minute.toSecond())
     }
 
     @Test
@@ -155,7 +155,7 @@ class TimeUtilsTest {
         val time = 25
         val minute = 25
 
-        Assert.assertEquals(minute, time.minute.toMinute())
+        assertEquals(minute, time.minute.toMinute())
     }
 
     @Test
@@ -163,7 +163,7 @@ class TimeUtilsTest {
         val time = 120
         val hour = 2
 
-        Assert.assertEquals(hour, time.minute.toHour())
+        assertEquals(hour, time.minute.toHour())
     }
 
     @Test
@@ -171,7 +171,7 @@ class TimeUtilsTest {
         val time = 1
         val millisecond = 3_600_000L
 
-        Assert.assertEquals(millisecond, time.hour.toMillisecond())
+        assertEquals(millisecond, time.hour.toMillisecond())
     }
 
     @Test
@@ -179,7 +179,7 @@ class TimeUtilsTest {
         val time = 2
         val tick = 144_000L
 
-        Assert.assertEquals(tick, time.hour.toTick())
+        assertEquals(tick, time.hour.toTick())
     }
 
     @Test
@@ -187,7 +187,7 @@ class TimeUtilsTest {
         val time = 3
         val second = 10_800
 
-        Assert.assertEquals(second, time.hour.toSecond())
+        assertEquals(second, time.hour.toSecond())
     }
 
     @Test
@@ -195,7 +195,7 @@ class TimeUtilsTest {
         val time = 3
         val minute = 180
 
-        Assert.assertEquals(minute, time.hour.toMinute())
+        assertEquals(minute, time.hour.toMinute())
     }
 
     @Test
@@ -203,6 +203,6 @@ class TimeUtilsTest {
         val time = 3
         val hour = 3
 
-        Assert.assertEquals(hour, time.hour.toHour())
+        assertEquals(hour, time.hour.toHour())
     }
 }
