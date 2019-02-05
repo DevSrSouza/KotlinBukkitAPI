@@ -25,20 +25,26 @@ class Vault(player: Player) : VaultOffline(player){
 }
 
 inline class Economy(private val player: OfflinePlayer) {
-    fun getBalance() = economy!!.getBalance(player)
-    fun hasAccount() = economy!!.hasAccount(player)
+    val balance get() = economy!!.getBalance(player)
+    val hasAccount get() = economy!!.hasAccount(player)
+
     fun has(amount: Double) = economy!!.has(player, amount)
     fun withdraw(amount: Double) = economy!!.withdrawPlayer(player, amount)
     fun deposit(amount: Double) = economy!!.depositPlayer(player, amount)
 }
 inline class Chat(private val player: Player) {
-    fun getPrefix() = chat!!.getPlayerPrefix(player)
-    fun setPrefix(prefix: String) = chat!!.setPlayerPrefix(player, prefix)
-    fun getSuffix() = chat!!.getPlayerSuffix(player)
-    fun setSuffix(suffix: String) = chat!!.setPlayerSuffix(player, suffix)
+    var prefix: String
+        get() = chat!!.getPlayerPrefix(player)
+        set(value) = chat!!.setPlayerPrefix(player, prefix)
+
+    var suffix: String
+        get() = chat!!.getPlayerSuffix(player)
+        set(value) = chat!!.setPlayerSuffix(player, suffix)
+
+    val groups: Array<String> get() = chat!!.getPlayerGroups(player)
+    val primaryGroup: String get() = chat!!.getPrimaryGroup(player)
+
     fun inGroup(group: String) = chat!!.playerInGroup(player, group)
-    fun getGroups() = chat!!.getPlayerGroups(player)
-    fun getPrimaryGroup() = chat!!.getPrimaryGroup(player)
 }
 
 inline class Permission(private val player: OfflinePlayer) {
