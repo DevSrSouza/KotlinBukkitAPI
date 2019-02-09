@@ -204,13 +204,13 @@ open class KCommand(name: String,
         return super.tabComplete(sender, alias, args)
     }
 
-    open fun command(name: String, vararg aliases: String = arrayOf(), block: CommandMaker) {
-        subCommands.add(KCommand(name).also {
+    open fun command(name: String, vararg aliases: String = arrayOf(), block: CommandMaker): KCommand {
+        return KCommand(name).also {
             it.permission = this.permission
             it.permissionMessage = this.permissionMessage
             it.onlyInGameMessage = this.onlyInGameMessage
             it.usageMessage = this.usageMessage
-        }.apply(block))
+        }.apply(block).also { subCommands.add(it) }
     }
 
     open fun executor(block: ExecutorBlock) {
