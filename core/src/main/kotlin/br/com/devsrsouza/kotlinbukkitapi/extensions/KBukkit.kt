@@ -12,7 +12,7 @@ object Console : ConsoleCommandSender by Bukkit.getConsoleSender() {
 fun mainWorld() = Bukkit.getWorlds()[0]
 fun offlinePlayer(uuid: UUID) = Bukkit.getOfflinePlayer(uuid)
 fun offlinePlayer(name: String) = Bukkit.getOfflinePlayer(name)
-fun onlinePlayers() = Bukkit.getOfflinePlayers()
+fun onlinePlayers() = Bukkit.getOnlinePlayers()
 
 // logger
 object Log {
