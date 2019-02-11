@@ -1,9 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandException
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.argumentExecutorBuilder
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
+import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.onlinePlayers
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorNull
 import net.md_5.bungee.api.chat.BaseComponent
@@ -36,6 +34,14 @@ inline fun <T : CommandSender> Executor<T>.argumentPlayer(
     val player = player(index, argMissing, notOnline)
 
     argumentExecutorBuilder(index + 1, player.name).block(player)
+}
+
+fun TabCompleter.player(
+        index: Int
+): List<String> = argumentCompleteBuilder(index) { arg ->
+    onlinePlayers().mapNotNull {
+        if(it.name.startsWith(arg, true)) it.name else null
+    }
 }
 
 // OFFLINE PLAYER
@@ -82,4 +88,12 @@ inline fun <T : CommandSender> Executor<T>.argumentGameMode(
     val gameMode = gameMode(index, argMissing, notFound)
 
     argumentExecutorBuilder(index + 1, gameMode.name).block(gameMode)
+}
+
+fun TabCompleter.gameMode(
+        index: Int
+): List<String> = argumentCompleteBuilder(index) { arg ->
+    GameMode.values().mapNotNull {
+        if(it.name.startsWith(arg, true)) it.name.toLowerCase() else null
+    }
 }

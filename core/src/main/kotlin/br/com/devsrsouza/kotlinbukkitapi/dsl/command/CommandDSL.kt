@@ -60,6 +60,13 @@ fun <T : CommandSender> Executor<T>.argumentExecutorBuilder(
         whenErrorDefault(emptyArray()) { args.sliceArray(posIndex..args.size) }
 )
 
+inline fun TabCompleter.argumentCompleteBuilder(index: Int, block: (String) -> List<String>): List<String> {
+    if(args.size == index+1) {
+        return block(args.getOrNull(index) ?: "")
+    }
+    return emptyList()
+}
+
 inline fun <T> Executor<*>.optional(block: () -> T): T? {
     try {
         return block()

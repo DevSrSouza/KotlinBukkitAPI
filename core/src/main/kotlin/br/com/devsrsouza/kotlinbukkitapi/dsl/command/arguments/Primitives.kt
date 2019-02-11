@@ -1,9 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandException
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.argumentExecutorBuilder
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import br.com.devsrsouza.kotlinbukkitapi.utils.FALSE_CASES
 import br.com.devsrsouza.kotlinbukkitapi.utils.TRUE_CASES
@@ -52,6 +49,14 @@ inline fun <T : CommandSender> Executor<T>.booleanArgument(
     val boolean = boolean(index, argMissing, booleanFormat, trueCases, falseCases)
 
     argumentExecutorBuilder(index + 1, "$boolean").block(boolean)
+}
+
+fun TabCompleter.boolean(
+        index: Int,
+        trueCases: Array<String> = TRUE_CASES,
+        falseCases: Array<String> = FALSE_CASES
+): List<String> = argumentCompleteBuilder(index) { arg ->
+    listOf(*trueCases, *falseCases).filter { it.startsWith(arg, true) }
 }
 
 val MISSING_NUMBER_PARAMETER = "Missing a number argument.".color(ChatColor.RED)

@@ -1,9 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.CommandException
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.argumentExecutorBuilder
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.Bukkit
@@ -41,6 +38,14 @@ inline fun <T : CommandSender> Executor<T>.argumentWorld(
             index + 1,
             world.name
     ).block(world)
+}
+
+fun TabCompleter.world(
+        index: Int
+): List<String> = argumentCompleteBuilder(index) { arg ->
+    Bukkit.getWorlds().mapNotNull {
+        if(it.name.startsWith(arg, true)) it.name else null
+    }
 }
 
 // COORDINATE

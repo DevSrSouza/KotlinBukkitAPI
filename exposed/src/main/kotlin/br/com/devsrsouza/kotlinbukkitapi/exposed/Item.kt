@@ -1,4 +1,4 @@
-package br.com.devsrsouza.exposed
+package br.com.devsrsouza.kotlinbukkitapi.exposed
 
 import br.com.devsrsouza.kotlinbukkitapi.attributestorage.fromByteArrayItem
 import br.com.devsrsouza.kotlinbukkitapi.attributestorage.toByteArray
