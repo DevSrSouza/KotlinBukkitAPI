@@ -6,6 +6,6 @@ repositories {
 }
 
 dependencies {
-    compileOnly(project(":core"))
+    compileOnly(project(":core", configuration = "shadow"))
     compile("com.comphenix.attribute:AttributeStorage:0.0.2-SNAPSHOT")
 }

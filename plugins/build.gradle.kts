@@ -21,7 +21,7 @@ repositories {
 )
 
 dependencies {
-    compileOnly(project(":core"))
+    compileOnly(project(":core", configuration = "shadow"))
 
     // plugins
     compileOnly("net.milkbowl.vault:VaultAPI:1.6")

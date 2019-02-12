@@ -1,6 +1,5 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
-import org.apache.xerces.dom.DeepNodeListImpl
 import org.gradle.api.tasks.bundling.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -40,14 +39,16 @@ subprojects {
     }
 
     dependencies {
-        api(kotlin("stdlib"))
-        api(kotlin("reflect"))
+        compileOnly(kotlin("stdlib"))
+        compileOnly(kotlin("reflect"))
 
-        api("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+        compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
         testRuntime("org.junit.platform:junit-platform-launcher:1.3.2")
         testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
         testRuntime("org.junit.vintage:junit-vintage-engine:5.3.2")
+
+        testRuntime("org.mockito:mockito-core:2.24.0")
     }
 
     tasks.withType<Test> {
@@ -79,7 +80,7 @@ subprojects {
 
     publishing {
         publications {
-            register("mavenJava", MavenPublication::class) {
+            create<MavenPublication>("maven") {
                 from(components["java"])
                 artifact(sources.get())
                 groupId = project.group.toString()
@@ -107,9 +108,6 @@ subprojects {
                             }
                         }
                         appendNode("scm").appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master/${project.name}")
-                    }
-                    asElement().apply {
-                        getElementsByTagName("dependencies")?.item(0)?.also { removeChild(it) }
                     }
                 }
             }
