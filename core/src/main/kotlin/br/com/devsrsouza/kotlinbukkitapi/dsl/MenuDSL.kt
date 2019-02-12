@@ -13,7 +13,7 @@ import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemStack
 import org.bukkit.scheduler.BukkitTask
 
-fun createMenu(displayName: String, lines: Int, cancel: Boolean = false, block: Menu.() -> Unit) =
+fun menu(displayName: String, lines: Int, cancel: Boolean = false, block: Menu.() -> Unit) =
     Menu(displayName, lines, cancel).apply { block() }
 
 typealias MenuUpdatetEvent = MenuUpdate.() -> Unit
@@ -113,10 +113,10 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
 
     private fun updateSlot(player: Player, slot: Slot, inventory: Inventory, pos: Int) {
         val slotUpdate = SlotUpdate(
-            player, slot.item?.clone(),
+            player,
             inventory.getItem(pos)?.takeUnless { it.type == Material.AIR })
         slot.update?.invoke(slotUpdate)
-        inventory.setItem(pos, slotUpdate.showingItem)
+        inventory.setItem(pos, slotUpdate.newItem)
     }
 
     override fun getInventory(): Inventory {
@@ -153,7 +153,7 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
                     val item = slot.item?.clone()
                     val render = SlotRenderItem(player, item)
                     slot.render?.invoke(render)
-                    inv.setItem(i, render.renderItem)
+                    inv.setItem(i, render.newItem)
                 }
             }
 
@@ -242,6 +242,10 @@ interface PlayerInteractive {
     fun Menu.getPlayerData(key: String) = playerData.get(player)?.get(key)
 }
 
+interface ChangeableItem {
+    var newItem: ItemStack?
+}
+
 open class MenuInteract(protected val menu: Menu, override val player: Player, var cancel: Boolean,
                         inventory: Inventory) : MenuInventory(inventory), PlayerInteractive {
     fun updateToPlayer() {
@@ -269,8 +273,8 @@ class SlotClick(menu: Menu, player: Player, cancel: Boolean, inventory: Inventor
 }
 
 class MoveToSlot(override val player: Player, var cancel: Boolean, val item: ItemStack?) : PlayerInteractive
-class SlotRenderItem(override val player: Player, var renderItem: ItemStack?) : PlayerInteractive
-class SlotUpdate(override val player: Player, val templateItem: ItemStack?, var showingItem: ItemStack?) : PlayerInteractive
+class SlotRenderItem(override val player: Player, override var newItem: ItemStack?) : PlayerInteractive, ChangeableItem
+class SlotUpdate(override val player: Player, override var newItem: ItemStack?) : PlayerInteractive, ChangeableItem
 
 class MenuPreOpen(override val player: Player, var canceled: Boolean = false) : PlayerInteractive
 class MenuUpdate(override val player: Player, var title: String) : PlayerInteractive
