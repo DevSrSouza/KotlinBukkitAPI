@@ -1,7 +1,9 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.task
+import com.okkero.skedule.CoroutineTask
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 
@@ -199,7 +201,7 @@ class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) :
 
     private fun generateTask() {
         if (task == null) {
-            task = task(repeatDelay = 20, plugin = plugin) {
+            task = scheduler {
                 if (isEmpty())
                     emptyCount++
                 else {
@@ -216,7 +218,7 @@ class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) :
                     cancel()
                     task = null
                 }
-            }
+            }.runTaskTimer(plugin, 0L, 20L)
         }
     }
 

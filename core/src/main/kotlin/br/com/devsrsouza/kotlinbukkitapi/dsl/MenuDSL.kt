@@ -34,7 +34,7 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
             field = value
             task?.cancel()
             task = null
-            if (value > 0 && viewers.isNotEmpty()) task = task(repeatDelay = value) { update() }
+            if (value > 0 && viewers.isNotEmpty()) task = scheduler { update() }.runTaskTimer(repeatDelay = value)
         }
 
     val viewers = mutableMapOf<Player, Inventory>()
@@ -164,7 +164,7 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
             })
 
             if (task == null && updateDelay > 0 && viewers.isNotEmpty())
-                task = task(repeatDelay = updateDelay) { update() }
+                task = scheduler { update() }.runTaskTimer(repeatDelay = updateDelay)
 
         } catch (e: Throwable) {
             e.printStackTrace()
