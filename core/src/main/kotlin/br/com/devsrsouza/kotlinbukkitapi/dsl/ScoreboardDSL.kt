@@ -1,11 +1,14 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.runTaskTimer
+import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
 import br.com.devsrsouza.kotlinbukkitapi.utils.onlinePlayerMapOf
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
+import org.bukkit.scheduler.BukkitTask
 import org.bukkit.scoreboard.DisplaySlot
 import org.bukkit.scoreboard.Objective
 
@@ -24,13 +27,32 @@ val linesBounds = 1..16
 
 class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
 
-    internal val lines = mutableMapOf<Int, ScoreboardLine>()
-    internal val players = onlinePlayerMapOf<Objective>(plugin = plugin)
+    private val lines = mutableMapOf<Int, ScoreboardLine>()
+    private val players = onlinePlayerMapOf<Objective>(plugin = plugin)
 
-    internal var titleController: ScoreboardTitle? = null
+    private var titleController: ScoreboardTitle? = null
+
+    private var taskTitle: BukkitTask? = null
+    private var taskLine: BukkitTask? = null
+
+    var updateTitleDelay: Long = 0
+        set(value) {
+            field = value;
+            taskTitle?.cancel(); taskTitle = null
+            if (value > 0 && players.isNotEmpty())
+                taskTitle = scheduler { updateTitle() }.runTaskTimer(repeatDelay = value)
+        }
+
+    var updateLinesDelay: Long = 0
+        set(value) {
+            field = value;
+            taskLine?.cancel(); taskLine = null
+            if (value > 0 && players.isNotEmpty())
+                taskLine = scheduler { updateLines() }.runTaskTimer(repeatDelay = value)
+        }
 
     fun line(line: Int, scoreboardLine: ScoreboardLine) {
-        if(line in linesBounds)
+        if (line in linesBounds)
             lines.put(line, scoreboardLine)
     }
 
@@ -42,6 +64,17 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
             text: String,
             block: ScoreboardLine.() -> Unit
     ) = line(line, ScoreboardLine(this, text).apply(block))
+
+    fun lines(vararg lines: String, startInLine: Int = 1) {
+        lines(*lines, startInLine = startInLine, block = {})
+    }
+
+    @ScoreboardDSLMarker
+    inline fun lines(vararg lines: String, startInLine: Int = 1, block: ScoreboardLine.() -> Unit) {
+        for ((index, line) in lines.withIndex()) {
+            line(index + startInLine, line, block)
+        }
+    }
 
     fun remove(line: Int): Boolean {
         return lines.remove(line) != null
@@ -56,8 +89,8 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
 
     fun show(player: Player) {
         val max = lines.keys.max()
-        if(max != null) {
-            if(players.get(player)?.scoreboard != null) return
+        if (max != null) {
+            if (players.get(player)?.scoreboard != null) return
             val sb = Bukkit.getScoreboardManager().newScoreboard
 
             val objective = sb.getObjective(DisplaySlot.SIDEBAR)
@@ -66,15 +99,26 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
                         displayName = TitleRender(player, title).also { titleController?.renderEvent?.invoke(it) }.newTitle
                     }
 
-            for(i in 1..max) {
+            for (i in 1..max) {
                 lineBuild(objective, i) { sbLine ->
-                    if(sbLine.renderEvent != null) {
-                        LineRender(player,  sbLine.text).also { sbLine.renderEvent?.invoke(it) }.newText
+                    if (sbLine.renderEvent != null) {
+                        LineRender(player, sbLine.text).also { sbLine.renderEvent?.invoke(it) }.newText
                     } else sbLine.text
                 }
             }
 
             player.scoreboard = sb
+            players.put(player, objective) {
+                if (players.isEmpty()) {
+                    taskTitle?.cancel(); taskTitle = null
+                    taskLine?.cancel(); taskLine = null
+                }
+            }
+
+            if (taskTitle == null && updateTitleDelay > 0)
+                updateTitleDelay = updateTitleDelay
+            if (taskLine == null && updateLinesDelay > 0)
+                updateLinesDelay = updateLinesDelay
         }
     }
 
@@ -91,7 +135,11 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
 
         val team = sb.getTeam("line_$line") ?: sb.registerNewTeam("line_$line")
 
-        if (text.isEmpty()) return
+        if (text.isEmpty()) {
+            if (!team.prefix.isNullOrEmpty()) team.prefix = ""
+            if (!team.suffix.isNullOrEmpty()) team.suffix = ""
+            return
+        }
 
         if (text.length > 16) {
             val fixedText = if (text.length > 32) text.substring(0, 31) else text
@@ -102,8 +150,10 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
                 team.suffix = suffix
             }
         } else {
-            if (team.prefix != text)
+            if (team.prefix != text) {
                 team.prefix = text
+                team.suffix = ""
+            }
         }
 
         if (!team.hasEntry(lineEntry)) team.addEntry(lineEntry)
@@ -123,7 +173,7 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
     }
 
     fun updateLine(line: Int): Boolean {
-        if(lines[line] == null) return false
+        if (lines[line] == null) return false
         for ((player, objective) in players) {
             lineBuild(objective, line) { sbLine ->
                 if (sbLine.updateEvent != null) {
@@ -136,8 +186,8 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
 
     fun updateLines() {
         val max = lines.keys.max()
-        if(max != null) {
-            for(i in 1..max) {
+        if (max != null) {
+            for (i in 1..max) {
                 updateLine(i)
             }
         }
