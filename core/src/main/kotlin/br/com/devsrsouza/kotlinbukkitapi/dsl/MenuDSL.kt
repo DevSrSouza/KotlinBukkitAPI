@@ -55,11 +55,11 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
     fun preOpen(preOpen: MenuPreOpenEvent) { this.preOpen = preOpen }
     fun onOpen(open: MenuOpenEvent) { this.open = open }
 
-    fun slot(line: Int, slot: Int, block: Slot.() -> Unit) : Slot {
+    inline fun slot(line: Int, slot: Int, block: Slot.() -> Unit) : Slot {
         val slotExactly = ((line*9)-9)+slot
         return slot(slotExactly, block)
     }
-    fun slot(slot: Int, block: Slot.() -> Unit) : Slot {
+    inline fun slot(slot: Int, block: Slot.() -> Unit) : Slot {
         val generetedSlot = baseSlot.clone(slot).apply(block)
         slots.put(slot, generetedSlot)
         return generetedSlot
