@@ -45,7 +45,7 @@ fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
     executor(block)
 }
 
-fun command(name: String,
+inline fun command(name: String,
             vararg aliases: String = arrayOf(),
             plugin: Plugin = KotlinBukkitAPI.INSTANCE,
             block: CommandMaker) = KCommand(name, *aliases).apply(block).apply {
@@ -211,13 +211,17 @@ open class KCommand(name: String,
         return super.tabComplete(sender, alias, args)
     }
 
-    open fun command(name: String, vararg aliases: String = arrayOf(), block: CommandMaker): KCommand {
+    open fun subCommandBuilder(name: String, vararg aliases: String = arrayOf()): KCommand {
         return KCommand(name).also {
             it.permission = this.permission
             it.permissionMessage = this.permissionMessage
             it.onlyInGameMessage = this.onlyInGameMessage
             it.usageMessage = this.usageMessage
-        }.apply(block).also { subCommands.add(it) }
+        }
+    }
+
+    inline fun command(name: String, vararg aliases: String = arrayOf(), block: CommandMaker): KCommand {
+        return subCommandBuilder(name, *aliases).apply(block).also { subCommands.add(it) }
     }
 
     open fun executor(block: ExecutorBlock) {
