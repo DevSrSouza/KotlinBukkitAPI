@@ -1,5 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.entity
 
+import br.com.devsrsouza.kotlinbukkitapi.extensions.location.spawn
+import org.bukkit.Location
 import org.bukkit.entity.Entity
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Firework
@@ -12,6 +14,12 @@ val Entity.isPlayer: Boolean
         contract { returns(true) implies (this@isPlayer is Player) }
         return type == EntityType.PLAYER
     }
+
+//  firework
+
+fun firework(location: Location, block: FireworkMeta.() -> Unit): Firework {
+    return location.spawn<Firework>().apply { meta(block) }
+}
 
 inline fun Firework.meta(block: FireworkMeta.() -> Unit) = apply {
     fireworkMeta = fireworkMeta.apply(block)
