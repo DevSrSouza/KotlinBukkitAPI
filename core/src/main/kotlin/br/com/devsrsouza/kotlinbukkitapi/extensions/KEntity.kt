@@ -17,7 +17,7 @@ val Entity.isPlayer: Boolean
 
 //  firework
 
-fun firework(location: Location, block: FireworkMeta.() -> Unit): Firework {
+inline fun firework(location: Location, block: FireworkMeta.() -> Unit): Firework {
     return location.spawn<Firework>().apply { meta(block) }
 }
 
