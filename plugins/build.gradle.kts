@@ -6,6 +6,7 @@ fun RepositoryHandler.maven(name: String, url: String) {
 }
 
 repositories {
+    maven { url = uri("http://repo.dmulloy2.net/nexus/repository/public/") }
     maven("vault-repo", "http://nexus.hc.to/content/repositories/pub_releases")
     maven("placeholderapi", "http://repo.extendedclip.com/content/repositories/placeholderapi/")
     maven("mvdw-software", "http://repo.mvdw-software.be/content/groups/public/")
@@ -17,7 +18,8 @@ repositories {
 
 (rootProject.ext["softPlugins"] as MutableList<String>).addAll(
         listOf("Vault", "PlaceholderAPI", "MVdWPlaceholderAPI", "ActionBarAPI",
-                "TitleAPI", "WorldEdit", "ViaVersion", "BossBarAPI", "HologramAPI")
+                "TitleAPI", "WorldEdit", "ViaVersion", "BossBarAPI", "HologramAPI",
+                "ProtocolLib")
 )
 
 dependencies {
@@ -40,4 +42,5 @@ dependencies {
     compileOnly("org.inventivetalent:hologramapi:1.4.0") {
         exclude("org.inventivetalent.packetlistener", "api")
     }
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.4.0")
 }
