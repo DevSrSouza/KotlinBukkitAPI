@@ -138,6 +138,8 @@ open class KCommand(name: String,
                     executor: ExecutorBlock? = null
 ) : org.bukkit.command.Command(name.trim()) {
 
+    init { this.aliases = aliases.toList() }
+
     private var executor: ExecutorBlock? = executor
     private var tabCompleter: TabCompleterBlock? = null
 
