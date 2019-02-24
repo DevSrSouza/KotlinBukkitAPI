@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.dsl
+package br.com.devsrsouza.kotlinbukkitapi.dsl.scoreboard
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.runTaskTimer
