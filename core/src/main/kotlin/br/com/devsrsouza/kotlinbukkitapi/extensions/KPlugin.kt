@@ -3,7 +3,7 @@ package br.com.devsrsouza.kotlinbukkitapi.extensions.plugin
 import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 
-fun Plugin.registerEvents(listener: Listener) = server.pluginManager.registerEvents(listener, this)
+fun Plugin.registerEvents(vararg listeners: Listener) = listeners.forEach { server.pluginManager.registerEvents(it, this) }
 
 // logger
 fun Plugin.info(message: String) = logger.info(message)

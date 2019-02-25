@@ -113,8 +113,9 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
 
     private fun updateSlot(player: Player, slot: Slot, inventory: Inventory, pos: Int) {
         val slotUpdate = SlotUpdate(
-            player,
-            inventory.getItem(pos)?.takeUnless { it.type == Material.AIR })
+                player,
+                slot.item?.clone(),
+                inventory.getItem(pos)?.takeUnless { it.type == Material.AIR })
         slot.update?.invoke(slotUpdate)
         inventory.setItem(pos, slotUpdate.newItem)
     }
@@ -151,7 +152,7 @@ open class Menu(var title: String, var lines: Int, var cancel: Boolean) : Invent
                 val slot = slots[i + 1] ?: baseSlot
                 if (slot.render != null) {
                     val item = slot.item?.clone()
-                    val render = SlotRenderItem(player, item)
+                    val render = SlotRenderItem(player, item, item)
                     slot.render?.invoke(render)
                     inv.setItem(i, render.newItem)
                 }
@@ -243,6 +244,7 @@ interface PlayerInteractive {
 }
 
 interface ChangeableItem {
+    var item: ItemStack?
     var newItem: ItemStack?
 }
 
@@ -273,8 +275,8 @@ class SlotClick(menu: Menu, player: Player, cancel: Boolean, inventory: Inventor
 }
 
 class MoveToSlot(override val player: Player, var cancel: Boolean, val item: ItemStack?) : PlayerInteractive
-class SlotRenderItem(override val player: Player, override var newItem: ItemStack?) : PlayerInteractive, ChangeableItem
-class SlotUpdate(override val player: Player, override var newItem: ItemStack?) : PlayerInteractive, ChangeableItem
+class SlotRenderItem(override val player: Player, override var item: ItemStack?, override var newItem: ItemStack?) : PlayerInteractive, ChangeableItem
+class SlotUpdate(override val player: Player, override var item: ItemStack?, override var newItem: ItemStack?) : PlayerInteractive, ChangeableItem
 
 class MenuPreOpen(override val player: Player, var canceled: Boolean = false) : PlayerInteractive
 class MenuUpdate(override val player: Player, var title: String) : PlayerInteractive
