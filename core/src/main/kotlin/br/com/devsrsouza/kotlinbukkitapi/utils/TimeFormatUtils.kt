@@ -3,7 +3,8 @@ package br.com.devsrsouza.kotlinbukkitapi.utils
 const val DEFAULT_SPACER = ' '
 const val DEFAULT_FORMAT_STYLE = "%YEAR %MONTH %WEEK %DAY %HOUR %MIN %SEC"
 
-val Int.formater: TimeFormat get() = TimeFormat(this)
+val Long.formatter: TimeFormat get() = TimeFormat(this)
+val Int.formatter: TimeFormat get() = TimeFormat(this.toLong())
 
 val TimeFormat.PTBR get() = format(PTBRFormat)
 val TimeFormat.EN get() = format(ENFormat)
@@ -25,7 +26,10 @@ interface FormatLang {
     val years: String
 }
 
-inline class TimeFormat(private val time: Int) {
+/**
+ * @param time in second
+ */
+inline class TimeFormat(private val time: Long) {
     fun format(lang: FormatLang,
                formatStyle: String = DEFAULT_FORMAT_STYLE,
                formatSpacer: Char = DEFAULT_SPACER): String {
