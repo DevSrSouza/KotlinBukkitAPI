@@ -2,12 +2,10 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.command
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
+import br.com.devsrsouza.kotlinbukkitapi.extensions.command.*
 import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorDefault
 import net.md_5.bungee.api.chat.BaseComponent
-import org.bukkit.Bukkit
-import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
-import org.bukkit.command.SimpleCommandMap
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.KClass
@@ -16,7 +14,7 @@ import kotlin.reflect.full.isSubclassOf
 typealias ExecutorBlock = Executor<CommandSender>.() -> Unit
 typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
 typealias TabCompleterBlock = TabCompleter.() -> List<String>
-typealias CommandMaker = KCommand.() -> Unit
+typealias CommandMaker = CommandDSL.() -> Unit
 
 class CommandException(val senderMessage: BaseComponent? = null,
                        val argMissing: Boolean = false,
@@ -48,7 +46,7 @@ fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
 inline fun command(name: String,
             vararg aliases: String = arrayOf(),
             plugin: Plugin = KotlinBukkitAPI.INSTANCE,
-            block: CommandMaker) = KCommand(name, *aliases).apply(block).apply {
+            block: CommandMaker) = CommandDSL(name, *aliases).apply(block).apply {
     register(plugin)
 }
 
@@ -92,30 +90,6 @@ inline fun <reified T> Executor<*>.array(startIndex: Int,
     }
 }
 
-fun Command.register(plugin: Plugin = KotlinBukkitAPI.INSTANCE) {
-    serverCommands.register(plugin.name, this)
-}
-
-fun Command.unregister() {
-    try {
-        val clazz = serverCommands.javaClass
-        val f = clazz.getDeclaredField("knownCommands")
-        f.isAccessible = true
-        val knownCommands = f.get(serverCommands) as MutableMap<String, Command>
-        val toRemove = ArrayList<String>()
-        for ((key, value) in knownCommands) {
-            if (value === this) {
-                toRemove.add(key)
-            }
-        }
-        for (str in toRemove) {
-            knownCommands.remove(str)
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
-
 class Executor<E : CommandSender>(val sender: E,
                                   val label: String,
                                   val args: Array<out String>)
@@ -124,18 +98,9 @@ class TabCompleter(val sender: CommandSender,
                    val alias: String,
                    val args: Array<out String>)
 
-private val serverCommands: SimpleCommandMap by lazy {
-    val packageName = Bukkit.getServer().javaClass.getPackage().getName()
-    val version = packageName.substring(packageName.lastIndexOf('.') + 1)
-    val bukkitclass = Class.forName("org.bukkit.craftbukkit.$version.CraftServer")
-    val f = bukkitclass.getDeclaredField("commandMap")
-    f.isAccessible = true
-    f.get(Bukkit.getServer()) as SimpleCommandMap
-}
-
-open class KCommand(name: String,
-                    vararg aliases: String = arrayOf(),
-                    executor: ExecutorBlock? = null
+open class CommandDSL(name: String,
+                      vararg aliases: String = arrayOf(),
+                      executor: ExecutorBlock? = null
 ) : org.bukkit.command.Command(name.trim()) {
 
     init { this.aliases = aliases.toList() }
@@ -145,7 +110,7 @@ open class KCommand(name: String,
 
     private val executors: MutableMap<KClass<out CommandSender>, Executor<CommandSender>.() -> Unit> = mutableMapOf()
 
-    val subCommands: MutableList<KCommand> = mutableListOf()
+    val subCommands: MutableList<CommandDSL> = mutableListOf()
 
     var onlyInGameMessage = ""
 
@@ -213,8 +178,8 @@ open class KCommand(name: String,
         return super.tabComplete(sender, alias, args)
     }
 
-    open fun subCommandBuilder(name: String, vararg aliases: String = arrayOf()): KCommand {
-        return KCommand(name).also {
+    open fun subCommandBuilder(name: String, vararg aliases: String = arrayOf()): CommandDSL {
+        return CommandDSL(name).also {
             it.permission = this.permission
             it.permissionMessage = this.permissionMessage
             it.onlyInGameMessage = this.onlyInGameMessage
@@ -222,7 +187,7 @@ open class KCommand(name: String,
         }
     }
 
-    inline fun command(name: String, vararg aliases: String = arrayOf(), block: CommandMaker): KCommand {
+    inline fun command(name: String, vararg aliases: String = arrayOf(), block: CommandMaker): CommandDSL {
         return subCommandBuilder(name, *aliases).apply(block).also { subCommands.add(it) }
     }
 
