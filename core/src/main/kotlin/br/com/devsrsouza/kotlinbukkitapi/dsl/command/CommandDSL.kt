@@ -33,20 +33,32 @@ inline fun Executor<*>.exception(
         noinline execute: () -> Unit = {}
 ): Nothing = throw CommandException(senderMessage, execute = execute)
 
+fun Plugin.simpleCommand(name: String, vararg aliases: String = arrayOf(),
+                         description: String = "",
+                         block: ExecutorBlock
+) = simpleCommand(name, *aliases, plugin = this, description = description, block = block)
+
 fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
+                  plugin: Plugin,
                   description: String = "",
-                  plugin: Plugin = KotlinBukkitAPI.INSTANCE,
-                  block: ExecutorBlock) = command(name, *aliases, plugin = plugin) {
+                  block: ExecutorBlock
+) = command(name, *aliases, plugin = plugin) {
 
     if (description.isNotBlank()) this.description = description
 
     executor(block)
 }
 
+inline fun Plugin.command(name: String,
+                          vararg aliases: String = arrayOf(),
+                          block: CommandMaker
+) = command(name, *aliases, plugin = this, block = block)
+
 inline fun command(name: String,
-            vararg aliases: String = arrayOf(),
-            plugin: Plugin = KotlinBukkitAPI.INSTANCE,
-            block: CommandMaker) = CommandDSL(name, *aliases).apply(block).apply {
+                   vararg aliases: String = arrayOf(),
+                   plugin: Plugin,
+                   block: CommandMaker
+) = CommandDSL(name, *aliases).apply(block).apply {
     register(plugin)
 }
 
