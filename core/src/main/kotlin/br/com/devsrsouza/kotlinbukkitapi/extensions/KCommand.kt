@@ -1,9 +1,12 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.command
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.SimpleCommandMap
+import org.bukkit.event.Listener
+import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 import java.lang.reflect.Field
 
@@ -24,8 +27,24 @@ private val knownCommandsField: Field by lazy {
     }
 }
 
+internal object CommandsRegisterController : Listener {
+    val commands = hashMapOf<String, MutableList<Command>>()
+
+    init {
+        event<PluginDisableEvent> {
+            commands.remove(plugin.name)?.forEach {
+                it.unregister()
+            }
+        }
+    }
+}
+
 fun Command.register(plugin: Plugin = KotlinBukkitAPI.INSTANCE) {
     serverCommands.register(plugin.name, this)
+
+    val cmds = CommandsRegisterController.commands.get(plugin.name) ?: mutableListOf()
+    cmds.add(this)
+    CommandsRegisterController.commands.put(plugin.name, cmds)
 }
 
 fun Command.unregister() {
@@ -39,6 +58,10 @@ fun Command.unregister() {
         }
         for (str in toRemove) {
             knownCommands.remove(str)
+        }
+
+        CommandsRegisterController.commands.values.forEach {
+            it.removeIf { this === it }
         }
     } catch (e: Exception) {
         e.printStackTrace()
