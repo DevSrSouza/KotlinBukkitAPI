@@ -23,7 +23,7 @@ inline fun <reified T : Event> Listener.event(priority: EventPriority = EventPri
     )
 }
 
-fun events(block: Listener.() -> Unit) = object : Listener {}.apply(block)
+inline fun events(block: Listener.() -> Unit) = object : Listener {}.apply(block)
 
 fun Listener.unregisterAll() {
     HandlerList.unregisterAll(this)
