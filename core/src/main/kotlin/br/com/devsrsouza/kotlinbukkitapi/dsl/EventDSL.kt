@@ -1,15 +1,19 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.event
 
-import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import org.bukkit.Bukkit
 import org.bukkit.event.*
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.full.safeCast
 
-inline fun <reified T : Event> Listener.event(priority: EventPriority = EventPriority.NORMAL,
+inline fun <reified T : Event> KListener.event(priority: EventPriority = EventPriority.NORMAL,
+                                               ignoreCancelled: Boolean = true,
+                                               crossinline block: T.() -> Unit
+) = event(plugin, priority, ignoreCancelled, block)
+
+inline fun <reified T : Event> Listener.event(plugin: Plugin,
+                                              priority: EventPriority = EventPriority.NORMAL,
                                               ignoreCancelled: Boolean = true,
-                                              plugin: Plugin = KotlinBukkitAPI.INSTANCE,
                                               crossinline block: T.() -> Unit) {
     Bukkit.getServer().pluginManager.registerEvent(
             T::class.java,
@@ -23,13 +27,16 @@ inline fun <reified T : Event> Listener.event(priority: EventPriority = EventPri
     )
 }
 
-inline fun events(block: Listener.() -> Unit) = object : Listener {}.apply(block)
+interface KListener : Listener { val plugin: Plugin }
+inline class InlineKListener(override val plugin: Plugin) : KListener
+
+inline fun Plugin.events(block: KListener.() -> Unit) = InlineKListener(this).apply(block)
 
 fun Listener.unregisterAll() {
     HandlerList.unregisterAll(this)
 }
 
-fun Listener.registerEvents(plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun Listener.registerEvents(plugin: Plugin)
         = plugin.server.pluginManager.registerEvents(this, plugin)
 
 fun Event.callEvent() {
