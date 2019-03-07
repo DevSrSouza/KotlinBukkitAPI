@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.menu
 
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.*
+import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.onlinePlayers
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
@@ -8,13 +9,27 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerPickupItemEvent
+import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemStack
+import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 
-fun menu(displayName: String, lines: Int, cancel: Boolean = false, block: Menu.() -> Unit) =
-    Menu(displayName, lines, cancel).apply { block() }
+inline fun Plugin.menu(
+        displayName: String,
+        lines: Int,
+        cancel: Boolean = false,
+        block: Menu.() -> Unit
+) = menu(displayName, lines, this, cancel, block)
+
+inline fun menu(
+        displayName: String,
+        lines: Int,
+        plugin: Plugin,
+        cancel: Boolean = false,
+        block: Menu.() -> Unit
+) = Menu(plugin, displayName, lines, cancel).apply(block)
 
 typealias MenuUpdatetEvent = MenuUpdate.() -> Unit
 typealias MenuCloseEvent = MenuClose.() -> Unit
@@ -26,7 +41,7 @@ typealias MoveToSlotEvent = MoveToSlot.() -> Unit
 typealias MenuPreOpenEvent = MenuPreOpen.() -> Unit
 typealias MenuOpenEvent = PlayerInteractive.() -> Unit
 
-open class Menu(var title: String, var lines: Int, var cancel: Boolean) : InventoryHolder {
+open class Menu(val plugin: Plugin, var title: String, var lines: Int, var cancel: Boolean) : InventoryHolder {
 
     internal var task: BukkitTask? = null
     var updateDelay: Long = 0
@@ -320,6 +335,14 @@ object MenuController : Listener {
                 menu.task?.cancel()
                 menu.task = null
             }
+        }
+    }
+
+    @EventHandler
+    fun pluginDisableEvent(event: PluginDisableEvent) {
+        onlinePlayers().forEach {
+            if(it.openInventory?.topInventory?.holder is Menu)
+                it.closeInventory()
         }
     }
 
