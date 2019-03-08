@@ -1,13 +1,13 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.player
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.dsl.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.displaced
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.task
 import br.com.devsrsouza.kotlinbukkitapi.utils.OnlinePlayerMap
 import br.com.devsrsouza.kotlinbukkitapi.utils.onlinePlayerMapOf
 import org.bukkit.entity.Player
-import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.server.PluginDisableEvent
@@ -18,24 +18,25 @@ typealias PlayerCallbackFunction<R> = Player.() -> R
 typealias PlayerQuitFunction = PlayerCallbackFunction<Unit>
 typealias PlayerMoveFunction = PlayerCallbackFunction<Boolean>
 
-fun Player.chatInput(sync: Boolean = false, plugin: Plugin = KotlinBukkitAPI.INSTANCE, callback: ChatInputCallBack) {
+fun Player.chatInput(plugin: Plugin, sync: Boolean = false, callback: ChatInputCallBack) {
     PlayerController.inputCallbacks.put(player, ChatInput(plugin, sync, callback))
 }
 
-fun Player.whenQuit(plugin: Plugin = KotlinBukkitAPI.INSTANCE, callback: PlayerQuitFunction) {
+fun Player.whenQuit(plugin: Plugin, callback: PlayerQuitFunction) {
     PlayerController.functionsQuit.put(this, PlayerCallback(plugin, callback)) {
         it.callback.invoke(player)
     }
 }
 
-fun Player.whenMove(plugin: Plugin = KotlinBukkitAPI.INSTANCE, callback: PlayerMoveFunction) {
+fun Player.whenMove(plugin: Plugin, callback: PlayerMoveFunction) {
     PlayerController.functionsMove.put(this, PlayerCallback(plugin, callback))
 }
 
 class ChatInput(val plugin: Plugin, val sync: Boolean, val callback: ChatInputCallBack)
 class PlayerCallback<R>(val plugin: Plugin, val callback: PlayerCallbackFunction<R>)
 
-object PlayerController : Listener {
+object PlayerController : KListener {
+    override val plugin: Plugin get() = KotlinBukkitAPI.INSTANCE
 
     internal val inputCallbacks = OnlinePlayerMap<ChatInput>()
     internal val functionsMove = onlinePlayerMapOf<PlayerCallback<Boolean>>()
