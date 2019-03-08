@@ -9,14 +9,22 @@ import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitRunnable
 
 inline fun task(delayToRun: Long = 0,
-                plugin: Plugin = KotlinBukkitAPI.INSTANCE,
+                plugin: Plugin,
                 crossinline controller: suspend BukkitSchedulerController.() -> Unit
 ): CoroutineTask = task(delayToRun, false, plugin, controller)
 
+inline fun Plugin.task(delayToRun: Long = 0,
+                       crossinline controller: suspend BukkitSchedulerController.() -> Unit
+): CoroutineTask = task(delayToRun, this, controller)
+
 inline fun taskAsync(delayToRun: Long = 0,
-                     plugin: Plugin = KotlinBukkitAPI.INSTANCE,
+                     plugin: Plugin,
                      crossinline controller: suspend BukkitSchedulerController.() -> Unit
 ): CoroutineTask = task(delayToRun, true, plugin, controller)
+
+inline fun Plugin.taskAsync(delayToRun: Long = 0,
+                            crossinline controller: suspend BukkitSchedulerController.() -> Unit
+): CoroutineTask = taskAsync(delayToRun, this, controller)
 
 inline fun task(delayToRun: Long,
                 async: Boolean,
@@ -32,23 +40,3 @@ inline fun scheduler(crossinline runnable: BukkitRunnable.() -> Unit) = object :
         this.runnable()
     }
 }
-
-fun BukkitRunnable.runTask(plugin: Plugin = KotlinBukkitAPI.INSTANCE)
-        = runTask(plugin)
-
-fun BukkitRunnable.runTaskAsynchronously(plugin: Plugin = KotlinBukkitAPI.INSTANCE)
-        = runTaskAsynchronously(plugin)
-
-fun BukkitRunnable.runTaskLater(delay: Long, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
-        = runTaskLater(plugin, delay)
-
-fun BukkitRunnable.runTaskLaterAsynchronously(delay: Long, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
-        = runTaskLaterAsynchronously(plugin, delay)
-
-fun BukkitRunnable.runTaskTimer(repeatDelay: Long, delayToStart: Long = 0,
-                                plugin: Plugin = KotlinBukkitAPI.INSTANCE)
-        = runTaskTimer(plugin, delayToStart, repeatDelay)
-
-fun BukkitRunnable.runTaskTimerAsynchronously(repeatDelay: Long, delayToStart: Long = 0,
-                                              plugin: Plugin = KotlinBukkitAPI.INSTANCE)
-        = runTaskTimerAsynchronously(plugin, delayToStart, repeatDelay)
