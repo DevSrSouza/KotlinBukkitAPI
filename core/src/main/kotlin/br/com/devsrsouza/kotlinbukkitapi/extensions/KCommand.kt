@@ -1,11 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.command
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.dsl.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.SimpleCommandMap
-import org.bukkit.event.Listener
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 import java.lang.reflect.Field
@@ -27,7 +27,9 @@ private val knownCommandsField: Field by lazy {
     }
 }
 
-internal object CommandsRegisterController : Listener {
+internal object CommandsRegisterController : KListener {
+    override val plugin: Plugin get() = KotlinBukkitAPI.INSTANCE
+
     val commands = hashMapOf<String, MutableList<Command>>()
 
     init {
@@ -39,7 +41,7 @@ internal object CommandsRegisterController : Listener {
     }
 }
 
-fun Command.register(plugin: Plugin = KotlinBukkitAPI.INSTANCE) {
+fun Command.register(plugin: Plugin) {
     serverCommands.register(plugin.name, this)
 
     val cmds = CommandsRegisterController.commands.get(plugin.name) ?: mutableListOf()
