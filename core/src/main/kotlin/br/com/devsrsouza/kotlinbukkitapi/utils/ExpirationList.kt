@@ -1,21 +1,24 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
-import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
-import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.task
-import com.okkero.skedule.CoroutineTask
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 
 typealias OnExipereBlock<T> = (T) -> Unit
 
-fun <E> expirationListOf(plugin: Plugin = KotlinBukkitAPI.INSTANCE) = ExpirationList<E>(plugin)
+fun <E> Plugin.expirationListOf() = ExpirationList<E>(this)
 
-inline fun <reified E> expirationListOf(expireTime: Int, vararg elements: E, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
-    = ExpirationList<E>(plugin).apply { elements.forEach { add(it, expireTime) } }
+inline fun <reified E> expirationListOf(expireTime: Int, vararg elements: E, plugin: Plugin)
+        = ExpirationList<E>(plugin).apply { elements.forEach { add(it, expireTime) } }
 
-fun <E> expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+inline fun <reified E> Plugin.expirationListOf(expireTime: Int, vararg elements: E)
+        = expirationListOf(expireTime, *elements, plugin = this)
+
+fun <E> expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>, plugin: Plugin)
         = ExpirationList<E>(plugin).apply { elements.forEach { (element, onExpire) -> add(element, expireTime, onExpire) } }
+
+fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>)
+        = expirationListOf(expireTime, *elements, plugin = this)
 
 private class ExpirationNode<E>(var element: E, val expireTime: Int) {
 
@@ -26,7 +29,7 @@ private class ExpirationNode<E>(var element: E, val expireTime: Int) {
     val startTime: Long = System.currentTimeMillis()
 }
 
-class ExpirationList<E>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : MutableIterable<E> {
+class ExpirationList<E>(private val plugin: Plugin) : MutableIterable<E> {
 
     private var head: ExpirationNode<E>? = null
     private var tail: ExpirationNode<E>? = null
