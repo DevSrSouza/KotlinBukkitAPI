@@ -1,11 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
-import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.dsl.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.registerEvents
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.unregisterAll
 import org.bukkit.entity.Player
-import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.Plugin
@@ -16,31 +15,43 @@ import kotlin.collections.LinkedHashSet
 typealias WhenPlayerQuitCollectionCallback = Player.() -> Unit
 typealias WhenPlayerQuitMapCallback<V> = Player.(V) -> Unit
 
-fun onlinePlayerListOf(plugin: Plugin = KotlinBukkitAPI.INSTANCE) = OnlinePlayerList(plugin)
+fun Plugin.onlinePlayerListOf() = OnlinePlayerList(this)
 
-fun onlinePlayerListOf(vararg players: Player, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun onlinePlayerListOf(vararg players: Player, plugin: Plugin)
         = OnlinePlayerList(plugin).apply { addAll(players) }
 
-fun onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun Plugin.onlinePlayerListOf(vararg players: Player)
+        = onlinePlayerListOf(*players, plugin = this)
+
+fun onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>, plugin: Plugin)
         = OnlinePlayerList(plugin).apply { pair.forEach { (player, whenPlayerQuit) -> add(player, whenPlayerQuit) } }
 
-fun onlinePlayerSetOf(plugin: Plugin = KotlinBukkitAPI.INSTANCE) = OnlinePlayerSet(plugin)
+fun Plugin.onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>)
+        = onlinePlayerListOf(*pair, plugin = this)
 
-fun onlinePlayerSetOf(vararg players: Player, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun Plugin.onlinePlayerSetOf() = OnlinePlayerSet(this)
+
+fun onlinePlayerSetOf(vararg players: Player, plugin: Plugin)
         = OnlinePlayerSet(plugin).apply { addAll(players) }
 
-fun onlinePlayerSetOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun Plugin.onlinePlayerSetOf(vararg players: Player)
+        = onlinePlayerSetOf(*players, plugin = this)
+
+fun onlinePlayerSetOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>, plugin: Plugin)
         = OnlinePlayerSet(plugin).apply { pair.forEach { (player, whenPlayerQuit) -> add(player, whenPlayerQuit) } }
 
-fun <V> onlinePlayerMapOf(plugin: Plugin = KotlinBukkitAPI.INSTANCE) = OnlinePlayerMap<V>(plugin)
+fun Plugin.onlinePlayerSetOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>)
+        = onlinePlayerSetOf(*pair, plugin = this)
 
-fun <V> onlinePlayerMapOf(vararg pair: Pair<Player, V>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun <V> Plugin.onlinePlayerMapOf() = OnlinePlayerMap<V>(this)
+
+fun <V> onlinePlayerMapOf(vararg pair: Pair<Player, V>, plugin: Plugin)
         = OnlinePlayerMap<V>(plugin).apply { putAll(pair) }
 
-fun <V> onlinePlayerMapOf(vararg triple: Triple<Player, V, WhenPlayerQuitMapCallback<V>>, plugin: Plugin = KotlinBukkitAPI.INSTANCE)
+fun <V> onlinePlayerMapOf(vararg triple: Triple<Player, V, WhenPlayerQuitMapCallback<V>>, plugin: Plugin)
         = OnlinePlayerMap<V>(plugin).apply { triple.forEach { (player, value, whenPlayerQuit) -> put(player, value, whenPlayerQuit) } }
 
-class OnlinePlayerList(override val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : LinkedList<Player>(), OnlinePlayerCollection {
+class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(), OnlinePlayerCollection {
     private val whenQuit: MutableList<Pair<Player, WhenPlayerQuitCollectionCallback>> = LinkedList()
 
     init { init() }
@@ -102,7 +113,7 @@ class OnlinePlayerList(override val plugin: Plugin = KotlinBukkitAPI.INSTANCE) :
     }
 }
 
-class OnlinePlayerSet(override val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : LinkedHashSet<Player>(), OnlinePlayerCollection {
+class OnlinePlayerSet(override val plugin: Plugin) : LinkedHashSet<Player>(), OnlinePlayerCollection {
     private val whenQuit: MutableMap<Player, WhenPlayerQuitCollectionCallback> = mutableMapOf()
 
     init { init() }
@@ -140,9 +151,7 @@ class OnlinePlayerSet(override val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : 
     }
 }
 
-interface OnlinePlayerCollection : MutableCollection<Player>, Listener {
-
-    val plugin: Plugin
+interface OnlinePlayerCollection : MutableCollection<Player>, KListener {
 
     fun init() {
         event<PlayerQuitEvent> { quit(player) }
@@ -162,7 +171,7 @@ interface OnlinePlayerCollection : MutableCollection<Player>, Listener {
     }
 }
 
-class OnlinePlayerMap<V>(private val plugin: Plugin = KotlinBukkitAPI.INSTANCE) : LinkedHashMap<Player, V>(), Listener {
+class OnlinePlayerMap<V>(override val plugin: Plugin) : LinkedHashMap<Player, V>(), KListener {
     private val whenQuit: MutableMap<Player, WhenPlayerQuitMapCallback<V>> = mutableMapOf()
 
     init {
