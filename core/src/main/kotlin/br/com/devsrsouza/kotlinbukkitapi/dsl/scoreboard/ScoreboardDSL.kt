@@ -1,7 +1,5 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.scoreboard
 
-import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
-import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.runTaskTimer
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
 import br.com.devsrsouza.kotlinbukkitapi.utils.onlinePlayerMapOf
 import org.bukkit.Bukkit
@@ -17,9 +15,15 @@ import org.bukkit.scoreboard.Objective
 annotation class ScoreboardDSLMarker
 
 @ScoreboardDSLMarker
+inline fun Plugin.scoreboard(
+        title: String,
+        block: ScoreboardDSL.() -> Unit
+) = ScoreboardDSL(this, title).apply(block)
+
+@ScoreboardDSLMarker
 inline fun scoreboard(
         title: String,
-        plugin: Plugin = KotlinBukkitAPI.INSTANCE,
+        plugin: Plugin,
         block: ScoreboardDSL.() -> Unit
 ) = ScoreboardDSL(plugin, title).apply(block)
 
@@ -28,7 +32,7 @@ val linesBounds = 1..16
 class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
 
     private val lines = mutableMapOf<Int, ScoreboardLine>()
-    private val players = onlinePlayerMapOf<Objective>(plugin = plugin)
+    private val players = plugin.onlinePlayerMapOf<Objective>()
 
     private var titleController: ScoreboardTitle? = null
 
@@ -40,7 +44,7 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
             field = value;
             taskTitle?.cancel(); taskTitle = null
             if (value > 0 && players.isNotEmpty())
-                taskTitle = scheduler { updateTitle() }.runTaskTimer(repeatDelay = value)
+                taskTitle = scheduler { updateTitle() }.runTaskTimer(plugin, 0, value)
         }
 
     var updateLinesDelay: Long = 0
@@ -48,7 +52,7 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
             field = value;
             taskLine?.cancel(); taskLine = null
             if (value > 0 && players.isNotEmpty())
-                taskLine = scheduler { updateLines() }.runTaskTimer(repeatDelay = value)
+                taskLine = scheduler { updateLines() }.runTaskTimer(plugin, 0, value)
         }
 
     fun line(line: Int, scoreboardLine: ScoreboardLine) {
