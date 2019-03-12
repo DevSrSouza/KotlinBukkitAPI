@@ -1,5 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.menu
 
+import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.onlinePlayers
 import org.bukkit.Bukkit
@@ -49,7 +50,7 @@ open class Menu(val plugin: Plugin, var title: String, var lines: Int, var cance
             field = value
             task?.cancel()
             task = null
-            if (value > 0 && viewers.isNotEmpty()) task = scheduler { update() }.runTaskTimer(repeatDelay = value)
+            if (value > 0 && viewers.isNotEmpty()) task = scheduler { update() }.runTaskTimer(KotlinBukkitAPI.INSTANCE, 0, value)
         }
 
     val viewers = mutableMapOf<Player, Inventory>()
@@ -180,7 +181,7 @@ open class Menu(val plugin: Plugin, var title: String, var lines: Int, var cance
             })
 
             if (task == null && updateDelay > 0 && viewers.isNotEmpty())
-                task = scheduler { update() }.runTaskTimer(repeatDelay = updateDelay)
+                task = scheduler { update() }.runTaskTimer(KotlinBukkitAPI.INSTANCE, 0, updateDelay)
 
         } catch (e: Throwable) {
             e.printStackTrace()

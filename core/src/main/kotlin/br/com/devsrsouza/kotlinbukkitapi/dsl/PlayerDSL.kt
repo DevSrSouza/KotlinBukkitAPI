@@ -4,6 +4,7 @@ import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.displaced
 import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
+import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.task
 import br.com.devsrsouza.kotlinbukkitapi.utils.OnlinePlayerMap
 import br.com.devsrsouza.kotlinbukkitapi.utils.onlinePlayerMapOf
@@ -38,16 +39,16 @@ class PlayerCallback<R>(val plugin: Plugin, val callback: PlayerCallbackFunction
 object PlayerController : KListener {
     override val plugin: Plugin get() = KotlinBukkitAPI.INSTANCE
 
-    internal val inputCallbacks = OnlinePlayerMap<ChatInput>()
-    internal val functionsMove = onlinePlayerMapOf<PlayerCallback<Boolean>>()
-    internal val functionsQuit = onlinePlayerMapOf<PlayerCallback<Unit>>()
+    internal val inputCallbacks = OnlinePlayerMap<ChatInput>(KotlinBukkitAPI.INSTANCE)
+    internal val functionsMove = KotlinBukkitAPI.INSTANCE.onlinePlayerMapOf<PlayerCallback<Boolean>>()
+    internal val functionsQuit = KotlinBukkitAPI.INSTANCE.onlinePlayerMapOf<PlayerCallback<Unit>>()
 
     init {
         event<AsyncPlayerChatEvent>(ignoreCancelled = true) {
             if (message.isNotBlank()) {
                 val input = inputCallbacks.remove(player)
                 if (input != null) {
-                    if (input.sync) task { input.callback(player, message) }
+                    if (input.sync) scheduler { input.callback(player, message) }.runTask(KotlinBukkitAPI.INSTANCE)
                     else input.callback(player, message)
                     isCancelled = true
                 }
