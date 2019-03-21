@@ -2,7 +2,6 @@ package br.com.devsrsouza.kotlinbukkitapi.attributestorage
 
 import br.com.devsrsouza.kotlinbukkitapi.dsl.config.Serializable
 import br.com.devsrsouza.kotlinbukkitapi.dsl.item.meta
-import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorNull
 import com.comphenix.attribute.AttributeStorage
 import com.comphenix.attribute.NbtFactory
 import org.bukkit.Material
@@ -85,7 +84,7 @@ fun itemBase64ListSerializer(items: MutableList<ItemStack>, description: String 
         = Serializable(items, description).apply {
     load {
         (it as? List<String>)?.mapNotNull {
-            whenErrorNull { fromBase64Item(it) }
+            runCatching { fromBase64Item(it) }.getOrNull()
         }?.toMutableList() ?: default
     }
     save { map { it.toBase64() } }

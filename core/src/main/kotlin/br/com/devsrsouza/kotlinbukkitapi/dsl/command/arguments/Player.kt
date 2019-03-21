@@ -3,7 +3,6 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.onlinePlayers
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
-import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorNull
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.*
 import org.bukkit.command.CommandSender
@@ -70,7 +69,7 @@ fun Executor<*>.gameModeOrNull(
         index: Int,
         argMissing: BaseComponent = GAMEMODE_MISSING_PARAMETER
 ): GameMode? = string(index, argMissing).run {
-    toIntOrNull()?.let { GameMode.getByValue(it) } ?: whenErrorNull { GameMode.valueOf(this.toUpperCase()) }
+    toIntOrNull()?.let { GameMode.getByValue(it) } ?: runCatching { GameMode.valueOf(this.toUpperCase()) }.getOrNull()
 }
 
 fun Executor<*>.gameMode(

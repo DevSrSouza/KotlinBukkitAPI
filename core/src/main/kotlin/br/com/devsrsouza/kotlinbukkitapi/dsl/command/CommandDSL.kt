@@ -3,7 +3,6 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.command
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.command.*
-import br.com.devsrsouza.kotlinbukkitapi.utils.whenErrorDefault
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -67,7 +66,7 @@ fun <T : CommandSender> Executor<T>.argumentExecutorBuilder(
 ) = Executor(
         sender,
         this@argumentExecutorBuilder.label + " " + label,
-        whenErrorDefault(emptyArray()) { args.sliceArray(posIndex..args.size) }
+        runCatching { args.sliceArray(posIndex..args.size) }.getOrDefault((emptyArray()))
 )
 
 inline fun TabCompleter.argumentCompleteBuilder(index: Int, block: (String) -> List<String>): List<String> {
