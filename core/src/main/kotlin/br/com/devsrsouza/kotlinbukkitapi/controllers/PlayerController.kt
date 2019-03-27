@@ -7,8 +7,7 @@ import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
 import br.com.devsrsouza.kotlinbukkitapi.dsl.player.ChatInput
 import br.com.devsrsouza.kotlinbukkitapi.dsl.player.PlayerCallback
 import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
-import br.com.devsrsouza.kotlinbukkitapi.utils.OnlinePlayerMap
-import br.com.devsrsouza.kotlinbukkitapi.utils.onlinePlayerMapOf
+import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.server.PluginDisableEvent
