@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.dsl.config
+package br.com.devsrsouza.kotlinbukkitapi.config
 
 import kotlin.reflect.*
 import kotlin.reflect.full.createInstance
@@ -118,7 +118,8 @@ object ConfigDSLIMPL {
     ) {
         if (delegate?.saveFunction != null) {
             val toSave = delegate.serialize()
-            set(resolveEntry(saveTransformer?.invoke(prop, toSave) ?: toSave, prop.name, base) as Entry<String, Any>)
+            set(resolveEntry(saveTransformer?.invoke(prop, toSave)
+                    ?: toSave, prop.name, base) as Entry<String, Any>)
         } else {
             val defaultObj = prop.getter.apply { isAccessible = true }.call(instance).let {
                 saveTransformer?.invoke(prop, it) ?: it

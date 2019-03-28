@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler
+package br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import com.okkero.skedule.BukkitSchedulerController

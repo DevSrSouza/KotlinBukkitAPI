@@ -1,6 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.collections
 
-import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
+import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 

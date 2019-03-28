@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.dsl.config
+package br.com.devsrsouza.kotlinbukkitapi.config
 
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.YamlConfiguration

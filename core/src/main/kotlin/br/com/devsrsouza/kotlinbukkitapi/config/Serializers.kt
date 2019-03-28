@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.dsl.config
+package br.com.devsrsouza.kotlinbukkitapi.config
 
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.toJson
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.unaryMinus

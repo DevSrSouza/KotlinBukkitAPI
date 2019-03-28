@@ -1,9 +1,9 @@
 package br.com.devsrsouza.kotlinbukkitapi.controllers
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.KListener
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
 import br.com.devsrsouza.kotlinbukkitapi.extensions.command.unregister
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
 import org.bukkit.command.Command
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin

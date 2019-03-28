@@ -1,13 +1,13 @@
 package br.com.devsrsouza.kotlinbukkitapi.controllers
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.KListener
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.displaced
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
-import br.com.devsrsouza.kotlinbukkitapi.dsl.player.ChatInput
-import br.com.devsrsouza.kotlinbukkitapi.dsl.player.PlayerCallback
-import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
 import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.displaced
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
+import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
+import br.com.devsrsouza.kotlinbukkitapi.utils.player.ChatInput
+import br.com.devsrsouza.kotlinbukkitapi.utils.player.PlayerCallback
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.server.PluginDisableEvent

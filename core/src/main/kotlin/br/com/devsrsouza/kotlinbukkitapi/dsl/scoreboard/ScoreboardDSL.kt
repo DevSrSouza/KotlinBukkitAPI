@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.scoreboard
 
-import br.com.devsrsouza.kotlinbukkitapi.dsl.scheduler.scheduler
 import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
+import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player

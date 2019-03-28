@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.dsl.player
+package br.com.devsrsouza.kotlinbukkitapi.utils.player
 
 import br.com.devsrsouza.kotlinbukkitapi.controllers.PlayerController
 import org.bukkit.entity.Player

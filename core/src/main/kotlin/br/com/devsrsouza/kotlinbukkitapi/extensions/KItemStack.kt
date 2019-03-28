@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.dsl.item
+package br.com.devsrsouza.kotlinbukkitapi.extensions.item
 
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
@@ -7,7 +7,6 @@ import com.google.common.collect.Multimap
 import org.bukkit.Material
 import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.material.MaterialData
-
 
 fun item(material: Material,
          amount: Int = 1,

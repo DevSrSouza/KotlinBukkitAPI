@@ -1,10 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.collections
 
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.KListener
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.event
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.registerEvents
-import br.com.devsrsouza.kotlinbukkitapi.dsl.event.unregisterAll
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.registerEvents
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.registerEvents
 import org.bukkit.entity.Player
+import org.bukkit.event.HandlerList.unregisterAll
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.Plugin
@@ -177,8 +178,6 @@ class OnlinePlayerMap<V>(override val plugin: Plugin) : LinkedHashMap<Player, V>
     init {
         event<PlayerQuitEvent> { quit(player) }
         event<PlayerKickEvent> { quit(player) }
-
-        registerEvents(plugin)
     }
 
     fun put(key: Player, value: V, whenPlayerQuit: Player.(V) -> Unit): V? {
