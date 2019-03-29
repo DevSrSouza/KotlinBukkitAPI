@@ -14,9 +14,11 @@ typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
 typealias TabCompleterBlock = TabCompleter.() -> List<String>
 typealias CommandMaker = CommandDSL.() -> Unit
 
-class CommandException(val senderMessage: BaseComponent? = null,
-                       val argMissing: Boolean = false,
-                       val execute: () -> Unit = {}) : RuntimeException() {
+class CommandException(
+        val senderMessage: BaseComponent? = null,
+        val argMissing: Boolean = false,
+        val execute: () -> Unit = {}
+) : RuntimeException() {
     constructor(senderMessage: String = "", argMissing: Boolean = false, execute: () -> Unit = {})
             : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), argMissing, execute)
 }
@@ -31,15 +33,19 @@ inline fun Executor<*>.exception(
         noinline execute: () -> Unit = {}
 ): Nothing = throw CommandException(senderMessage, execute = execute)
 
-fun Plugin.simpleCommand(name: String, vararg aliases: String = arrayOf(),
-                         description: String = "",
-                         block: ExecutorBlock
+fun Plugin.simpleCommand(
+        name: String,
+        vararg aliases: String = arrayOf(),
+        description: String = "",
+        block: ExecutorBlock
 ) = simpleCommand(name, *aliases, plugin = this, description = description, block = block)
 
-fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
-                  plugin: Plugin,
-                  description: String = "",
-                  block: ExecutorBlock
+fun simpleCommand(
+        name: String,
+        vararg aliases: String = arrayOf(),
+        plugin: Plugin,
+        description: String = "",
+        block: ExecutorBlock
 ) = command(name, *aliases, plugin = plugin) {
 
     if (description.isNotBlank()) this.description = description
@@ -47,28 +53,34 @@ fun simpleCommand(name: String, vararg aliases: String = arrayOf(),
     executor(block)
 }
 
-inline fun Plugin.command(name: String,
-                          vararg aliases: String = arrayOf(),
-                          block: CommandMaker
+inline fun Plugin.command(
+        name: String,
+        vararg aliases: String = arrayOf(),
+        block: CommandMaker
 ) = command(name, *aliases, plugin = this, block = block)
 
-inline fun command(name: String,
-                   vararg aliases: String = arrayOf(),
-                   plugin: Plugin,
-                   block: CommandMaker
+inline fun command(
+        name: String,
+        vararg aliases: String = arrayOf(),
+        plugin: Plugin,
+        block: CommandMaker
 ) = CommandDSL(name, *aliases).apply(block).apply {
     register(plugin)
 }
 
 fun <T : CommandSender> Executor<T>.argumentExecutorBuilder(
-        posIndex: Int = 1, label: String
+        posIndex: Int = 1,
+        label: String
 ) = Executor(
         sender,
         this@argumentExecutorBuilder.label + " " + label,
         runCatching { args.sliceArray(posIndex..args.size) }.getOrDefault((emptyArray()))
 )
 
-inline fun TabCompleter.argumentCompleteBuilder(index: Int, block: (String) -> List<String>): List<String> {
+inline fun TabCompleter.argumentCompleteBuilder(
+        index: Int,
+        block: (String) -> List<String>
+): List<String> {
     if(args.size == index+1) {
         return block(args.getOrNull(index) ?: "")
     }
@@ -84,11 +96,13 @@ inline fun <T> Executor<*>.optional(block: () -> T): T? {
     }
 }
 
-inline fun <reified T> Executor<*>.array(startIndex: Int,
-                                         endIndex: Int,
-                                         usageIndexPerArgument: Int = 1,
-                                         block: (index: Int) -> T): Array<T> {
-    if(endIndex <= startIndex)
+inline fun <reified T> Executor<*>.array(
+        startIndex: Int,
+        endIndex: Int,
+        usageIndexPerArgument: Int = 1,
+        block: (index: Int) -> T
+): Array<T> {
+    if (endIndex <= startIndex)
         throw IllegalArgumentException("endIndex can't be lower or equals a startIndex.")
     if(usageIndexPerArgument <= 0)
         throw IllegalArgumentException("usageIndexPerArgument can't be lower than 1.")
@@ -100,18 +114,25 @@ inline fun <reified T> Executor<*>.array(startIndex: Int,
     }
 }
 
-class Executor<E : CommandSender>(val sender: E,
-                                  val label: String,
-                                  val args: Array<out String>)
+class Executor<E : CommandSender>(
+        val sender: E,
+        val label: String,
+        val args: Array<out String>
+)
 
-class TabCompleter(val sender: CommandSender,
-                   val alias: String,
-                   val args: Array<out String>)
+class TabCompleter(
+        val sender: CommandSender,
+        val alias: String,
+        val args: Array<out String>
+)
 
-open class CommandDSL(name: String,
-                      vararg aliases: String = arrayOf(),
-                      executor: ExecutorBlock? = null
+open class CommandDSL(
+        name: String,
+        vararg aliases: String = arrayOf(),
+        executor: ExecutorBlock? = null
 ) : org.bukkit.command.Command(name.trim()) {
+
+    var onlyInGameMessage = ""
 
     init { this.aliases = aliases.toList() }
 
@@ -121,8 +142,6 @@ open class CommandDSL(name: String,
     private val executors: MutableMap<KClass<out CommandSender>, Executor<CommandSender>.() -> Unit> = mutableMapOf()
 
     val subCommands: MutableList<CommandDSL> = mutableListOf()
-
-    var onlyInGameMessage = ""
 
     override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
         if (!permission.isNullOrBlank() && !sender.hasPermission(permission)) {
@@ -197,7 +216,11 @@ open class CommandDSL(name: String,
         }
     }
 
-    inline fun command(name: String, vararg aliases: String = arrayOf(), block: CommandMaker): CommandDSL {
+    inline fun command(
+            name: String,
+            vararg aliases: String = arrayOf(),
+            block: CommandMaker
+    ): CommandDSL {
         return subCommandBuilder(name, *aliases).apply(block).also { subCommands.add(it) }
     }
 
