@@ -1,5 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.collections
 
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
@@ -8,17 +9,25 @@ typealias OnExipereBlock<T> = (T) -> Unit
 
 fun <E> Plugin.expirationListOf() = ExpirationList<E>(this)
 
+fun <E> WithPlugin<*>.expirationListOf() = plugin.expirationListOf<E>()
+
 inline fun <reified E> expirationListOf(expireTime: Int, vararg elements: E, plugin: Plugin)
         = ExpirationList<E>(plugin).apply { elements.forEach { add(it, expireTime) } }
 
 inline fun <reified E> Plugin.expirationListOf(expireTime: Int, vararg elements: E)
         = expirationListOf(expireTime, *elements, plugin = this)
 
+inline fun <reified E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: E)
+        = plugin.expirationListOf(expireTime, *elements)
+
 fun <E> expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>, plugin: Plugin)
         = ExpirationList<E>(plugin).apply { elements.forEach { (element, onExpire) -> add(element, expireTime, onExpire) } }
 
 fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>)
         = expirationListOf(expireTime, *elements, plugin = this)
+
+fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>)
+        = plugin.expirationListOf(expireTime, *elements)
 
 private class ExpirationNode<E>(var element: E, val expireTime: Int) {
 

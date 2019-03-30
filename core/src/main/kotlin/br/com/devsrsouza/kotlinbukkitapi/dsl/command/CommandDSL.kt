@@ -2,6 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.command
 
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.command.*
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -33,6 +34,13 @@ inline fun Executor<*>.exception(
         noinline execute: () -> Unit = {}
 ): Nothing = throw CommandException(senderMessage, execute = execute)
 
+fun WithPlugin<*>.simpleCommand(
+        name: String,
+        vararg aliases: String = arrayOf(),
+        description: String = "",
+        block: ExecutorBlock
+) = plugin.simpleCommand(name, *aliases, description = description, block = block)
+
 fun Plugin.simpleCommand(
         name: String,
         vararg aliases: String = arrayOf(),
@@ -52,6 +60,12 @@ fun simpleCommand(
 
     executor(block)
 }
+
+inline fun WithPlugin<*>.command(
+        name: String,
+        vararg aliases: String = arrayOf(),
+        block: CommandMaker
+) = plugin.command(name, *aliases, block = block)
 
 inline fun Plugin.command(
         name: String,

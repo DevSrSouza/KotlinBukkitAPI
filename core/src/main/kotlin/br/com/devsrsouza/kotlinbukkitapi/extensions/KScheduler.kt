@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import com.okkero.skedule.BukkitSchedulerController
 import com.okkero.skedule.CoroutineTask
 import com.okkero.skedule.SynchronizationContext
@@ -17,6 +18,10 @@ inline fun Plugin.task(delayToRun: Long = 0,
                        crossinline controller: suspend BukkitSchedulerController.() -> Unit
 ): CoroutineTask = task(delayToRun, this, controller)
 
+inline fun WithPlugin<*>.task(delayToRun: Long = 0,
+                       crossinline controller: suspend BukkitSchedulerController.() -> Unit
+): CoroutineTask = plugin.task(delayToRun, controller)
+
 inline fun taskAsync(delayToRun: Long = 0,
                      plugin: Plugin,
                      crossinline controller: suspend BukkitSchedulerController.() -> Unit
@@ -25,6 +30,10 @@ inline fun taskAsync(delayToRun: Long = 0,
 inline fun Plugin.taskAsync(delayToRun: Long = 0,
                             crossinline controller: suspend BukkitSchedulerController.() -> Unit
 ): CoroutineTask = taskAsync(delayToRun, this, controller)
+
+inline fun WithPlugin<*>.taskAsync(delayToRun: Long = 0,
+                            crossinline controller: suspend BukkitSchedulerController.() -> Unit
+): CoroutineTask = plugin.taskAsync(delayToRun, controller)
 
 inline fun task(delayToRun: Long,
                 async: Boolean,

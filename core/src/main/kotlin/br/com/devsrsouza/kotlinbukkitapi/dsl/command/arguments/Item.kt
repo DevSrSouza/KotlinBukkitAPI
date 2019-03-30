@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
-import br.com.devsrsouza.kotlinbukkitapi.extensions.asMaterialData
+import br.com.devsrsouza.kotlinbukkitapi.extensions.item.asMaterialData
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.ChatColor

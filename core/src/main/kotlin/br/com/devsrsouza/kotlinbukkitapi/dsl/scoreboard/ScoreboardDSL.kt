@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.scoreboard
 
 import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
@@ -15,10 +16,16 @@ import org.bukkit.scoreboard.Objective
 annotation class ScoreboardDSLMarker
 
 @ScoreboardDSLMarker
+inline fun WithPlugin<*>.scoreboard(
+        title: String,
+        block: ScoreboardDSL.() -> Unit
+) = plugin.scoreboard(title, block)
+
+@ScoreboardDSLMarker
 inline fun Plugin.scoreboard(
         title: String,
         block: ScoreboardDSL.() -> Unit
-) = ScoreboardDSL(this, title).apply(block)
+) = scoreboard(title, this, block)
 
 @ScoreboardDSLMarker
 inline fun scoreboard(

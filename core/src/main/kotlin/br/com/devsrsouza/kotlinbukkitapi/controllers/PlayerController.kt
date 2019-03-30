@@ -13,8 +13,8 @@ import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 
-internal object PlayerController : KListener {
-    override val plugin: Plugin get() = KotlinBukkitAPI.INSTANCE
+internal object PlayerController : KListener<KotlinBukkitAPI> {
+    override val plugin: KotlinBukkitAPI get() = KotlinBukkitAPI.INSTANCE
 
     internal val inputCallbacks = plugin.onlinePlayerMapOf<ChatInput>()
     internal val functionsMove = plugin.onlinePlayerMapOf<PlayerCallback<Boolean>>()

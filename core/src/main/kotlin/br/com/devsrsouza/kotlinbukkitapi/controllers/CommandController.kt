@@ -8,8 +8,8 @@ import org.bukkit.command.Command
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 
-internal object CommandController : KListener {
-    override val plugin: Plugin get() = KotlinBukkitAPI.INSTANCE
+internal object CommandController : KListener<KotlinBukkitAPI> {
+    override val plugin: KotlinBukkitAPI get() = KotlinBukkitAPI.INSTANCE
 
     val commands = hashMapOf<String, MutableList<Command>>()
 

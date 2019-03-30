@@ -2,6 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.dsl.menu
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.controllers.MenuController
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
 import org.bukkit.Bukkit
 import org.bukkit.Material
@@ -12,6 +13,13 @@ import org.bukkit.inventory.InventoryHolder
 import org.bukkit.inventory.ItemStack
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
+
+inline fun WithPlugin<*>.menu(
+        displayName: String,
+        lines: Int,
+        cancel: Boolean = false,
+        block: Menu.() -> Unit
+) = plugin.menu(displayName, lines, cancel, block)
 
 inline fun Plugin.menu(
         displayName: String,

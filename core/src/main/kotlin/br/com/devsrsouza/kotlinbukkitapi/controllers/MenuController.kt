@@ -1,15 +1,17 @@
 package br.com.devsrsouza.kotlinbukkitapi.controllers
 
+import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.onlinePlayers
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.Listener
 import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.event.server.PluginDisableEvent
 
-internal object MenuController : Listener {
+internal object MenuController : KListener<KotlinBukkitAPI> {
+    override val plugin: KotlinBukkitAPI get() = KotlinBukkitAPI.INSTANCE
 
     internal fun close(player: Player) {
         val menu = (player.openInventory.topInventory.holder as? Menu)?.takeIf { it.viewers.containsKey(player) }

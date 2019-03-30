@@ -1,12 +1,13 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.event
 
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import org.bukkit.Bukkit
 import org.bukkit.event.*
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.full.safeCast
 
-inline fun <reified T : Event> KListener.event(
+inline fun <reified T : Event> KListener<*>.event(
         priority: EventPriority = EventPriority.NORMAL,
         ignoreCancelled: Boolean = true,
         crossinline block: T.() -> Unit
@@ -30,7 +31,8 @@ inline fun <reified T : Event> Listener.event(
     )
 }
 
-inline fun Plugin.events(block: KListener.() -> Unit) = InlineKListener(this).apply(block)
+inline fun WithPlugin<*>.events(block: KListener<*>.() -> Unit) = plugin.events(block)
+inline fun Plugin.events(block: KListener<*>.() -> Unit) = InlineKListener(this).apply(block)
 
 fun Listener.unregisterAll() = HandlerList.unregisterAll(this)
 
@@ -42,5 +44,5 @@ fun Event.callEvent() = Bukkit.getServer().pluginManager.callEvent(this)
 val PlayerMoveEvent.displaced: Boolean
     get() = this.from.x != this.to.x || this.from.y != this.to.y || this.from.z != this.to.z
 
-interface KListener : Listener { val plugin: Plugin }
-inline class InlineKListener(override val plugin: Plugin) : KListener
+interface KListener<T : Plugin> : Listener, WithPlugin<T>
+inline class InlineKListener(override val plugin: Plugin) : KListener<Plugin>
