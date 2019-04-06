@@ -8,13 +8,10 @@ import org.bukkit.plugin.Plugin
 import java.lang.reflect.Field
 
 private val serverCommands: SimpleCommandMap by lazy {
-    val packageName = Bukkit.getServer().javaClass.getPackage().getName()
-    val version = packageName.substring(packageName.lastIndexOf('.') + 1)
-    // TODO support for GlowStone
-    val bukkitclass = Class.forName("org.bukkit.craftbukkit.$version.CraftServer")
-    val f = bukkitclass.getDeclaredField("commandMap")
-    f.isAccessible = true
-    f.get(Bukkit.getServer()) as SimpleCommandMap
+    val server = Bukkit.getServer()
+    server::class.java.getDeclaredField("commandMap").apply {
+        isAccessible = true
+    }.get(server) as SimpleCommandMap
 }
 
 private val knownCommandsField: Field by lazy {
