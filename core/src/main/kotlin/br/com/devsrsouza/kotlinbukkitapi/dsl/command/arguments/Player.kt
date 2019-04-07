@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.*
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import java.util.*
 
 // PLAYER
 
@@ -48,7 +49,10 @@ fun TabCompleter.player(
 fun Executor<*>.offlinePlayer(
         index: Int,
         argMissing: BaseComponent = PLAYER_MISSING_PARAMETER
-): OfflinePlayer = string(index, argMissing).let { Bukkit.getOfflinePlayer(it) }
+): OfflinePlayer = string(index, argMissing).let {
+    runCatching { UUID.fromString(it) }.getOrNull()?.let { Bukkit.getOfflinePlayer(it) }
+            ?: Bukkit.getOfflinePlayer(it)
+}
 
 inline fun <T : CommandSender> Executor<T>.argumentOfflinePlayer(
         argMissing: BaseComponent = PLAYER_MISSING_PARAMETER,

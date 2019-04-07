@@ -15,7 +15,6 @@ private val serverCommands: SimpleCommandMap by lazy {
 }
 
 private val knownCommandsField: Field by lazy {
-    // TODO support for GlowStone
     serverCommands.javaClass.getDeclaredField("knownCommands").apply {
         isAccessible = true
     }
