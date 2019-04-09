@@ -12,7 +12,7 @@ sealed class ServerImplementation {
     class UnknownBukkitFork(nms: String) : BukkitImplementation(nms)
 
     object Glowstone : ServerImplementation()
-    object UnknownImplementation : ServerImplementation()
+    class UnknownImplementation(val name: String) : ServerImplementation()
 }
 
 val Server.implementation: ServerImplementation get() {
@@ -32,6 +32,16 @@ val Server.implementation: ServerImplementation get() {
                 else -> ServerImplementation.UnknownBukkitFork(nms)
             }
         }
-        else -> ServerImplementation.UnknownImplementation
+        else -> ServerImplementation.UnknownImplementation(name)
     }
+}
+
+val Server.apiVersion get() = ApiVersion(this)
+
+inline class ApiVersion(val server: Server) {
+    private val version get() = server.bukkitVersion.split("-")[0].split(".")
+
+    val major: Int get() = version[0].toInt()
+    val minor: Int get() = version[1].toInt()
+    val patch: Int get() = version[2].toIntOrNull() ?: 0
 }
