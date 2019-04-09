@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.attributestorage
 
-import br.com.devsrsouza.kotlinbukkitapi.dsl.config.Serializable
-import br.com.devsrsouza.kotlinbukkitapi.dsl.item.meta
+import br.com.devsrsouza.kotlinbukkitapi.config.Serializable
+import br.com.devsrsouza.kotlinbukkitapi.extensions.item.meta
 import com.comphenix.attribute.AttributeStorage
 import com.comphenix.attribute.NbtFactory
 import org.bukkit.Material
