@@ -28,6 +28,7 @@ subprojects {
 
     repositories {
         jcenter()
+        mavenLocal()
         maven {
             name = "spigot"
             url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
@@ -42,8 +43,11 @@ subprojects {
         compileOnly(kotlin("stdlib"))
         compileOnly(kotlin("reflect"))
 
-        compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+        if (!project.path.startsWith(":server:bukkit"))
+            compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
+        testRuntime(kotlin("stdlib"))
+        testRuntime("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
         testRuntime("org.junit.platform:junit-platform-launcher:1.3.2")
         testRuntime("org.junit.jupiter:junit-jupiter-engine:5.3.2")
         testRuntime("org.junit.vintage:junit-vintage-engine:5.3.2")
@@ -84,7 +88,8 @@ subprojects {
                 from(components["java"])
                 artifact(sources.get())
                 groupId = project.group.toString()
-                artifactId = project.name.toLowerCase()
+                artifactId = project.path.removePrefix(":")
+                        .replace(":", "-").toLowerCase()
                 version = project.version.toString()
                 pom.withXml {
                     asNode().apply {
@@ -107,7 +112,10 @@ subprojects {
                                 appendNode("email", "devsrsouza@gmail.com")
                             }
                         }
-                        appendNode("scm").appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master/${project.name}")
+                        appendNode("scm").appendNode("url", 
+                                "https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master/" +
+                                        "${project.path.removePrefix(":").replace(":", "/")}"
+                        )
                     }
                 }
             }
@@ -124,7 +132,7 @@ dependencies {
     compile(kotlin("reflect"))
 
     subprojects.forEach {
-        compile(project(":${it.name}", configuration = "shadow"))
+        compile(project(it.path, configuration = "shadow"))
     }
 }
 
