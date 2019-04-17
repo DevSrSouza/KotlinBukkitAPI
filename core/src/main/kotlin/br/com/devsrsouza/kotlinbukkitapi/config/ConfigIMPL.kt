@@ -7,7 +7,7 @@ import kotlin.reflect.full.memberProperties
 import kotlin.reflect.full.safeCast
 import kotlin.reflect.jvm.isAccessible
 
-object ConfigDSLIMPL {
+object ConfigIMPL {
 
     fun loadAndSetDefault(model: KClass<*>, instance: Any, map: Map<String, Any>,
                           saveTransformer: PropertyTransformer? = null,
