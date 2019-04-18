@@ -7,6 +7,16 @@ import br.com.devsrsouza.kotlinbukkitapi.server.api.chat.ServerTitle
 import br.com.devsrsouza.kotlinbukkitapi.server.api.player.ServerTabList
 import br.com.devsrsouza.kotlinbukkitapi.server.bukkit.v1_10.chat.ServerChatImpl as ServerChatImplBukkit
 import br.com.devsrsouza.kotlinbukkitapi.server.bukkit.v1_11.chat.ServerTitleImpl as ServerTitleImplBukkit
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R1.nbt.ServerNBTImpl as ServerNBTImpl1_8_R1
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R1.player.ServerTabListImpl as ServerTabListImpl1_8_R1
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R1.chat.ServerTitleImpl as ServerTitleImpl1_8_R1
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R1.chat.ServerChatImpl as ServerChatImpl1_8_R1
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R1.item.ServerItemImpl as ServerItemImpl1_8_R1
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R2.nbt.ServerNBTImpl as ServerNBTImpl1_8_R2
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R2.player.ServerTabListImpl as ServerTabListImpl1_8_R2
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R2.chat.ServerTitleImpl as ServerTitleImpl1_8_R2
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R2.chat.ServerChatImpl as ServerChatImpl1_8_R2
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R2.item.ServerItemImpl as ServerItemImpl1_8_R2
 import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R3.nbt.ServerNBTImpl as ServerNBTImpl1_8_R3
 import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R3.player.ServerTabListImpl as ServerTabListImpl1_8_R3
 import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R3.chat.ServerTitleImpl as ServerTitleImpl1_8_R3
@@ -31,8 +41,8 @@ object Server {
                 when (impl) {
                     is ServerImplementation.BukkitImplementation -> {
                         when (impl.nms) {
-                            "v1_8_R1" -> TODO("${impl.nms} not implemented yet.")
-                            "v1_8_R2" -> TODO("${impl.nms} not implemented yet.")
+                            "v1_8_R1" -> ServerChatImpl1_8_R1
+                            "v1_8_R2" -> ServerChatImpl1_8_R2
                             "v1_8_R3" -> ServerChatImpl1_8_R3
                             "v1_9_R1" -> TODO("${impl.nms} not implemented yet.")
                             "v1_10_R1" -> TODO("${impl.nms} not implemented yet.")
@@ -54,8 +64,8 @@ object Server {
                 when (impl) {
                     is ServerImplementation.BukkitImplementation -> {
                         when (impl.nms) {
-                            "v1_8_R1" -> TODO("${impl.nms} not implemented yet.")
-                            "v1_8_R2" -> TODO("${impl.nms} not implemented yet.")
+                            "v1_8_R1" -> ServerTitleImpl1_8_R1
+                            "v1_8_R2" -> ServerTitleImpl1_8_R2
                             "v1_8_R3" -> ServerTitleImpl1_8_R3
                             "v1_9_R1" -> TODO("${impl.nms} not implemented yet.")
                             "v1_10_R1" -> TODO("${impl.nms} not implemented yet.")
@@ -76,8 +86,8 @@ object Server {
         when (impl) {
             is ServerImplementation.BukkitImplementation -> {
                 when (impl.nms) {
-                    "v1_8_R1" -> TODO("${impl.nms} not implemented yet.")
-                    "v1_8_R2" -> TODO("${impl.nms} not implemented yet.")
+                    "v1_8_R1" -> ServerTabListImpl1_8_R1
+                    "v1_8_R2" -> ServerTabListImpl1_8_R2
                     "v1_8_R3" -> ServerTabListImpl1_8_R3
                     "v1_9_R1" -> TODO("${impl.nms} not implemented yet.")
                     "v1_10_R1" -> TODO("${impl.nms} not implemented yet.")
@@ -100,8 +110,8 @@ object Server {
         when (impl) {
             is ServerImplementation.BukkitImplementation -> {
                 when (impl.nms) {
-                    "v1_8_R1" -> TODO("${impl.nms} not implemented yet.")
-                    "v1_8_R2" -> TODO("${impl.nms} not implemented yet.")
+                    "v1_8_R1" -> ServerItemImpl1_8_R1
+                    "v1_8_R2" -> ServerItemImpl1_8_R2
                     "v1_8_R3" -> ServerItemImpl1_8_R3
                     "v1_9_R1" -> TODO("${impl.nms} not implemented yet.")
                     "v1_10_R1" -> TODO("${impl.nms} not implemented yet.")
@@ -124,8 +134,8 @@ object Server {
         when (impl) {
             is ServerImplementation.BukkitImplementation -> {
                 when (impl.nms) {
-                    "v1_8_R1" -> TODO("${impl.nms} not implemented yet.")
-                    "v1_8_R2" -> TODO("${impl.nms} not implemented yet.")
+                    "v1_8_R1" -> ServerNBTImpl1_8_R1
+                    "v1_8_R2" -> ServerNBTImpl1_8_R2
                     "v1_8_R3" -> ServerNBTImpl1_8_R3
                     "v1_9_R1" -> TODO("${impl.nms} not implemented yet.")
                     "v1_10_R1" -> TODO("${impl.nms} not implemented yet.")

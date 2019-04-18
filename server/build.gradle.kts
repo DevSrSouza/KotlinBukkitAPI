@@ -9,5 +9,7 @@ dependencies {
     compileOnly(project(":server:bukkit:1_12"))
 
     // nms versions
+    compileOnly(project(":server:nms:v1_8_R1"))
+    compileOnly(project(":server:nms:v1_8_R2"))
     compileOnly(project(":server:nms:v1_8_R3"))
 }

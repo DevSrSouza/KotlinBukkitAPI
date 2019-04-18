@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R2.player
+package br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R1.player
 
 import br.com.devsrsouza.kotlinbukkitapi.server.api.player.ServerTabList
 import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_8_R1.asIChatBaseComponent
