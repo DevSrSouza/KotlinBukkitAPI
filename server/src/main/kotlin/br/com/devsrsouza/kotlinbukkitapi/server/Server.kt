@@ -42,6 +42,12 @@ import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_11_R1.item.ServerItemImpl
 import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_12_R1.nbt.ServerNBTImpl as ServerNBTImpl1_12_R1
 import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_12_R1.player.ServerTabListImpl as ServerTabListImpl1_12_R1
 import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_12_R1.item.ServerItemImpl as ServerItemImpl1_12_R1
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_13_R1.nbt.ServerNBTImpl as ServerNBTImpl1_13_R1
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_13_R1.player.ServerTabListImpl as ServerTabListImpl1_13_R1
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_13_R1.item.ServerItemImpl as ServerItemImpl1_13_R1
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_13_R2.nbt.ServerNBTImpl as ServerNBTImpl1_13_R2
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_13_R2.player.ServerTabListImpl as ServerTabListImpl1_13_R2
+import br.com.devsrsouza.kotlinbukkitapi.server.nms.v1_13_R2.item.ServerItemImpl as ServerItemImpl1_13_R2
 import br.com.devsrsouza.kotlinbukkitapi.utils.server.ServerImplementation
 import br.com.devsrsouza.kotlinbukkitapi.utils.server.apiVersion
 import br.com.devsrsouza.kotlinbukkitapi.utils.server.implementation
@@ -115,8 +121,8 @@ object Server {
                     "v1_10_R1" -> ServerTabListImpl1_10_R1
                     "v1_11_R1" -> ServerTabListImpl1_11_R1
                     "v1_12_R1" -> ServerTabListImpl1_12_R1
-                    "v1_13_R1" -> TODO("${impl.nms} not implemented yet.")
-                    "v1_13_R2" -> TODO("${impl.nms} not implemented yet.")
+                    "v1_13_R1" -> ServerTabListImpl1_13_R1
+                    "v1_13_R2" -> ServerTabListImpl1_13_R2
                     else -> throw NotImplementedError("${impl.nms} not implemented.")
                 }
             }
@@ -140,8 +146,8 @@ object Server {
                     "v1_10_R1" -> ServerItemImpl1_10_R1
                     "v1_11_R1" -> ServerItemImpl1_11_R1
                     "v1_12_R1" -> ServerItemImpl1_12_R1
-                    "v1_13_R1" -> TODO("${impl.nms} not implemented yet.")
-                    "v1_13_R2" -> TODO("${impl.nms} not implemented yet.")
+                    "v1_13_R1" -> ServerItemImpl1_13_R1
+                    "v1_13_R2" -> ServerItemImpl1_13_R2
                     else -> throw NotImplementedError("${impl.nms} not implemented.")
                 }
             }
@@ -165,8 +171,8 @@ object Server {
                     "v1_10_R1" -> ServerNBTImpl1_10_R1
                     "v1_11_R1" -> ServerNBTImpl1_11_R1
                     "v1_12_R1" -> ServerNBTImpl1_12_R1
-                    "v1_13_R1" -> TODO("${impl.nms} not implemented yet.")
-                    "v1_13_R2" -> TODO("${impl.nms} not implemented yet.")
+                    "v1_13_R1" -> ServerNBTImpl1_13_R1
+                    "v1_13_R2" -> ServerNBTImpl1_13_R2
                     else -> throw NotImplementedError("${impl.nms} not implemented.")
                 }
             }
