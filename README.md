@@ -10,7 +10,7 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 ## Clone
 The following steps will ensure your project is cloned properly.
 
-`git clone --recursive https://github.com/DevSrSouza/KotlinBukkitAPI.git`
+`git clone https://github.com/DevSrSouza/KotlinBukkitAPI.git`
 
 ## Building
 #### Unix (Linux / Mac)
@@ -72,12 +72,12 @@ depend: [KotlinBukkitAPI]
 
 Event DSL example
 ```kotlin
-events { 
+plugin.events {
   // inside of the block "events" is a Listener
   // the "event" method need to be on a Listener class
   event<PlayerJoinEvent> {
     // inside of this block is the Event type you chose, we chose PlayerJoinEvent
-    player.sendMessage(+"&3Welcome ${player.name}") // The plus sign converts the "&" prefixed characters to Minecraft's text formatting
+    player.msg(+"&3Welcome ${player.name}") // The plus sign converts the "&" prefixed characters to Minecraft's text formatting
   }
   
   // you can put more than one event method inside of "events" block
@@ -90,20 +90,20 @@ events {
 
 Simple Command DSL example
 ```kotlin
-simpleCommand("twitter") {
+plugin.simpleCommand("twitter") {
   // in this block you have the class CommandMaker, which have the properties:
   // sender - CommandSender
   // command - Command
   // label - String
   // args - Array<String>
   
-  sender.sendMessage(+"&eFollow me on Twitter :D &ahttps://twitter.com/DevSrSouza")
+  sender.msg(+"&eFollow me on Twitter :D &ahttps://twitter.com/DevSrSouza")
 }
 ```
 
 Item meta DSL and other stuff
 ```kotlin
-simpleCommand("some-name") {
+plugin.simpleCommand("some-name") {
 
   if(sender is Player) { // checking if CommandSender is a player
     val player = sender as Player
@@ -132,15 +132,15 @@ simpleCommand("some-name") {
       player.inventory.addItem(encbook)
     }
     
-  } else sender.sendMessage("Command just for players")
+  } else sender.msg("Command just for players")
 }
 ```
 
 Menu creator DSL
 ```kotlin
 // okay, let's make a Menu
-// fun createMenu(displayname: String, lines: Int = 3, cancel: Boolean = false, block: Menu.() -> Unit)
-val myMenu = createMenu(+"&cWarps", cancel = true) { // cancel true to cancel player interact with inventory by default
+// fun Plugin.menu(displayName: String, lines: Int, cancel: Boolean = false, block: Menu.() -> Unit)
+val myMenu = menu(+"&cWarps", 3, true) { // cancel true to cancel player interact with inventory by default
   // this menu will be a menu with 3 lines (27 slots) and the name "Warps" in red
   // this block is a Menu
 
@@ -171,11 +171,12 @@ val myMenu = createMenu(+"&cWarps", cancel = true) { // cancel true to cancel pl
     onClick {
       player.teleport(Location(player.world, 2399, 70, -1234))
       close() // close the menu
+    }
   }
 }
 
 // now we need a command to open the menu to the player
-simpleCommand("warps") {
+plugin.simpleCommand("warps") {
   if(sender is Player) {
     val player = sender as Player
     myMenu.openToPlayer(player) // here we open the menu to de Player
@@ -186,21 +187,21 @@ simpleCommand("warps") {
 Expiration List
 ```kotlin
 // this list auto expire values for you :3
-val list = ExpirationList<Player>()
+val list = plugin.expirationListOf<Player>()
 
-simpleCommand("cooldown") {
+plugin.simpleCommand("cooldown") {
   if(sender is Player) {
     val player = sender as Player
     val time = list.missingTime(player) // this return the missing time to expire in seconds or null if don't have the value in list
     if(time == null) {
-      player.sendMessage("Hi, welcome my friend. Take this diamonds :3")
+      player.msg("Hi, welcome my friend. Take this diamonds :3")
       player.inventory.addItem(ItemStack(Material.DIAMOND))
     } else {
       // add(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null)
       list.add(player, 60) {
-        player.sendMessage("Hey, now you can get diamonds again :D")
+        player.msg("Hey, now you can get diamonds again :D")
       }
-      player.sendMesage("Hi, wait $time seconds before using this command!")
+      player.msg("Hi, wait $time seconds before using this command!")
     }
   }
 }
