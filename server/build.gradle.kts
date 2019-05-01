@@ -24,4 +24,6 @@ dependencies {
 
     compileOnly(project(":server:nms:v1_13_R1"))
     compileOnly(project(":server:nms:v1_13_R2"))
+
+    compileOnly(project(":server:nms:v1_14_R1"))
 }
