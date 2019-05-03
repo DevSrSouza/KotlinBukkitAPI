@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("java")
     id("maven-publish")
-    kotlin("jvm") version "1.3.20"
+    kotlin("jvm") version "1.3.31"
     id("com.github.johnrengelman.shadow") version "4.0.3"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
 }
@@ -66,7 +66,11 @@ subprojects {
     }
 
     tasks {
-        "shadowJar"(ShadowJar::class) {
+        withType<KotlinCompile> {
+            kotlinOptions.jvmTarget = "1.8"
+        }
+
+        withType<ShadowJar> {
             baseName = "KotlinBukkitAPI-${project.name}"
             classifier = null
             version = null
@@ -80,8 +84,6 @@ subprojects {
         from(sourceSets.main.get().allSource)
     }
 
-    fun <T> T.print() = apply { println(this.toString()) }
-
     publishing {
         publications {
             create<MavenPublication>("maven") {
@@ -91,31 +93,27 @@ subprojects {
                 artifactId = project.path.removePrefix(":")
                         .replace(":", "-").toLowerCase()
                 version = project.version.toString()
-                pom.withXml {
-                    asNode().apply {
-                        appendNode(
-                                "description",
-                                "KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features Kotlin has to make your life more easier."
-                        )
-                        appendNode("name", "KotlinBukkitAPI-${project.name}")
-                        appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI")
-
-                        appendNode("licenses").appendNode("license").apply {
-                            appendNode("name", "MIT License")
-                            appendNode("url", "https://github.com/DevSrSouza/KotlinBukkitAPI/blob/master/LICENSE")
-                            appendNode("distribution", "repo")
+                pom {
+                    name.set("KotlinBukkitAPI-${project.name}")
+                    description.set("KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features Kotlin has to make your life more easier.")
+                    url.set("https://github.com/DevSrSouza/KotlinBukkitAPI")
+                    licenses {
+                        license {
+                            name.set("MIT License")
+                            url.set("https://github.com/DevSrSouza/KotlinBukkitAPI/blob/master/LICENSE")
+                            distribution.set("repo")
                         }
-                        appendNode("developers").apply {
-                            appendNode("developer").apply {
-                                appendNode("id", "DevSrSouza")
-                                appendNode("name", "Gabriel Souza")
-                                appendNode("email", "devsrsouza@gmail.com")
-                            }
+                    }
+                    developers {
+                        developer {
+                            id.set("DevSrSouza")
+                            name.set("Gabriel Souza")
+                            email.set("devsrsouza@gmail.com")
                         }
-                        appendNode("scm").appendNode("url", 
-                                "https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master/" +
-                                        "${project.path.removePrefix(":").replace(":", "/")}"
-                        )
+                    }
+                    scm {
+                        url.set("https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master/" +
+                                "${project.path.removePrefix(":").replace(":", "/")}")
                     }
                 }
             }
