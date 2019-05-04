@@ -23,3 +23,8 @@ fun Player.sendMessage(
         type: ChatMessageType,
         message: BaseComponent
 ) = Server.Chat.chat.sendMessage(this, type, message)
+
+fun Player.msg(
+        type: ChatMessageType,
+        message: BaseComponent
+) = sendMessage(type, message)
