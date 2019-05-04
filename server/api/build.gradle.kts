@@ -3,5 +3,5 @@ repositories {
 }
 
 dependencies {
-    compile("br.com.devsrsouza.kotlinnbt:api:0.1.0-SNAPSHOT")
+    compile("br.com.devsrsouza.kotlinnbt:jvm:1.0.0-SNAPSHOT")
 }
