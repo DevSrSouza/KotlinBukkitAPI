@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.dsl.menu
+package br.com.devsrsouza.kotlinbukkitapi.dsl.menu2
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.controllers.MenuController
@@ -222,12 +222,6 @@ class Slot(private val menu: Menu, val pos: Int, var item: ItemStack? = null) {
         this.moveToSlot = moveToSlot
     }
 
-    fun PlayerInteractive.putPlayerSlotData(key: String, value: Any) {
-        playerSlotData[player]?.also { it[key] = value } ?: run { playerSlotData[player] = mutableMapOf(key to value) }
-    }
-
-    fun PlayerInteractive.getPlayerSlotData(key: String) = playerSlotData.get(player)?.get(key)
-
     fun clone(pos: Int) = Slot(menu, pos, item).apply {
         this@Slot.render = render
         this@Slot.click = click
@@ -261,6 +255,12 @@ interface PlayerInteractive {
     }
 
     fun Menu.getPlayerData(key: String) = playerData.get(player)?.get(key)
+
+    fun Slot.putPlayerSlotData(key: String, value: Any) {
+        playerSlotData[player]?.also { it[key] = value } ?: run { playerSlotData[player] = mutableMapOf(key to value) }
+    }
+
+    fun Slot.getPlayerSlotData(key: String) = playerSlotData.get(player)?.get(key)
 }
 
 interface ChangeableItem {

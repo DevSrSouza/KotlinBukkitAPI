@@ -4,29 +4,26 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 
 * Need help? contact me on [Twitter](https://twitter.com/DevSrSouza)
 
-## Prerequisites
+### Prerequisites
 * [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
 
-## Clone
-The following steps will ensure your project is cloned properly.
+### Dependencies
+| Name | Version |
+| --- | --- |
+| Kotlin STD | 1.3.31 |
+| Kotlin Reflect | 1.3.31 |
+| [Spigot API](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/) | 1.8.8 |
+| [Spigot Server](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/)  | 1.8-1.14 |
+| [Config4Bukkit](https://github.com/DevSrSouza/Config4Bukkit) | 1.0.0 |
+| [Config](https://github.com/lightbend/config) | 1.3.2 |
+| [KotlinNBT](https://github.com/DevSrSouza/KotlinNBT) | 1.0.0 |
+| [Kotlinx-io](https://github.com/Kotlin/kotlinx-io) | 0.1.7 |
 
-`git clone https://github.com/DevSrSouza/KotlinBukkitAPI.git`
+### Links
+- [Examples and documentation](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
+- [Clone and building](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/Clone-and-build)
 
-## Building
-#### Unix (Linux / Mac)
-```
-./gradlew shadowJar
-```
-
-#### Windows
-```
-gradlew shadowJar
-```
-
-
-# Setup for development
-
-### Adding KotlinBukkitAPI to the local maven repo
+### Setup for development
 
 #### Unix (Linux / Mac)
 ```
