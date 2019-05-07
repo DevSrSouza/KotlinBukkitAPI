@@ -29,7 +29,7 @@ object ServerNBTImpl : ServerNBT<NBTTagCompound, NBTBase> {
             is NBTTagIntArray -> IntArrayTag(tag.c())
             is NBTTagCompound -> compoundAsKotlinNBT(tag)
             is NBTTagList -> {
-                val typeId = if(tag.isEmpty) TagType.END else TagType.byID(tag.g(0).getTypeId().toInt())!!
+                val typeId = if(tag.isEmpty) TagType.END else TagType.byID(tag.g(0).getTypeId())!!
 
                 return ServerListTag(typeId.clazz as KClass<ITag>, tag)
             }
