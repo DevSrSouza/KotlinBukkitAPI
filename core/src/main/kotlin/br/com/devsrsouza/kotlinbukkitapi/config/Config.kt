@@ -11,14 +11,17 @@ import kotlin.reflect.full.*
 
 typealias PropertyTransformer = KProperty1<*, *>.(Any) -> Any
 
-class BukkitConfig(val file: File, val type: ConfigurationType = ConfigurationType.YAML) : Configuration by when(type) {
-    ConfigurationType.YAML -> YamlConfiguration()
-    ConfigurationType.HOCON -> HoconConfiguration()
-} {
-    init { (this as FileConfiguration).load(file) }
+class BukkitConfig(val file: File, private val fileConfiguration: FileConfiguration) : Configuration by fileConfiguration {
 
-    fun save() = apply { (this as FileConfiguration).save(file) }
-    fun reload() = apply { (this as FileConfiguration).load(file) }
+    constructor(file: File, type: ConfigurationType = ConfigurationType.YAML) : this(file, when (type) {
+        ConfigurationType.YAML -> YamlConfiguration()
+        ConfigurationType.HOCON -> HoconConfiguration()
+    })
+
+    init { fileConfiguration.load(file) }
+
+    fun save() = apply { fileConfiguration.save(file) }
+    fun reload() = apply { fileConfiguration.load(file) }
 }
 
 enum class ConfigurationType { YAML, HOCON }
