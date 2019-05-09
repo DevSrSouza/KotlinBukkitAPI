@@ -1,11 +1,9 @@
 package br.com.devsrsouza.kotlinbukkitapi.config
 
 import kotlin.reflect.*
-import kotlin.reflect.full.createInstance
-import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.memberProperties
-import kotlin.reflect.full.safeCast
+import kotlin.reflect.full.*
 import kotlin.reflect.jvm.isAccessible
+import kotlin.reflect.jvm.reflect
 
 object ConfigIMPL {
 
@@ -24,8 +22,8 @@ object ConfigIMPL {
             set: (Map.Entry<String, Any>) -> Unit,
             base: Entry<String, out Any?>?,
             isObject: Boolean,
-            saveTransformer: PropertyTransformer? = null,
-            loadTransformer: PropertyTransformer? = null
+            saveTransformer: PropertyTransformer?,
+            loadTransformer: PropertyTransformer?
     ) {
 
         val properties = model.memberProperties
@@ -37,19 +35,20 @@ object ConfigIMPL {
         for (prop in properties) {
             prop.isAccessible = true
 
+            fun transform(any: Any) = if(loadTransformer != null) prop.loadTransformer(any) else any
+
             val obj = map.get(prop.name)
 
             val delegate = prop.getDelegate(instance).let { if (it is Serializable<*>) it as Serializable<Any> else null }
 
             if (obj != null) {
                 if (delegate?.loadFunction != null) {
-                    delegate.deserialize(loadTransformer?.invoke(prop, obj) ?: obj)
+                    delegate.deserialize(transform(obj))
                 } else if (prop.returnType.classifier != null) {
                     val propType = prop.returnType.classifier
                     when (propType) {
                         String::class, Number::class, Boolean::class ->
-                            if (obj is String || obj is Number || obj is Boolean) prop.set(instance, loadTransformer?.invoke(prop, obj)
-                                    ?: obj)
+                            if (obj is String || obj is Number || obj is Boolean) prop.set(instance, transform(obj))
                         Map::class -> {
                             loadMap(obj, prop, instance, loadTransformer)
                         }
@@ -58,12 +57,12 @@ object ConfigIMPL {
                         }
                         else -> {
                             loadRecursive(propType, obj, prop, instance, loadTransformer) { obj, propClass ->
-                                if (propClass.objectInstance == prop.get(instance)) {
-                                    val insta = prop.get(instance)
-                                    loadAndSetDefaultR(insta::class, insta, obj, set, resolveEntry(null, prop.name, base), isObject)
+                                val ins = prop.get(instance)
+                                if (propClass.objectInstance == ins) {
+                                    loadAndSetDefaultR(ins::class, ins, obj, set, resolveEntry(null, prop.name, base), isObject, saveTransformer = saveTransformer, loadTransformer = loadTransformer)
                                 } else {
                                     val loadedPojo = loadPojo(propClass, obj, loadTransformer)
-                                    prop.set(instance, loadTransformer?.invoke(prop, loadedPojo) ?: loadedPojo)
+                                    prop.set(instance, transform(loadedPojo))
                                 }
                             }
                         }
@@ -87,7 +86,7 @@ object ConfigIMPL {
             set: (Map.Entry<String, Any>) -> Unit,
             base: Entry<String, out Any?>?,
             isObject: Boolean = false,
-            saveTransformer: PropertyTransformer? = null
+            saveTransformer: PropertyTransformer?
     ) {
 
         val properties = model.memberProperties
@@ -114,7 +113,7 @@ object ConfigIMPL {
             instance: Any,
             isObject: Boolean,
             obj: Any?,
-            saveTransformer: PropertyTransformer? = null
+            saveTransformer: PropertyTransformer?
     ) {
         if (delegate?.saveFunction != null) {
             val toSave = delegate.serialize()
@@ -195,7 +194,8 @@ object ConfigIMPL {
     private fun loadPojo(
             model: KClass<*>,
             map: Map<String, Any>,
-            loadTransformer: PropertyTransformer? = null): Any {
+            loadTransformer: PropertyTransformer?
+    ): Any {
 
         var instance = model.createInstance()
 
@@ -207,6 +207,8 @@ object ConfigIMPL {
 
         for (prop in properties) {
 
+            fun transform(any: Any) = if(loadTransformer != null) prop.loadTransformer(any) else any
+
             prop.isAccessible = true
 
             val obj = map.get(prop.name)
@@ -216,7 +218,7 @@ object ConfigIMPL {
             if (obj != null) {
 
                 if (delegate?.loadFunction != null) {
-                    delegate.deserialize(loadTransformer?.invoke(prop, obj) ?: obj)
+                    delegate.deserialize(transform(obj))
                 } else if (prop.returnType.classifier != null) {
                     val propType = prop.returnType.classifier
                     when (propType) {
@@ -232,7 +234,7 @@ object ConfigIMPL {
                         else -> {
                             loadRecursive(propType, obj, prop, instance) { obj, propClass ->
                                 val pojoLoaded = loadPojo(propClass, obj, loadTransformer)
-                                prop.set(instance, loadTransformer?.invoke(prop, pojoLoaded) ?: pojoLoaded)
+                                prop.set(instance, transform(pojoLoaded))
                             }
                         }
                     }
@@ -247,10 +249,12 @@ object ConfigIMPL {
             obj: Any?,
             prop: KMutableProperty1<Any, Any>,
             instance: Any,
-            loadTransformer: PropertyTransformer? = null
+            loadTransformer: PropertyTransformer?
     ) {
+        fun transform(any: Any) = if(loadTransformer != null) prop.loadTransformer(any) else any
+
         if (obj is List<*> && isPrimitiveList(prop, obj)) {
-            prop.set(instance, loadTransformer?.invoke(prop, obj) ?: obj)
+            prop.set(instance, transform(obj))
         } else if (obj is Map<*, *>) {
             val typeClass = KClass::class.safeCast(
                     prop.returnType.arguments.getOrNull(0)
@@ -264,7 +268,7 @@ object ConfigIMPL {
                         list.add(loadPojo(typeClass, v as Map<String, Any>, loadTransformer))
                     }
                 }
-                prop.set(instance, loadTransformer?.invoke(prop, list) ?: list)
+                prop.set(instance, transform(list))
             }
         }
     }
@@ -273,11 +277,13 @@ object ConfigIMPL {
             obj: Any?,
             prop: KMutableProperty1<Any, Any>,
             instance: Any,
-            loadTransformer: PropertyTransformer? = null
+            loadTransformer: PropertyTransformer?
     ) {
+        fun transform(any: Any) = if(loadTransformer != null) prop.loadTransformer(any) else any
+
         if (obj is Map<*, *> && isMapCompatible(obj))
             if (isMapValuePrimitive(prop, obj)) {
-                prop.set(instance, loadTransformer?.invoke(prop, obj) ?: obj)
+                prop.set(instance, transform(obj))
             } else {
                 val valueTypeClass = KClass::class.safeCast(
                         prop.returnType.arguments.getOrNull(1)
@@ -291,8 +297,10 @@ object ConfigIMPL {
                             } else null
                         }
                     }.filter { it.key != null && it.value != null } as Map<Any, Any>
-                    prop.apply { isAccessible = true }.set(instance, loadTransformer?.invoke(prop, mapLoaded)
-                            ?: mapLoaded)
+                    prop.apply { isAccessible = true }.set(
+                            instance,
+                            transform(mapLoaded)
+                    )
                 }
             }
     }
@@ -305,6 +313,8 @@ object ConfigIMPL {
             loadTransformer: PropertyTransformer? = null,
             block: (obj: Map<String, Any>, propClass: KClass<*>) -> Unit
     ) {
+        fun transform(any: Any) = if(loadTransformer != null) prop.loadTransformer(any) else any
+
         val propClass = KClass::class.safeCast(propType)
         if (propClass != null)
             if (obj is Map<*, *>) {
@@ -312,7 +322,7 @@ object ConfigIMPL {
                     block(obj as Map<String, Any>, propClass)
                 }
             } else if (propClass.isInstance(obj)) {
-                prop.set(instance, loadTransformer?.invoke(prop, obj) ?: obj)
+                prop.set(instance, transform(obj))
             }
     }
 
