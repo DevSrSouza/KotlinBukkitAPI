@@ -2,20 +2,23 @@ package br.com.devsrsouza.kotlinbukkitapi.utils
 
 import org.bukkit.Location
 import org.bukkit.World
+import org.bukkit.block.Block
 import kotlin.math.sqrt
 
 data class SimpleLocation(val x: Int, val y: Int, val z: Int) : Comparable<SimpleLocation> {
     override fun compareTo(other: SimpleLocation): Int {
-        val d1 = sqrt((x*x + y*y + z*z).toDouble())
-        val d2 = other.run { sqrt((x*x + y*y + z*z).toDouble()) }
+        val d1 = sqrt((x * x + y * y + z * z).toDouble())
+        val d2 = other.run { sqrt((x * x + y * y + z * z).toDouble()) }
 
         return d1.compareTo(d2)
     }
 }
 
-class SimpleLocationRange<T>(val first: SimpleLocation, val last: SimpleLocation, val iterator: Iterator<T>)
-    : ClosedRange<SimpleLocation>, Iterator<T> {
-
+class SimpleLocationRange<T>(
+        val first: SimpleLocation,
+        val last: SimpleLocation,
+        val buildIterator: () -> Iterator<T>
+) : ClosedRange<SimpleLocation>, Iterable<T> {
     override val endInclusive: SimpleLocation get() = last
     override val start: SimpleLocation get() = first
 
@@ -25,8 +28,7 @@ class SimpleLocationRange<T>(val first: SimpleLocation, val last: SimpleLocation
                 && value.z >= first.z && value.z <= last.z
     }
 
-    override fun hasNext() = iterator.hasNext()
-    override fun next() = iterator.next()
+    override fun iterator(): Iterator<T> = buildIterator()
 }
 
 class SimpleLocationRangeIterator(first: SimpleLocation, last: SimpleLocation) : Iterator<SimpleLocation> {
@@ -70,15 +72,19 @@ class SimpleLocationRangeIterator(first: SimpleLocation, last: SimpleLocation) :
 }
 
 operator fun SimpleLocation.rangeTo(other: SimpleLocation): SimpleLocationRange<SimpleLocation> {
-    return SimpleLocationRange(this, other, SimpleLocationRangeIterator(this, other))
+    return SimpleLocationRange(this, other) { SimpleLocationRangeIterator(this, other) }
 }
 
 // BUKKIT THINGS
 
 operator fun SimpleLocationRange<*>.contains(other: Location) = contains(other.asSimple())
+operator fun SimpleLocationRange<*>.contains(other: Block) = contains(other.asSimple())
 
 inline fun Location.asSimple() = SimpleLocation(blockX, blockY, blockZ)
 inline fun SimpleLocation.asBukkitLocation(world: World) = Location(world, x.toDouble(), y.toDouble(), z.toDouble())
+
+inline fun Block.asSimple() = SimpleLocation(x, y, z)
+inline fun SimpleLocation.asBukkitBlock(world: World) = world.getBlockAt(x, y, z)
 
 class LocationRangeIterator(val start: Location, val end: Location) : Iterator<Location> {
     val iterator = SimpleLocationRangeIterator(start.asSimple(), end.asSimple())
@@ -88,5 +94,16 @@ class LocationRangeIterator(val start: Location, val end: Location) : Iterator<L
 }
 
 operator fun Location.rangeTo(other: Location): SimpleLocationRange<Location> {
-    return SimpleLocationRange(this.asSimple(), other.asSimple(), LocationRangeIterator(this, other))
+    return SimpleLocationRange(this.asSimple(), other.asSimple()) { LocationRangeIterator(this, other) }
+}
+
+class BlockRangeIterator(val start: Block, val end: Block) : Iterator<Block> {
+    val iterator = SimpleLocationRangeIterator(start.asSimple(), end.asSimple())
+
+    override fun hasNext() = iterator.hasNext()
+    override fun next() = iterator.next().asBukkitBlock(start.world)
+}
+
+operator fun Block.rangeTo(other: Block): SimpleLocationRange<Block> {
+    return SimpleLocationRange(this.asSimple(), other.asSimple()) { BlockRangeIterator(this, other) }
 }
