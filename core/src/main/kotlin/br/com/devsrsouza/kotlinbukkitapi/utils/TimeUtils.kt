@@ -1,5 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils.time
 
+fun now() = System.currentTimeMillis()
+fun nowNano() = System.nanoTime()
+
 val Number.millisecond: ConvertTime get() = Millisecond(this)
 val Number.tick: ConvertTime get() = Tick(this)
 val Number.second: ConvertTime get() = Second(this)
