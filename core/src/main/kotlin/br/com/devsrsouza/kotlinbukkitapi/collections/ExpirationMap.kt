@@ -6,25 +6,47 @@ import br.com.devsrsouza.kotlinbukkitapi.utils.time.now
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 
-typealias OnExipereMapCallback<K, V> = (K, V) -> Unit
+typealias OnExpireMapCallback<K, V> = (K, V) -> Unit
 
-interface IExpirationMap<K, V> : MutableMap<K, V>, WithPlugin<Plugin> {
+fun <K, V> Plugin.expirationMapOf(): ExpirationMap<K, V> = ExpirationMapImpl(this)
+
+fun <K, V> WithPlugin<*>.expirationMapOf() = plugin.expirationMapOf<K, V>()
+
+fun <K, V> expirationMapOf(expireTime: Long, plugin: Plugin, vararg elements: Pair<K, V>)
+        = plugin.expirationMapOf<K, V>().apply { elements.forEach { (key, value) -> put(key, value, expireTime) } }
+
+fun <K, V> Plugin.expirationMapOf(expireTime: Long, vararg elements: Pair<K, V>)
+        = expirationMapOf(expireTime, this, *elements)
+
+fun <K, V> WithPlugin<*>.expirationMapOf(expireTime: Long, vararg elements: Pair<K, V>)
+        = plugin.expirationMapOf(expireTime, *elements)
+
+fun <K, V> expirationMapOf(expireTime: Long, plugin: Plugin, vararg elements: Triple<K, V, OnExpireMapCallback<K, V>>)
+        = plugin.expirationMapOf<K, V>().apply { elements.forEach { (key, value, onExpire) -> put(key, value, expireTime, onExpire) } }
+
+fun <K, V> Plugin.expirationMapOf(expireTime: Long, vararg elements: Triple<K, V, OnExpireMapCallback<K, V>>)
+        = expirationMapOf(expireTime, this, *elements)
+
+fun <K, V> WithPlugin<*>.expirationMapOf(expireTime: Long, vararg elements: Triple<K, V, OnExpireMapCallback<K, V>>)
+        = plugin.expirationMapOf(expireTime, *elements)
+
+interface ExpirationMap<K, V> : MutableMap<K, V>, WithPlugin<Plugin> {
     fun missingTime(key: K): Long?
     fun expire(key: K, time: Long): Boolean
-    fun expire(key: K, time: Long, callback: OnExipereMapCallback<K, V>): Boolean
+    fun expire(key: K, time: Long, callback: OnExpireMapCallback<K, V>): Boolean
 
     fun put(key: K, value: V, time: Long): V?
-    fun put(key: K, value: V, time: Long, callback: OnExipereMapCallback<K, V>): V?
+    fun put(key: K, value: V, time: Long, callback: OnExpireMapCallback<K, V>): V?
 }
 
-class ExpirationMap<K, V>(
+class ExpirationMapImpl<K, V>(
         override val plugin: Plugin,
         val initialMap: MutableMap<K ,V> = mutableMapOf()
-) : IExpirationMap<K, V>, MutableMap<K, V> by initialMap {
+) : ExpirationMap<K, V>, MutableMap<K, V> by initialMap {
 
     private val putTime: MutableMap<K, Long> = mutableMapOf()
     private val expiration: MutableMap<K, Long> = mutableMapOf()
-    private val whenExpire: MutableMap<K, OnExipereMapCallback<K, V>> = mutableMapOf()
+    private val whenExpire: MutableMap<K, OnExpireMapCallback<K, V>> = mutableMapOf()
 
     override fun missingTime(key: K): Long? = if (containsKey(key))
         expiration.getOrDefault(key, 0) - ((now() - putTime.getOrPut(key) { now() }) / 1000)
@@ -35,7 +57,7 @@ class ExpirationMap<K, V>(
         expiration.put(key, time)
     }
 
-    private fun whenEx(key: K, callback: OnExipereMapCallback<K, V>) {
+    private fun whenEx(key: K, callback: OnExpireMapCallback<K, V>) {
         whenExpire.put(key, callback)
     }
 
@@ -46,7 +68,7 @@ class ExpirationMap<K, V>(
         } else return false
     }
 
-    override fun expire(key: K, time: Long, callback: OnExipereMapCallback<K, V>): Boolean {
+    override fun expire(key: K, time: Long, callback: OnExpireMapCallback<K, V>): Boolean {
         if(expire(key, time)) {
             whenEx(key, callback)
             return true
@@ -66,7 +88,7 @@ class ExpirationMap<K, V>(
         return result
     }
 
-    override fun put(key: K, value: V, time: Long, callback: OnExipereMapCallback<K, V>): V? {
+    override fun put(key: K, value: V, time: Long, callback: OnExpireMapCallback<K, V>): V? {
         if(time <= 0) throw IllegalArgumentException("expiration time can't be negative or zero")
         val result = put(key, value)
         ex(key, time)
