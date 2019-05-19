@@ -7,27 +7,49 @@ import org.bukkit.scheduler.BukkitTask
 
 typealias OnExipereBlock<T> = (T) -> Unit
 
-fun <E> Plugin.expirationListOf() = ExpirationList<E>(this)
+fun <E> Plugin.expirationListOf(): ExpirationList<E> = ExpirationListImpl(this)
 
 fun <E> WithPlugin<*>.expirationListOf() = plugin.expirationListOf<E>()
 
-inline fun <reified E> expirationListOf(expireTime: Int, vararg elements: E, plugin: Plugin)
-        = ExpirationList<E>(plugin).apply { elements.forEach { add(it, expireTime) } }
+fun <E> expirationListOf(expireTime: Int, plugin: Plugin, vararg elements: E)
+        = plugin.expirationListOf<E>().apply { elements.forEach { add(it, expireTime) } }
 
-inline fun <reified E> Plugin.expirationListOf(expireTime: Int, vararg elements: E)
-        = expirationListOf(expireTime, *elements, plugin = this)
+fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: E)
+        = expirationListOf(expireTime, this, elements = *elements)
 
-inline fun <reified E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: E)
+fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: E)
         = plugin.expirationListOf(expireTime, *elements)
 
-fun <E> expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>, plugin: Plugin)
-        = ExpirationList<E>(plugin).apply { elements.forEach { (element, onExpire) -> add(element, expireTime, onExpire) } }
+fun <E> expirationListOf(expireTime: Int, plugin: Plugin, vararg elements: Pair<E, OnExipereBlock<E>>)
+        = plugin.expirationListOf<E>().apply { elements.forEach { (element, onExpire) -> add(element, expireTime, onExpire) } }
 
 fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>)
-        = expirationListOf(expireTime, *elements, plugin = this)
+        = expirationListOf(expireTime, this, elements = *elements)
 
 fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>)
         = plugin.expirationListOf(expireTime, *elements)
+
+interface ExpirationList<E> : MutableIterable<E> {
+    fun isEmpty(): Boolean
+    fun missingTime(element: E): Int?
+
+    operator fun contains(element: E): Boolean
+    operator fun get(index: Int): E?
+    fun indexOf(element: E): Int
+
+    fun first(): E?
+    fun last(): E?
+
+    fun clear()
+
+    fun add(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null)
+    fun addFirst(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null)
+
+    fun removeAt(index: Int): E?
+    fun remove(element: E): Boolean
+    fun removeFirst(): E?
+    fun removeLast(): E?
+}
 
 private class ExpirationNode<E>(var element: E, val expireTime: Int) {
 
@@ -38,7 +60,7 @@ private class ExpirationNode<E>(var element: E, val expireTime: Int) {
     val startTime: Long = System.currentTimeMillis()
 }
 
-class ExpirationList<E>(private val plugin: Plugin) : MutableIterable<E> {
+class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
 
     private var head: ExpirationNode<E>? = null
     private var tail: ExpirationNode<E>? = null
@@ -49,23 +71,23 @@ class ExpirationList<E>(private val plugin: Plugin) : MutableIterable<E> {
     var size: Int = 0
         private set
 
-    fun isEmpty(): Boolean = size == 0
+    override fun isEmpty(): Boolean = size == 0
 
-    fun missingTime(element: E): Int? {
+    override fun missingTime(element: E): Int? {
         return getNodeByElement(element)
                 ?.let { it.expireTime - ((System.currentTimeMillis() - it.startTime) / 1000) }
                 ?.toInt()
     }
 
-    operator fun contains(element: E) = indexOf(element) > -1
+    override operator fun contains(element: E) = indexOf(element) > -1
 
-    operator fun get(index: Int): E? {
+    override operator fun get(index: Int): E? {
         return getNode(index)?.element
     }
 
-    fun first() = head?.element
+    override fun first() = head?.element
 
-    fun last() = tail?.element
+    override fun last() = tail?.element
 
     override operator fun iterator(): MutableIterator<E> {
         return object : MutableIterator<E> {
@@ -77,7 +99,7 @@ class ExpirationList<E>(private val plugin: Plugin) : MutableIterable<E> {
         }
     }
 
-    fun indexOf(element: E): Int {
+    override fun indexOf(element: E): Int {
         if (head == null) return -1
         var node = head
         var count = 0
@@ -91,13 +113,13 @@ class ExpirationList<E>(private val plugin: Plugin) : MutableIterable<E> {
         return -1
     }
 
-    fun clear() {
+    override fun clear() {
         head = null
         tail = null
         size = 0
     }
 
-    fun add(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null) {
+    override fun add(element: E, expireTime: Int, onExpire: OnExipereBlock<E>?) {
         val newNode = ExpirationNode(element, expireTime).also { it.onExpire = onExpire }
         if (head == null) {
             head = newNode
@@ -110,7 +132,7 @@ class ExpirationList<E>(private val plugin: Plugin) : MutableIterable<E> {
         generateTask()
     }
 
-    fun addFirst(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null) {
+    override fun addFirst(element: E, expireTime: Int, onExpire: OnExipereBlock<E>?) {
         val newNode = ExpirationNode(element, expireTime).also { it.onExpire = onExpire }
         if (head == null) {
             head = newNode
@@ -123,16 +145,17 @@ class ExpirationList<E>(private val plugin: Plugin) : MutableIterable<E> {
         generateTask()
     }
 
-    fun removeAt(index: Int): E? {
+    override fun removeAt(index: Int): E? {
         return getNode(index)?.also {
             removeNode(it)
         }?.element
     }
 
-    fun remove(element: E) = getNodeByElement(element)?.let { true.apply { removeNode(it) } } ?: false
+    override fun remove(element: E) = getNodeByElement(element)?.let { true.apply { removeNode(it) } } ?: false
 
-    fun removeFirst() {
+    override fun removeFirst(): E? {
         val next = head?.next
+        val headElement = head?.element
         if(next == null) {
             tail = null
             head = null
@@ -140,10 +163,12 @@ class ExpirationList<E>(private val plugin: Plugin) : MutableIterable<E> {
             head = next
             next.previous = null
         }
+        return headElement
     }
 
-    fun removeLast() {
+    override fun removeLast(): E? {
         val previous = tail?.previous
+        val tailElement = tail?.element
         if(previous == null) {
             tail = null
             head = null
@@ -151,6 +176,7 @@ class ExpirationList<E>(private val plugin: Plugin) : MutableIterable<E> {
             tail = previous
             previous.next = null
         }
+        return tailElement
     }
 
     private fun getNode(index: Int): ExpirationNode<E>? {

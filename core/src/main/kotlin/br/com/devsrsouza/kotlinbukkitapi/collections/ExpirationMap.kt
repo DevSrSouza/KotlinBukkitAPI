@@ -16,7 +16,7 @@ fun <K, V> expirationMapOf(expireTime: Long, plugin: Plugin, vararg elements: Pa
         = plugin.expirationMapOf<K, V>().apply { elements.forEach { (key, value) -> put(key, value, expireTime) } }
 
 fun <K, V> Plugin.expirationMapOf(expireTime: Long, vararg elements: Pair<K, V>)
-        = expirationMapOf(expireTime, this, *elements)
+        = expirationMapOf(expireTime, this, elements = *elements)
 
 fun <K, V> WithPlugin<*>.expirationMapOf(expireTime: Long, vararg elements: Pair<K, V>)
         = plugin.expirationMapOf(expireTime, *elements)
@@ -25,7 +25,7 @@ fun <K, V> expirationMapOf(expireTime: Long, plugin: Plugin, vararg elements: Tr
         = plugin.expirationMapOf<K, V>().apply { elements.forEach { (key, value, onExpire) -> put(key, value, expireTime, onExpire) } }
 
 fun <K, V> Plugin.expirationMapOf(expireTime: Long, vararg elements: Triple<K, V, OnExpireMapCallback<K, V>>)
-        = expirationMapOf(expireTime, this, *elements)
+        = expirationMapOf(expireTime, this, elements = *elements)
 
 fun <K, V> WithPlugin<*>.expirationMapOf(expireTime: Long, vararg elements: Triple<K, V, OnExpireMapCallback<K, V>>)
         = plugin.expirationMapOf(expireTime, *elements)
