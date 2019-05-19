@@ -5,7 +5,7 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 
-typealias OnExipereBlock<T> = (T) -> Unit
+typealias OnExpireBlock<T> = (T) -> Unit
 
 fun <E> Plugin.expirationListOf(): ExpirationList<E> = ExpirationListImpl(this)
 
@@ -20,13 +20,13 @@ fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: E)
 fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: E)
         = plugin.expirationListOf(expireTime, *elements)
 
-fun <E> expirationListOf(expireTime: Int, plugin: Plugin, vararg elements: Pair<E, OnExipereBlock<E>>)
+fun <E> expirationListOf(expireTime: Int, plugin: Plugin, vararg elements: Pair<E, OnExpireBlock<E>>)
         = plugin.expirationListOf<E>().apply { elements.forEach { (element, onExpire) -> add(element, expireTime, onExpire) } }
 
-fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>)
+fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExpireBlock<E>>)
         = expirationListOf(expireTime, this, elements = *elements)
 
-fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExipereBlock<E>>)
+fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExpireBlock<E>>)
         = plugin.expirationListOf(expireTime, *elements)
 
 interface ExpirationList<E> : MutableIterable<E> {
@@ -42,8 +42,8 @@ interface ExpirationList<E> : MutableIterable<E> {
 
     fun clear()
 
-    fun add(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null)
-    fun addFirst(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null)
+    fun add(element: E, expireTime: Int, onExpire: OnExpireBlock<E>? = null)
+    fun addFirst(element: E, expireTime: Int, onExpire: OnExpireBlock<E>? = null)
 
     fun removeAt(index: Int): E?
     fun remove(element: E): Boolean
@@ -56,7 +56,7 @@ private class ExpirationNode<E>(var element: E, val expireTime: Int) {
     var next: ExpirationNode<E>? = null
     var previous: ExpirationNode<E>? = null
 
-    var onExpire: OnExipereBlock<E>? = null
+    var onExpire: OnExpireBlock<E>? = null
     val startTime: Long = System.currentTimeMillis()
 }
 
@@ -119,7 +119,7 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
         size = 0
     }
 
-    override fun add(element: E, expireTime: Int, onExpire: OnExipereBlock<E>?) {
+    override fun add(element: E, expireTime: Int, onExpire: OnExpireBlock<E>?) {
         val newNode = ExpirationNode(element, expireTime).also { it.onExpire = onExpire }
         if (head == null) {
             head = newNode
@@ -132,7 +132,7 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
         generateTask()
     }
 
-    override fun addFirst(element: E, expireTime: Int, onExpire: OnExipereBlock<E>?) {
+    override fun addFirst(element: E, expireTime: Int, onExpire: OnExpireBlock<E>?) {
         val newNode = ExpirationNode(element, expireTime).also { it.onExpire = onExpire }
         if (head == null) {
             head = newNode
