@@ -1,39 +1,26 @@
 package br.com.devsrsouza.kotlinbukkitapi.exposed
 
-import br.com.devsrsouza.kotlinbukkitapi.attributestorage.fromByteArrayItem
-import br.com.devsrsouza.kotlinbukkitapi.attributestorage.toByteArray
+import br.com.devsrsouza.kotlinbukkitapi.server.extensions.itemFromByteArray
+import br.com.devsrsouza.kotlinbukkitapi.server.extensions.toByteArray
 import org.bukkit.inventory.ItemStack
-import org.jetbrains.exposed.sql.ColumnType
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.transactions.TransactionManager
-import java.io.InputStream
+import org.jetbrains.exposed.dao.Entity
+import org.jetbrains.exposed.sql.Column
 import java.sql.Blob
+import javax.sql.rowset.serial.SerialBlob
+import kotlin.reflect.KProperty
 
-fun Table.itemStack(name: String) = registerColumn<ItemStack>(name, ItemStackColumn())
+fun Entity<*>.itemStack(column: Column<Blob>) = ItemStackExposedDelegate(column)
 
-class ItemStackColumn : ColumnType() { // from BlobColumnType
-
-    private val currentDialect get() = TransactionManager.current().db.dialect
-
-    override fun sqlType(): String  = currentDialect.dataTypeProvider.blobType()
-
-    override fun nonNullValueToString(value: Any): String = when (value) {
-        is ItemStack -> value.toString()
-        else -> "?"
+class ItemStackExposedDelegate(val column: Column<Blob>) {
+    operator fun <ID : Comparable<ID>> getValue(entity: Entity<ID>, desc: KProperty<*>): ItemStack {
+        val blob = entity.run { column.getValue(this, desc) }
+        val byteArray = blob.getBytes(1, blob.length().toInt())
+        return itemFromByteArray(byteArray)
     }
 
-    override fun valueFromDB(value: Any): Any = when (value) {
-        is ItemStack -> value
-        is ByteArray -> fromByteArrayItem(value)
-        is Blob -> fromByteArrayItem(value.getBytes(1, value.length().toInt()))
-        is InputStream -> fromByteArrayItem(value.readBytes())
-        else -> error("Unknown type for blob (ItemStack) column: ${value.javaClass}")
-    }
-
-    override fun notNullValueToDB(value: Any): Any {
-        return when (value) {
-            is ItemStack -> value.toByteArray()
-            else -> error("Unexpected value of type ItemStack: ${value.javaClass.canonicalName}")
-        }
+    operator fun <ID : Comparable<ID>> setValue(entity: Entity<ID>, desc: KProperty<*>, value: ItemStack) {
+        val byteArray = value.toByteArray()
+        val blob = SerialBlob(byteArray)
+        entity.apply { column.setValue(this, desc, blob) }
     }
 }
