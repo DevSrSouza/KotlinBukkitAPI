@@ -30,6 +30,8 @@ fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: Pair<E,
         = plugin.expirationListOf(expireTime, *elements)
 
 interface ExpirationList<E> : MutableIterable<E> {
+    val size: Int
+
     fun isEmpty(): Boolean
     fun missingTime(element: E): Int?
 
@@ -68,10 +70,11 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
     private var task: BukkitTask? = null
     private var emptyCount: Byte = 0
 
-    var size: Int = 0
+    override val size get() = _size
+    var _size: Int = 0
         private set
 
-    override fun isEmpty(): Boolean = size == 0
+    override fun isEmpty(): Boolean = _size == 0
 
     override fun missingTime(element: E): Int? {
         return getNodeByElement(element)
@@ -116,7 +119,7 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
     override fun clear() {
         head = null
         tail = null
-        size = 0
+        _size = 0
     }
 
     override fun add(element: E, expireTime: Int, onExpire: OnExpireBlock<E>?) {
@@ -128,7 +131,7 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
             tail?.next = newNode
             tail = newNode
         }
-        size++
+        _size++
         generateTask()
     }
 
@@ -141,7 +144,7 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
             head?.previous = newNode
             head = newNode
         }
-        size++
+        _size++
         generateTask()
     }
 
@@ -180,9 +183,9 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
     }
 
     private fun getNode(index: Int): ExpirationNode<E>? {
-        if (index < 0 || index >= size) return null
+        if (index < 0 || index >= _size) return null
 
-        val mid = size / 2
+        val mid = _size / 2
         return if (index > mid)
             getFromSpecificSide(index - mid, tail) { it?.previous }
         else
@@ -274,7 +277,7 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
                 next?.previous = previous
             }
         }
-        size--
+        _size--
     }
 }
 
