@@ -31,12 +31,46 @@ fun <K, V> WithPlugin<*>.expirationMapOf(expireTime: Long, vararg elements: Trip
         = plugin.expirationMapOf(expireTime, *elements)
 
 interface ExpirationMap<K, V> : MutableMap<K, V>, WithPlugin<Plugin> {
+
+    /**
+     * Returns the missing time on seconds to expire the key,
+     * -1 if was not specified the expiration time before(permanent key) or
+     * `null` if the key is not contained in the map.
+     */
     fun missingTime(key: K): Long?
+
+    /**
+     * Set expiration time to the key and returns `true` if the key is found
+     * or false if the key is not contained in the map.
+     */
     fun expire(key: K, time: Long): Boolean
+
+    /**
+     * Set expiration time to the key and returns `true` if the key is found
+     * or false if the key is not contained in the map.
+     *
+     * [callback] is called when the key expires.
+     */
     fun expire(key: K, time: Long, callback: OnExpireMapCallback<K, V>): Boolean
 
+    /**
+     * Associates the specified [value] with the specified [key] in the map
+     * with an expiration time.
+     *
+     * @return the previous value associated with the key, or `null` if the key was not present in the map.
+     */
     fun put(key: K, value: V, time: Long): V?
+
+    /**
+     * Associates the specified [value] with the specified [key] in the map
+     * with an expiration time.
+     *
+     * [callback] is called when the key expires.
+     *
+     * @return the previous value associated with the key, or `null` if the key was not present in the map.
+     */
     fun put(key: K, value: V, time: Long, callback: OnExpireMapCallback<K, V>): V?
+
 }
 
 class ExpirationMapImpl<K, V>(
@@ -48,9 +82,11 @@ class ExpirationMapImpl<K, V>(
     private val expiration: MutableMap<K, Long> = mutableMapOf()
     private val whenExpire: MutableMap<K, OnExpireMapCallback<K, V>> = mutableMapOf()
 
-    override fun missingTime(key: K): Long? = if (containsKey(key))
-        expiration.getOrDefault(key, 0) - ((now() - putTime.getOrPut(key) { now() }) / 1000)
-    else null
+    override fun missingTime(key: K): Long? {
+        return if (containsKey(key))
+            (expiration.get(key) ?: return -1) - ((now() - putTime.getOrPut(key) { now() }) / 1000)
+        else null
+    }
 
     private fun ex(key: K, time: Long) {
         putTime.put(key, now())
