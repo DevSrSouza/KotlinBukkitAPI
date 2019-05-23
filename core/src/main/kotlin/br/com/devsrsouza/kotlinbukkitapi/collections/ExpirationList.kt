@@ -5,7 +5,7 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 
-typealias OnExpireBlock<T> = (T) -> Unit
+typealias OnExpireCallback<T> = (T) -> Unit
 
 fun <E> Plugin.expirationListOf(): ExpirationList<E> = ExpirationListImpl(this)
 
@@ -20,37 +20,106 @@ fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: E)
 fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: E)
         = plugin.expirationListOf(expireTime, *elements)
 
-fun <E> expirationListOf(expireTime: Int, plugin: Plugin, vararg elements: Pair<E, OnExpireBlock<E>>)
+fun <E> expirationListOf(expireTime: Int, plugin: Plugin, vararg elements: Pair<E, OnExpireCallback<E>>)
         = plugin.expirationListOf<E>().apply { elements.forEach { (element, onExpire) -> add(element, expireTime, onExpire) } }
 
-fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExpireBlock<E>>)
+fun <E> Plugin.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExpireCallback<E>>)
         = expirationListOf(expireTime, this, elements = *elements)
 
-fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExpireBlock<E>>)
+fun <E> WithPlugin<*>.expirationListOf(expireTime: Int, vararg elements: Pair<E, OnExpireCallback<E>>)
         = plugin.expirationListOf(expireTime, *elements)
 
 interface ExpirationList<E> : MutableIterable<E> {
+
+    /**
+     * Returns the count of elements in this list.
+     */
     val size: Int
 
+    /**
+     * Returns `true` if the list contains no elements, `false` otherwise.
+     */
     fun isEmpty(): Boolean
+
+    /**
+     * Returns the time missing to expire or `null` if the list don't contain the element
+     */
     fun missingTime(element: E): Int?
 
+    /**
+     * Checks if the specified element is contained in this list.
+     */
     operator fun contains(element: E): Boolean
+
+    /**
+     * Returns the element at the specified index in the list.
+     */
     operator fun get(index: Int): E?
+
+    /**
+     * Returns the index of the first occurrence of the e element in the list, or -1 if the specified
+     * element is not contained in the list.
+     */
     fun indexOf(element: E): Int
 
+    /**
+     * Return the first element in the list or `null` if the list is empty
+     */
     fun first(): E?
+
+    /**
+     * Return the last element in the list or `null` if the list is empty
+     */
     fun last(): E?
 
+    /**
+     * Removes all elements from this list.
+     */
     fun clear()
 
-    fun add(element: E, expireTime: Int, onExpire: OnExpireBlock<E>? = null)
-    fun addFirst(element: E, expireTime: Int, onExpire: OnExpireBlock<E>? = null)
+    /**
+     * Add the element to the list with an expiration time.
+     *
+     * callback [onExpire] is called when the element expires.
+     */
+    fun add(element: E, expireTime: Int, onExpire: OnExpireCallback<E>? = null)
 
+    /**
+     * Add the element in the start of list with an expiration time.
+     *
+     * callback [onExpire] is called when the element expires.
+     */
+    fun addFirst(element: E, expireTime: Int, onExpire: OnExpireCallback<E>? = null)
+
+    /**
+     * Removes an element at the specified [index] from the list.
+     *
+     * @return the element that has been removed or `null` if
+     * the element is not contained in the list.
+     */
     fun removeAt(index: Int): E?
+
+    /**
+     * Removes an element from the list
+     *
+     * @return `true` if the element was removed.
+     */
     fun remove(element: E): Boolean
+
+    /**
+     * Removes the first element from the list.
+     *
+     * @return the element if was removed.
+     */
     fun removeFirst(): E?
+
+    /**
+     * Removes the last element from the list.
+     *
+     * @return the element if was removed.
+     */
     fun removeLast(): E?
+
 }
 
 private class ExpirationNode<E>(var element: E, val expireTime: Int) {
@@ -58,7 +127,7 @@ private class ExpirationNode<E>(var element: E, val expireTime: Int) {
     var next: ExpirationNode<E>? = null
     var previous: ExpirationNode<E>? = null
 
-    var onExpire: OnExpireBlock<E>? = null
+    var onExpire: OnExpireCallback<E>? = null
     val startTime: Long = System.currentTimeMillis()
 }
 
@@ -122,7 +191,8 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
         _size = 0
     }
 
-    override fun add(element: E, expireTime: Int, onExpire: OnExpireBlock<E>?) {
+    override fun add(element: E, expireTime: Int, onExpire: OnExpireCallback<E>?) {
+        if(expireTime <= 0) throw IllegalArgumentException("expireTime need to be greater then 0")
         val newNode = ExpirationNode(element, expireTime).also { it.onExpire = onExpire }
         if (head == null) {
             head = newNode
@@ -135,7 +205,8 @@ class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<E> {
         generateTask()
     }
 
-    override fun addFirst(element: E, expireTime: Int, onExpire: OnExpireBlock<E>?) {
+    override fun addFirst(element: E, expireTime: Int, onExpire: OnExpireCallback<E>?) {
+        if(expireTime <= 0) throw IllegalArgumentException("expireTime need to be greater then 0")
         val newNode = ExpirationNode(element, expireTime).also { it.onExpire = onExpire }
         if (head == null) {
             head = newNode
