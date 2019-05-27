@@ -8,13 +8,38 @@ import java.util.*
 import kotlin.reflect.KProperty
 
 fun Entity<*>.offlinePlayer(column: Column<UUID>) = OfflinePlayerExposedDelegate(column)
+fun Entity<*>.offlinePlayer(column: Column<UUID?>) = OfflinePlayerExposedDelegateNullable(column)
 
-class OfflinePlayerExposedDelegate(val column: Column<UUID>) {
-    operator fun <ID : Comparable<ID>> getValue(entity: Entity<ID>, desc: KProperty<*>): OfflinePlayer {
+class OfflinePlayerExposedDelegate(
+        val column: Column<UUID>
+) : ExposedDelegate<OfflinePlayer> {
+    override operator fun <ID : Comparable<ID>> getValue(
+            entity: Entity<ID>,
+            desc: KProperty<*>
+    ): OfflinePlayer {
         val uuid = entity.run { column.getValue(this, desc) }
         return offlinePlayer(uuid)
     }
-    operator fun <ID : Comparable<ID>> setValue(entity: Entity<ID>, desc: KProperty<*>, value: OfflinePlayer) {
+    override operator fun <ID : Comparable<ID>> setValue(entity: Entity<ID>, desc: KProperty<*>, value: OfflinePlayer) {
         entity.apply { column.setValue(this, desc, value.uniqueId) }
+    }
+}
+
+class OfflinePlayerExposedDelegateNullable(
+        val column: Column<UUID?>
+) : ExposedDelegate<OfflinePlayer?> {
+    override operator fun <ID : Comparable<ID>> getValue(
+            entity: Entity<ID>,
+            desc: KProperty<*>
+    ): OfflinePlayer? {
+        val uuid = entity.run { column.getValue(this, desc) }
+        return uuid?.let { offlinePlayer(it) }
+    }
+    override operator fun <ID : Comparable<ID>> setValue(
+            entity: Entity<ID>,
+            desc: KProperty<*>,
+            value: OfflinePlayer?
+    ) {
+        entity.apply { column.setValue(this, desc, value?.uniqueId) }
     }
 }
