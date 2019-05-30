@@ -1,109 +1,111 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
+import org.bukkit.Chunk
 import org.bukkit.Location
-import org.bukkit.World
 import org.bukkit.block.Block
-import kotlin.math.sqrt
 
-data class SimpleLocation(val x: Int, val y: Int, val z: Int) : Comparable<SimpleLocation> {
-    override fun compareTo(other: SimpleLocation): Int {
-        val d1 = sqrt((x * x + y * y + z * z).toDouble())
-        val d2 = other.run { sqrt((x * x + y * y + z * z).toDouble()) }
-
-        return d1.compareTo(d2)
-    }
-}
-
-class SimpleLocationRange<T>(
-        val first: SimpleLocation,
-        val last: SimpleLocation,
+class PosRange<T, POS : VectorComparable<POS>>(
+        val first: POS,
+        val last: POS,
         val buildIterator: () -> Iterator<T>
-) : ClosedRange<SimpleLocation>, Iterable<T> {
-    override val endInclusive: SimpleLocation get() = last
-    override val start: SimpleLocation get() = first
+) : ClosedRange<POS>, Iterable<T> {
+    override val endInclusive: POS get() = last
+    override val start: POS get() = first
 
-    override fun contains(value: SimpleLocation): Boolean {
-        return value.x >= first.x && value.x <= last.x
-                && value.y >= first.y && value.y <= last.y
-                && value.z >= first.z && value.z <= last.z
+    override fun contains(value: POS): Boolean {
+        val firstAxis = first.axis()
+        val lastAxis = last.axis()
+        return value.axis().withIndex().all { (index, it) ->
+            it >= firstAxis[index] && it <= lastAxis[index]
+        }
     }
 
     override fun iterator(): Iterator<T> = buildIterator()
 }
 
-class SimpleLocationRangeIterator(first: SimpleLocation, last: SimpleLocation) : Iterator<SimpleLocation> {
-    private val closedRangeX = IntProgression.fromClosedRange(first.x, last.x, 1)
-    private val closedRangeY = IntProgression.fromClosedRange(first.y, last.y, 1)
-    private val closedRangeZ = IntProgression.fromClosedRange(first.z, last.z, 1)
+class PosRangeIterator<T : VectorComparable<T>>(
+        first: T,
+        last: T,
+        val factor: (axis: IntArray) -> T
+) : Iterator<T> {
+    private val firstAxis = first.axis()
+    private val lastAxis = last.axis()
+    private val closedAxisRanges = firstAxis.mapIndexed { index, it ->
+        IntProgression.fromClosedRange(it.toInt(), lastAxis[index].toInt(), 1)
+    }
+    private val iteratorAxis = closedAxisRanges.map { it.iterator() }.toTypedArray()
 
-    private val iteratorX = closedRangeX.iterator()
-    private var iteratorY = iteratorY()
-    private var iteratorZ = iteratorZ()
-
-    private var actualX = iteratorX.nextInt()
-    private var actualY = iteratorY.nextInt()
-
-    private inline fun iteratorY() = closedRangeY.iterator()
-    private inline fun iteratorZ() = closedRangeZ.iterator()
+    private val actualAxis = iteratorAxis.toList().subList(0, iteratorAxis.size-1)
+            .map { it.nextInt() }
+            .toTypedArray()
 
     override fun hasNext(): Boolean {
-        if (iteratorX.hasNext()) return true
-        else if (iteratorY.hasNext()) return true
-        else if (iteratorZ.hasNext()) return true
-        return false
+        return iteratorAxis.any { it.hasNext() }
     }
 
-    override fun next(): SimpleLocation {
-        if (iteratorZ.hasNext()) {
-            return SimpleLocation(actualX, actualY, iteratorZ.nextInt())
-        } else {
-            if (iteratorY.hasNext()) {
-                actualY = iteratorY.nextInt()
-                iteratorZ = iteratorZ()
-            } else {
-                if (iteratorX.hasNext()) {
-                    actualX = iteratorX.nextInt()
-                    iteratorY = iteratorY()
-                }
-            }
-            return next()
+    override fun next(): T {
+        val lastIndex = iteratorAxis.size-1
+        val last = iteratorAxis[lastIndex]
+        if(last.hasNext()) {
+            val axis = IntArray(actualAxis.size) { actualAxis[it] } + last.nextInt()
+            return factor(axis)
         }
+        for(i in lastIndex-1 downTo 0) {
+            val axis = iteratorAxis[i]
+            if(axis.hasNext()) {
+                actualAxis[i] = axis.nextInt()
+                iteratorAxis[i+1] = closedAxisRanges[i+1].iterator()
+                break
+            }
+        }
+        return next()
     }
 }
 
-operator fun SimpleLocation.rangeTo(other: SimpleLocation): SimpleLocationRange<SimpleLocation> {
-    return SimpleLocationRange(this, other) { SimpleLocationRangeIterator(this, other) }
+class RangeIteratorWithFactor<T, POS : VectorComparable<POS>>(
+        start: T,
+        end: T,
+        private val factor: (POS) -> T,
+        private val posFactor: (T) -> POS
+) : Iterator<T> {
+    val iterator = PosRangeIterator(posFactor(start), posFactor(end), posFactor(start)::factor)
+
+    override fun hasNext() = iterator.hasNext()
+    override fun next() = factor(iterator.next())
 }
 
 // BUKKIT THINGS
 
-operator fun SimpleLocationRange<*>.contains(other: Location) = contains(other.asSimple())
-operator fun SimpleLocationRange<*>.contains(other: Block) = contains(other.asSimple())
+operator fun PosRange<*, BlockPos>.contains(other: Location) = contains(other.asPos())
+operator fun PosRange<*, BlockPos>.contains(other: Block) = contains(other.asPos())
+operator fun PosRange<*, ChunkPos>.contains(other: Chunk) = contains(other.asPos())
 
-inline fun Location.asSimple() = SimpleLocation(blockX, blockY, blockZ)
-inline fun SimpleLocation.asBukkitLocation(world: World) = Location(world, x.toDouble(), y.toDouble(), z.toDouble())
-
-inline fun Block.asSimple() = SimpleLocation(x, y, z)
-inline fun SimpleLocation.asBukkitBlock(world: World) = world.getBlockAt(x, y, z)
-
-class LocationRangeIterator(val start: Location, val end: Location) : Iterator<Location> {
-    val iterator = SimpleLocationRangeIterator(start.asSimple(), end.asSimple())
-
-    override fun hasNext() = iterator.hasNext()
-    override fun next() = iterator.next().asBukkitLocation(start.world)
+operator fun Location.rangeTo(other: Location): PosRange<Location, BlockPos> {
+    return PosRange(this.asBlockPos(), other.asBlockPos()) {
+        RangeIteratorWithFactor<Location, BlockPos>(
+                this, other,
+                { it.asBukkitLocation(world) },
+                { it.asBlockPos() }
+        )
+    }
 }
 
-operator fun Location.rangeTo(other: Location): SimpleLocationRange<Location> {
-    return SimpleLocationRange(this.asSimple(), other.asSimple()) { LocationRangeIterator(this, other) }
+operator fun Block.rangeTo(other: Block): PosRange<Block, BlockPos> {
+    return PosRange(this.asPos(), other.asPos()) {
+        RangeIteratorWithFactor<Block, BlockPos>(
+                this, other,
+                { it.asBukkitBlock(world) },
+                { it.asPos() }
+        )
+    }
 }
 
-class BlockRangeIterator(val start: Block, val end: Block) : Iterator<Block> {
-    val iterator = SimpleLocationRangeIterator(start.asSimple(), end.asSimple())
-
-    override fun hasNext() = iterator.hasNext()
-    override fun next() = iterator.next().asBukkitBlock(start.world)
-}
-
-operator fun Block.rangeTo(other: Block): SimpleLocationRange<Block> {
-    return SimpleLocationRange(this.asSimple(), other.asSimple()) { BlockRangeIterator(this, other) }
+operator fun Chunk.rangeTo(other: Chunk): PosRange<Chunk, ChunkPos> {
+    return PosRange(this.asPos(), other.asPos()) {
+        RangeIteratorWithFactor<Chunk, ChunkPos>(
+                this, other,
+                { it.asBukkitChunk(world) },
+                { it.asPos() }
+        )
+    }
 }
