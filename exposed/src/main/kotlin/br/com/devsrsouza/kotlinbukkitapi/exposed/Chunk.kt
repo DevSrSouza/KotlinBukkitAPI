@@ -118,6 +118,7 @@ class ChunkMultiColumnExposedDelegateNullable(
         val z = entity.run { zColumn.getValue(this, desc) }
 
         return if (
+                worldName != null &&
                 x != null && z != null
         ) Bukkit.getWorld(worldName).getChunkAt(
                 x, z

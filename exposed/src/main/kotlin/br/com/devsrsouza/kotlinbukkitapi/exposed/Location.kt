@@ -150,6 +150,7 @@ class LocationMultiColumnExposedDelegateNullable(
         val pitch = entity.run { pitchColumn.getValue(this, desc) }
 
         return if (
+                worldName != null &&
                 x != null && y != null && z != null &&
                 yaw != null && pitch != null
         ) Location(

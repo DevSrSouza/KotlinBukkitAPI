@@ -127,6 +127,7 @@ class BlockMultiColumnExposedDelegateNullable(
         val z = entity.run { zColumn.getValue(this, desc) }
 
         return if (
+                worldName != null &&
                 x != null && y != null && z != null
         ) Bukkit.getWorld(worldName).getBlockAt(
                 x, y, z
