@@ -165,7 +165,7 @@ open class CommandDSL(
                 val subCommand = args.getOrNull(0)?.let { arg ->
                     subCommands.find {
                         it.name.equals(arg, true) ||
-                                it.aliases.find { it.equals(arg, true) } != null
+                                it.aliases.any { it.equals(arg, true) }
                     }
                 }
                 if (subCommand != null) {
@@ -222,7 +222,7 @@ open class CommandDSL(
     }
 
     open fun subCommandBuilder(name: String, vararg aliases: String = arrayOf()): CommandDSL {
-        return CommandDSL(name).also {
+        return CommandDSL(name, *aliases).also {
             it.permission = this.permission
             it.permissionMessage = this.permissionMessage
             it.onlyInGameMessage = this.onlyInGameMessage
