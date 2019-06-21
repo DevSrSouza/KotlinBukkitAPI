@@ -20,8 +20,16 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 | [Kotlinx-io](https://github.com/Kotlin/kotlinx-io) | 0.1.7 |
 
 ### Links
-- [Examples and documentation](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
+- [Examples and **documentation**](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
 - [Clone and building](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/Clone-and-build)
+
+## Modules
+| Module | Description |
+| --- | --- |
+| Core | The heart of the project containing the important API |
+| Plugins | Extensions for others plugins like Vault, PlaceholderAPI and others |
+| Server | Functions that don't have in Bukkit API like title, action bar, NBT, etc.. |
+| Exposed | Extensions for SQL framework [Exposed](https://github.com/JetBrains/Exposed/) |
 
 ### Setup for development
 
