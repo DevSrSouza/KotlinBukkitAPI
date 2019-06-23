@@ -6,6 +6,11 @@ import org.bukkit.World
 import org.bukkit.block.Block
 import kotlin.math.sqrt
 
+fun blockPosOf(x: Int, y: Int, z: Int) = BlockPos(x, y, z)
+fun locationPosOf(x: Double, y: Double, z: Double, yaw: Float = 0f, pitch: Float = 0f)
+        = LocationPos(x, y, z, yaw, pitch)
+fun chunkPosOf(x: Int, z: Int) = ChunkPos(x, z)
+
 fun Location.asPos() = LocationPos(x, y, z, yaw, pitch)
 fun LocationPos.asBukkitBlock(world: World) = world.getBlockAt(x.toInt(), y.toInt(), z.toInt())
 fun LocationPos.asBukkitLocation(world: World) = Location(world, x, y, z)
