@@ -26,8 +26,8 @@ interface MenuPlayerSlot : MenuPlayer {
 interface MenuPlayerInventorySlot : MenuPlayerSlot, MenuPlayerInventory {
 
     var showingItem: ItemStack?
-        get() = getItem(rawSlotPos)?.takeUnless { it.type == Material.AIR }
-        set(value) = setItem(rawSlotPos, value)
+        get() = getItem(slotPos)?.takeUnless { it.type == Material.AIR }
+        set(value) = setItem(slotPos, value)
 
     fun updateSlotToPlayer() {
         menu.updateSlot(slot, player)
@@ -41,7 +41,7 @@ interface MenuPlayerInventorySlot : MenuPlayerSlot, MenuPlayerInventory {
 open class MenuPlayerSlotInteract(
         menu: Menu<*>,
         override val slotPos: Int,
-        override var slot: Slot,
+        override val slot: Slot,
         player: Player,
         inventory: Inventory,
         canceled: Boolean,
