@@ -1,5 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit
 
+import br.com.devsrsouza.kotlinbukkitapi.extensions.text.msg
+import net.md_5.bungee.api.chat.BaseComponent
+import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
@@ -34,3 +37,21 @@ inline fun broadcast(players: Iterable<Player> = Bukkit.getOnlinePlayers(), mess
 
 fun Collection<Player>.broadcast(message: Player.() -> String) = broadcast(this, message)
 fun Array<Player>.broadcast(message: Player.() -> String) = broadcast(this.toList(), message)
+
+// BaseComponent
+
+fun broadcast(message: BaseComponent) {
+    broadcastComponent { arrayOf(message) }
+    Bukkit.getConsoleSender().msg(TextComponent.toLegacyText(message))
+}
+
+fun broadcast(message: Array<BaseComponent>) {
+    broadcastComponent { message }
+    Bukkit.getConsoleSender().msg(TextComponent.toLegacyText(*message))
+}
+
+inline fun broadcastComponent(players: Iterable<Player> = Bukkit.getOnlinePlayers(), message: Player.() -> Array<BaseComponent>) {
+    for (player in players) {
+        player.msg(message.invoke(player))
+    }
+}
