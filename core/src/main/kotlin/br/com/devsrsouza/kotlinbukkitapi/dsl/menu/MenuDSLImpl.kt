@@ -156,8 +156,11 @@ class MenuDSLImpl(
     private fun removePlayer(player: Player, closeInventory: Boolean): Boolean {
         if(closeInventory) player.closeInventory()
 
-        clearPlayerData(player)
-        return viewers.remove(player) != null
+        val viewing = viewers.remove(player) != null
+        if(viewing)
+            clearPlayerData(player)
+
+        return viewing
     }
 
     override fun close(player: Player, closeInventory: Boolean) {
