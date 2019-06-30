@@ -91,7 +91,7 @@ inline fun <T : CommandSender> Executor<T>.argumentInt(
 fun Executor<*>.doubleOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER
-): Double? = string(index, argMissing).toDoubleOrNull()?.takeUnless { it.isNaN() }
+): Double? = string(index, argMissing).toDoubleOrNull()?.takeIf { it.isFinite() }
 
 fun Executor<*>.double(
         index: Int,
