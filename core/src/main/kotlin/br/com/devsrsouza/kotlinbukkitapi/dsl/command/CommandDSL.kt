@@ -221,6 +221,8 @@ open class CommandDSL(
         return super.tabComplete(sender, alias, args)
     }
 
+    fun TabCompleter.default() = defaultTabComplete(sender, alias, args)
+
     open fun subCommandBuilder(name: String, vararg aliases: String = arrayOf()): CommandDSL {
         return CommandDSL(name, *aliases).also {
             it.permission = this.permission
