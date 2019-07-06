@@ -9,9 +9,10 @@ import java.io.File
 import kotlin.reflect.*
 import kotlin.reflect.full.*
 
-typealias PropertyTransformer = KProperty1<*, *>.(Any) -> Any
-
-class BukkitConfig(val file: File, private val fileConfiguration: FileConfiguration) : Configuration by fileConfiguration {
+class BukkitConfig(
+        val file: File,
+        private val fileConfiguration: FileConfiguration
+) : Configuration by fileConfiguration {
 
     constructor(file: File, type: ConfigurationType = ConfigurationType.YAML) : this(file, when (type) {
         ConfigurationType.YAML -> YamlConfiguration()
@@ -26,49 +27,29 @@ class BukkitConfig(val file: File, private val fileConfiguration: FileConfigurat
 
 enum class ConfigurationType { YAML, HOCON }
 
-fun <T : Any> ConfigurationSection.saveFrom(model: KClass<T>,
-                                            instance: T = model.objectInstance ?: model.createInstance(),
-                                            saveTransformer: PropertyTransformer? = null): Int {
-    var change = 0
-    ConfigIMPL.setTo(model, instance, saveTransformer) {
-        var path = ""
-        var actualEntry = it
-        while (true) {
-            if (actualEntry.value is Map.Entry<*, *>) {
-                path += actualEntry.key + "."
-                actualEntry = actualEntry.value as Map.Entry<String, Any>
-            } else {
-                path += actualEntry.key
-                set(path, actualEntry.value)
-                change++
-                break
-            }
-        }
-    }
-    return change
+fun <T : Any> ConfigurationSection.saveFrom(
+        instance: T,
+        adapter: PropertyAdapter = defaultSaveAdapter()
+) {
+    val serialized = KotlinSerializer.instanceToMap(instance, adapter)
+
+    putAll(serialized)
 }
 
-fun <T : Any> ConfigurationSection.loadAndSetDefault(model: KClass<T>,
-                                                     instance: T = model.objectInstance ?: model.createInstance(),
-                                                     saveTransformer: PropertyTransformer? = null,
-                                                     loadTransformer: PropertyTransformer? = null): Int {
-    var change = 0
-    ConfigIMPL.loadAndSetDefault(model, instance, toMap(), saveTransformer, loadTransformer) {
-        var path = ""
-        var actualEntry = it
-        while (true) {
-            if (actualEntry.value is Map.Entry<*, *>) {
-                path += actualEntry.key + "."
-                actualEntry = actualEntry.value as Map.Entry<String, Any>
-            } else {
-                path += actualEntry.key
-                set(path, actualEntry.value)
-                change++
-                break
-            }
-        }
+fun <T : Any> ConfigurationSection.loadFrom(
+        type: KClass<T>,
+        adapter: PropertyAdapter = defaultLoadAdapter()
+) {
+    val map = toMap()
+    KotlinSerializer.mapToInstance(type, map, adapter)
+}
+
+fun ConfigurationSection.putAll(map: Map<String, Any>) {
+    for ((key, value) in map) {
+        if(value is Map<*, *>) {
+            (getConfigurationSection(key) ?: createSection(key)).putAll(value as Map<String, Any>)
+        } else set(key, value)
     }
-    return change
 }
 
 fun ConfigurationSection.toMap(): Map<String, Any> {
