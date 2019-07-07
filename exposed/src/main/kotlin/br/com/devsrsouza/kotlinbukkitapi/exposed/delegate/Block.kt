@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.exposed
+package br.com.devsrsouza.kotlinbukkitapi.exposed.delegate
 
 import org.bukkit.Bukkit
 import org.bukkit.block.Block

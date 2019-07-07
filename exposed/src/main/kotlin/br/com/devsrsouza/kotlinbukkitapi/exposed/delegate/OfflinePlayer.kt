@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.exposed
+package br.com.devsrsouza.kotlinbukkitapi.exposed.delegate
 
 import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.offlinePlayer
 import org.bukkit.OfflinePlayer

@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.exposed
+package br.com.devsrsouza.kotlinbukkitapi.exposed.delegate
 
 import org.jetbrains.exposed.dao.Entity
 import kotlin.reflect.KProperty
