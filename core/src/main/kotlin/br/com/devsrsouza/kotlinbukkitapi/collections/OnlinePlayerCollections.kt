@@ -3,9 +3,9 @@ package br.com.devsrsouza.kotlinbukkitapi.collections
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.registerEvents
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.unregisterAll
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import org.bukkit.entity.Player
-import org.bukkit.event.HandlerList.unregisterAll
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.Plugin
