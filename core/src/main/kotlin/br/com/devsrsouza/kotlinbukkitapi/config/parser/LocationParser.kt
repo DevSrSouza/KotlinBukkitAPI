@@ -4,10 +4,8 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import java.lang.IllegalArgumentException
 
-enum class LocationParserType { STRING, MAP }
-
 class LocationParser(
-        val type: LocationParserType = LocationParserType.MAP
+        val type: ParserType = ParserType.MAP
 ) : ObjectParser<Location> {
     override fun parse(any: Any): Location {
         if(any is String) {
@@ -29,8 +27,8 @@ class LocationParser(
     override fun render(element: Location): Any {
         element.run {
             return when (type) {
-                LocationParserType.STRING -> "${world.name};$x;$y;$z;$yaw;$pitch"
-                LocationParserType.MAP -> LocationWrapper(world.name, x, y, z, yaw, pitch)
+                ParserType.STRING -> "${world.name};$x;$y;$z;$yaw;$pitch"
+                ParserType.MAP -> LocationWrapper(world.name, x, y, z, yaw, pitch)
             }
         }
     }
