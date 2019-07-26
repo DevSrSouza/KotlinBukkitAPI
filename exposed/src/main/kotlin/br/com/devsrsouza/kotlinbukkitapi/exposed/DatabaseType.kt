@@ -11,7 +11,7 @@ import java.net.URLClassLoader
 import java.sql.SQLException
 import kotlin.reflect.KClass
 
-sealed class Database(
+sealed class DatabaseType(
         val plugin: Plugin,
         val name: String,
         val jdbc: String,
@@ -20,18 +20,18 @@ sealed class Database(
 ) {
 
     companion object {
-        val fileDatabases: Map<String, KClass<out Database>>
+        val fileDatabases: Map<String, KClass<out DatabaseType>>
                 = mapOf("h2" to H2::class, "sqlite" to SQLite::class)
-        val remoteDatabases: Map<String, KClass<out Database>>
+        val remoteDatabases: Map<String, KClass<out DatabaseType>>
                 = mapOf("mysql" to MySQL::class, "postgresql" to PostgreSQL::class, "sqlserver" to SQLServer::class)
-        val databases: Map<String, KClass<out Database>> = fileDatabases + remoteDatabases
+        val databases: Map<String, KClass<out DatabaseType>> = fileDatabases + remoteDatabases
 
         fun byName(name: String) = databases[name.toLowerCase()]
     }
 
     abstract fun dataSource(): HikariDataSource
 
-    abstract class FileDatabase(
+    abstract class FileDatabaseType(
             plugin: Plugin,
             name: String,
             jdbc: String,
@@ -40,7 +40,7 @@ sealed class Database(
             val file: String,
             val databaseExtension: String,
             val needFileCreation: Boolean
-    ) : Database(plugin, name, jdbc, driverClass, driverLink) {
+    ) : DatabaseType(plugin, name, jdbc, driverClass, driverLink) {
 
         override fun dataSource(): HikariDataSource {
             val file = File(plugin.dataFolder, "$file.$databaseExtension")
@@ -54,7 +54,7 @@ sealed class Database(
         }
     }
 
-    abstract class RemoteDatabase(
+    abstract class RemoteDatabaseType(
             plugin: Plugin,
             name: String,
             jdbc: String,
@@ -65,14 +65,14 @@ sealed class Database(
             val database: String,
             val username: String,
             val password: String
-    ) : Database(plugin, name, jdbc, driverClass, driverLink) {
+    ) : DatabaseType(plugin, name, jdbc, driverClass, driverLink) {
         override fun dataSource(): HikariDataSource {
             loadDependency()
 
             return HikariDataSource(HikariConfig().apply {
                 jdbcUrl = jdbc
-                username = this@RemoteDatabase.username
-                password = this@RemoteDatabase.password
+                username = this@RemoteDatabaseType.username
+                password = this@RemoteDatabaseType.password
             })
         }
     }
@@ -80,7 +80,7 @@ sealed class Database(
     class H2(
             plugin: Plugin,
             file: String
-    ) : FileDatabase(
+    ) : FileDatabaseType(
             plugin,
             "H2",
             "jdbc:h2:file:$file.h2.db",
@@ -94,7 +94,7 @@ sealed class Database(
     class SQLite(
             plugin: Plugin,
             file: String
-    ) : FileDatabase(
+    ) : FileDatabaseType(
             plugin,
             "SQLite",
             "jdbc:sqlite:$file.sqlite.db",
@@ -112,7 +112,7 @@ sealed class Database(
             database: String,
             username: String,
             password: String
-    ) : RemoteDatabase(
+    ) : RemoteDatabaseType(
             plugin,
             "MySQL",
             "jdbc:mysql://$hostname:$port/$database",
@@ -129,7 +129,7 @@ sealed class Database(
             database: String,
             username: String,
             password: String
-    ) : RemoteDatabase(
+    ) : RemoteDatabaseType(
             plugin,
             "PostgreSQL",
             "jdbc:postgresql://$hostname:$port/$database",
@@ -146,7 +146,7 @@ sealed class Database(
             database: String,
             username: String,
             password: String
-    ) : RemoteDatabase(
+    ) : RemoteDatabaseType(
             plugin,
             "SQLServer",
             "jdbc:sqlserver://$hostname:$port;databaseName=$database",
@@ -184,7 +184,7 @@ sealed class Database(
 
     private fun loadDriver() {
         val url = jarFile.toURI().toURL()
-        val classLoader = Database::class.java.classLoader as URLClassLoader
+        val classLoader = DatabaseType::class.java.classLoader as URLClassLoader
         val method = URLClassLoader::class.java.getDeclaredMethod("addURL", URL::class.java)
         method.isAccessible = true
         method.invoke(classLoader, url)

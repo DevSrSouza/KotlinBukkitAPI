@@ -1,31 +1,30 @@
 package br.com.devsrsouza.kotlinbukkitapi.exposed
 
-import com.zaxxer.hikari.HikariDataSource
 import org.bukkit.plugin.Plugin
 import java.sql.SQLException
 
-data class DatabaseConfig(
-        var type: String = "H2",
-        var hostname: String = "localhost",
-        var port: Short = 3306,
-        var database: String = "kbapi_database",
-        var user: String = "root",
-        var password: String = "12345"
+open class DatabaseTypeConfig(
+        open var type: String = "H2",
+        open var hostname: String = "localhost",
+        open var port: Short = 3306,
+        open var database: String = "kbapi_database",
+        open var user: String = "root",
+        open var password: String = "12345"
 )
 
-fun databaseFrom(plugin: Plugin, config: DatabaseConfig) : Database {
-    val type = Database.byName(config.type)
+fun databaseTypeFrom(plugin: Plugin, config: DatabaseTypeConfig) : DatabaseType {
+    val type = DatabaseType.byName(config.type)
     if (type != null) {
         return when(type) {
-            Database.H2::class -> Database.H2(
+            DatabaseType.H2::class -> DatabaseType.H2(
                     plugin,
                     config.database
             )
-            Database.SQLite::class -> Database.SQLite(
+            DatabaseType.SQLite::class -> DatabaseType.SQLite(
                     plugin,
                     config.database
             )
-            Database.MySQL::class -> Database.MySQL(
+            DatabaseType.MySQL::class -> DatabaseType.MySQL(
                     plugin,
                     config.hostname,
                     config.port,
@@ -33,7 +32,7 @@ fun databaseFrom(plugin: Plugin, config: DatabaseConfig) : Database {
                     config.user,
                     config.password
             )
-            Database.PostgreSQL::class -> Database.PostgreSQL(
+            DatabaseType.PostgreSQL::class -> DatabaseType.PostgreSQL(
                     plugin,
                     config.hostname,
                     config.port,
@@ -41,7 +40,7 @@ fun databaseFrom(plugin: Plugin, config: DatabaseConfig) : Database {
                     config.user,
                     config.password
             )
-            Database.SQLServer::class -> Database.SQLServer(
+            DatabaseType.SQLServer::class -> DatabaseType.SQLServer(
                     plugin,
                     config.hostname,
                     config.port,
