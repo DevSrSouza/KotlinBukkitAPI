@@ -7,7 +7,6 @@ import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.configuration.file.YamlConfiguration
 import java.io.File
 import kotlin.reflect.*
-import kotlin.reflect.full.*
 
 class BukkitConfig(
         val file: File,
@@ -36,6 +35,15 @@ fun <T : Any> ConfigurationSection.saveFrom(
     putAll(serialized)
 }
 
+fun <T : Any> ConfigurationSection.saveMissingFrom(
+        instance: T,
+        adapter: PropertyAdapter = defaultSaveAdapter()
+): Int {
+    val serialized = KotlinSerializer.instanceToMap(instance, adapter)
+
+    return putIfMissing(serialized)
+}
+
 fun <T : Any> ConfigurationSection.loadFrom(
         type: KClass<T>,
         adapter: PropertyAdapter = defaultLoadAdapter()
@@ -50,6 +58,19 @@ fun ConfigurationSection.putAll(map: Map<String, Any>) {
             (getConfigurationSection(key) ?: createSection(key)).putAll(value as Map<String, Any>)
         } else set(key, value)
     }
+}
+
+fun ConfigurationSection.putIfMissing(map: Map<String, Any>): Int {
+    var missing = 0
+    for ((key, value) in map) {
+        if(value is Map<*, *>) {
+            missing += (getConfigurationSection(key) ?: createSection(key)).putIfMissing(value as Map<String, Any>)
+        } else if(!contains(key)) {
+            set(key, value)
+            missing++
+        }
+    }
+    return missing
 }
 
 fun ConfigurationSection.toMap(): Map<String, Any> {
