@@ -1,6 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.exposed
 
-import org.bukkit.plugin.Plugin
+import java.io.File
 import java.sql.SQLException
 
 open class DatabaseTypeConfig(
@@ -12,20 +12,19 @@ open class DatabaseTypeConfig(
         open var password: String = "12345"
 )
 
-fun databaseTypeFrom(plugin: Plugin, config: DatabaseTypeConfig) : DatabaseType {
+fun databaseTypeFrom(dataFolder: File, config: DatabaseTypeConfig) : DatabaseType {
     val type = DatabaseType.byName(config.type)
     if (type != null) {
         return when(type) {
             DatabaseType.H2::class -> DatabaseType.H2(
-                    plugin,
+                    dataFolder,
                     config.database
             )
             DatabaseType.SQLite::class -> DatabaseType.SQLite(
-                    plugin,
+                    dataFolder,
                     config.database
             )
             DatabaseType.MySQL::class -> DatabaseType.MySQL(
-                    plugin,
                     config.hostname,
                     config.port,
                     config.database,
@@ -33,7 +32,6 @@ fun databaseTypeFrom(plugin: Plugin, config: DatabaseTypeConfig) : DatabaseType 
                     config.password
             )
             DatabaseType.PostgreSQL::class -> DatabaseType.PostgreSQL(
-                    plugin,
                     config.hostname,
                     config.port,
                     config.database,
@@ -41,7 +39,6 @@ fun databaseTypeFrom(plugin: Plugin, config: DatabaseTypeConfig) : DatabaseType 
                     config.password
             )
             DatabaseType.SQLServer::class -> DatabaseType.SQLServer(
-                    plugin,
                     config.hostname,
                     config.port,
                     config.database,

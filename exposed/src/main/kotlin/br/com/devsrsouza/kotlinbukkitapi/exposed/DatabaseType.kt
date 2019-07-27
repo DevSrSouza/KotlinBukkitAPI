@@ -12,7 +12,6 @@ import java.sql.SQLException
 import kotlin.reflect.KClass
 
 sealed class DatabaseType(
-        val plugin: Plugin,
         val name: String,
         val jdbc: String,
         val driverClass: String,
@@ -32,18 +31,18 @@ sealed class DatabaseType(
     abstract fun dataSource(): HikariDataSource
 
     abstract class FileDatabaseType(
-            plugin: Plugin,
             name: String,
             jdbc: String,
             driverClass: String,
             driverLink: String,
+            val dataFolder: File,
             val file: String,
             val databaseExtension: String,
             val needFileCreation: Boolean
-    ) : DatabaseType(plugin, name, jdbc, driverClass, driverLink) {
+    ) : DatabaseType(name, jdbc, driverClass, driverLink) {
 
         override fun dataSource(): HikariDataSource {
-            val file = File(plugin.dataFolder, "$file.$databaseExtension")
+            val file = File(dataFolder, "$file.$databaseExtension")
             if(needFileCreation && !file.exists()) file.createNewFile()
 
             loadDependency()
@@ -55,7 +54,6 @@ sealed class DatabaseType(
     }
 
     abstract class RemoteDatabaseType(
-            plugin: Plugin,
             name: String,
             jdbc: String,
             driverClass: String,
@@ -65,7 +63,7 @@ sealed class DatabaseType(
             val database: String,
             val username: String,
             val password: String
-    ) : DatabaseType(plugin, name, jdbc, driverClass, driverLink) {
+    ) : DatabaseType(name, jdbc, driverClass, driverLink) {
         override fun dataSource(): HikariDataSource {
             loadDependency()
 
@@ -78,42 +76,40 @@ sealed class DatabaseType(
     }
 
     class H2(
-            plugin: Plugin,
+            dataFolder: File,
             file: String
     ) : FileDatabaseType(
-            plugin,
             "H2",
             "jdbc:h2:file:$file.h2.db",
             "org.h2.Driver",
             "http://repo.apache.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.4.0.jre8/mssql-jdbc-6.4.0.jre8.jar",
+            dataFolder,
             file,
             "h2.db",
             false
     )
 
     class SQLite(
-            plugin: Plugin,
+            dataFolder: File,
             file: String
     ) : FileDatabaseType(
-            plugin,
             "SQLite",
             "jdbc:sqlite:$file.sqlite.db",
             "org.sqlite.JDBC",
             "https://bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.23.1.jar",
+            dataFolder,
             file,
             "sqlite.db",
             true
     )
 
     class MySQL(
-            plugin: Plugin,
             hostname: String,
             port: Short,
             database: String,
             username: String,
             password: String
     ) : RemoteDatabaseType(
-            plugin,
             "MySQL",
             "jdbc:mysql://$hostname:$port/$database",
             "com.mysql.jdbc.Driver",
@@ -123,14 +119,12 @@ sealed class DatabaseType(
     )
 
     class PostgreSQL(
-            plugin: Plugin,
             hostname: String,
             port: Short,
             database: String,
             username: String,
             password: String
     ) : RemoteDatabaseType(
-            plugin,
             "PostgreSQL",
             "jdbc:postgresql://$hostname:$port/$database",
             "org.postgresql.Driver",
@@ -140,14 +134,12 @@ sealed class DatabaseType(
     )
 
     class SQLServer(
-            plugin: Plugin,
             hostname: String,
             port: Short,
             database: String,
             username: String,
             password: String
     ) : RemoteDatabaseType(
-            plugin,
             "SQLServer",
             "jdbc:sqlserver://$hostname:$port;databaseName=$database",
             "com.microsoft.sqlserver.jdbc.SQLServerDriver",
