@@ -46,7 +46,17 @@ object KotlinSerializer {
 
         val properties = publicMutablePropertiesFrom(type)
         loop@ for (prop in properties) {
-            fun set(any: Any) = prop.set(instance, adapter(instance, prop, any))
+            fun set(any: Any) {
+                val setter = prop.setter.apply { isAccessible = true }
+                setter.call(
+                        instance,
+                        adapter(
+                                instance,
+                                prop,
+                                if (any is Number) fixNumberType(prop, any) else any
+                        )
+                )
+            }
             val obj = map.get(prop.name) ?: continue@loop
 
             prop.isAccessible = true

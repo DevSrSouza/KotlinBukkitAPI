@@ -109,3 +109,15 @@ fun getMapValueClass(property: KMutableProperty1<*, *>): KClass<*>? {
 fun isMapValuePrimitive(property: KMutableProperty1<*, *>): Boolean {
     return getMapValueClass(property)?.isPrimitive != null
 }
+
+fun fixNumberType(property: KMutableProperty1<*, *>, any: Number): Number {
+    return when(property.returnTypeClass()) {
+        Byte::class -> any.toByte()
+        Short::class -> any.toShort()
+        Int::class -> any.toInt()
+        Long::class -> any.toLong()
+        Float::class -> any.toFloat()
+        Double::class -> any.toDouble()
+        else -> any
+    }
+}
