@@ -22,6 +22,8 @@ class CommandException(
 ) : RuntimeException() {
     constructor(senderMessage: String = "", argMissing: Boolean = false, execute: () -> Unit = {})
             : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), argMissing, execute)
+    constructor(senderMessage: List<String> = listOf(), argMissing: Boolean = false, execute: () -> Unit = {})
+            : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), argMissing, execute)
 }
 
 inline fun Executor<*>.exception(
@@ -31,6 +33,11 @@ inline fun Executor<*>.exception(
 
 inline fun Executor<*>.exception(
         senderMessage: String = "",
+        noinline execute: () -> Unit = {}
+): Nothing = throw CommandException(senderMessage, execute = execute)
+
+inline fun Executor<*>.exception(
+        senderMessage: List<String> = listOf(),
         noinline execute: () -> Unit = {}
 ): Nothing = throw CommandException(senderMessage, execute = execute)
 

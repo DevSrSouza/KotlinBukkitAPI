@@ -50,6 +50,7 @@ fun CommandSender.msg(text: Array<BaseComponent>) = sendMessage(text)
 fun CommandSender.msg(text: List<BaseComponent>) = sendMessage(text)
 
 fun String.asText() = TextComponent(*TextComponent.fromLegacyText(this))
+fun List<String>.asText() = TextComponent(*map { it.asText() }.toTypedArray())
 //fun String.asText() = TextComponent(this)
 fun BaseComponent.toJson() = ComponentSerializer.toString(this)
 fun Array<BaseComponent>.toJson() = ComponentSerializer.toString(*this)
