@@ -68,6 +68,10 @@ fun getListTypeClass(property: KMutableProperty1<*, *>): KClass<*>? {
     } else return null
 }
 
+fun isListString(property: KMutableProperty1<*, *>): Boolean {
+    return getListTypeClass(property) == String::class
+}
+
 fun isListPrimitive(property: KMutableProperty1<*, *>): Boolean {
     return getListTypeClass(property)?.isPrimitive == true
 }
