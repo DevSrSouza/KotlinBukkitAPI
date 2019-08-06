@@ -125,3 +125,12 @@ fun fixNumberType(property: KMutableProperty1<*, *>, any: Number): Number {
         else -> any
     }
 }
+
+fun isEnum(property: KMutableProperty1<*, *>): Boolean {
+    return property.isReturnTypeSubclassOf(Enum::class)
+}
+fun getEnumValues(enumClass: KClass<Enum<*>>): Array<Enum<*>> = enumClass.java.enumConstants
+
+fun getEnumValueByName(enumClass: KClass<Enum<*>>, name: String): Any? {
+    return getEnumValues(enumClass).firstOrNull { it.name.equals(name, true) }
+}

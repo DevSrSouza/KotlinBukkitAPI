@@ -34,6 +34,7 @@ object KotlinSerializer {
                         put(instanceToMap(value, adapter), key)
                     }
                 }
+                isEnum(prop) -> put((obj as Enum<*>).name)
                 else -> put(instanceToMap(obj, adapter))
             }
         }
@@ -76,6 +77,13 @@ object KotlinSerializer {
                     val map = obj as Map<String, Any>
 
                     set(map.mapValues { mapToInstance(type, it as Map<String, Any>, adapter) })
+                }
+                isEnum(prop) -> {
+                    val enumClass = prop.returnType.classifier as KClass<Enum<*>>
+                    val value = (obj as? String)?.let { getEnumValueByName(enumClass, it) }
+                            ?: continue@loop
+
+                    set(value)
                 }
                 else -> {
                     val type = prop.returnTypeClass() ?: continue@loop
