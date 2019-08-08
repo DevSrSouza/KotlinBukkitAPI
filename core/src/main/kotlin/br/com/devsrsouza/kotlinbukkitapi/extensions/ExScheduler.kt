@@ -49,7 +49,7 @@ inline fun task(
         plugin: Plugin,
         crossinline runnable: BukkitRunnable.() -> Unit
 ) = scheduler(runnable).run {
-    if (repeatDelay > -1) if (async) runTaskTimerAsynchronously(plugin, repeatDelay, delayToRun) else runTaskTimer(plugin, repeatDelay, delayToRun)
+    if (repeatDelay > -1) if (async) runTaskTimerAsynchronously(plugin, delayToRun, repeatDelay) else runTaskTimer(plugin, delayToRun, repeatDelay)
     else if (delayToRun > 0) if (async) runTaskLaterAsynchronously(plugin, delayToRun) else runTaskLater(plugin, delayToRun)
     else if (async) runTaskAsynchronously(plugin) else runTask(plugin)
 }
