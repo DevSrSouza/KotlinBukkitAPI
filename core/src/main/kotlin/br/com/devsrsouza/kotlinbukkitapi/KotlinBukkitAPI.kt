@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi
 
 import br.com.devsrsouza.kotlinbukkitapi.controllers.CommandController
+import br.com.devsrsouza.kotlinbukkitapi.controllers.LifecycleController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.MenuController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.PlayerController
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.registerEvents
@@ -18,8 +19,11 @@ class KotlinBukkitAPI : JavaPlugin() {
     }
 
     override fun onEnable() {
-        registerEvents(CommandController)
-        registerEvents(MenuController)
-        registerEvents(PlayerController)
+        registerEvents(
+                CommandController,
+                MenuController,
+                PlayerController,
+                LifecycleController
+        )
     }
 }
