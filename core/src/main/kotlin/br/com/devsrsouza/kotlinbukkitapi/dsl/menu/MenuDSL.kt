@@ -9,13 +9,13 @@ inline fun MenuDSL.slot(
         line: Int,
         slot: Int,
         item: ItemStack?,
-        block: SlotDSL.() -> Unit
+        block: SlotDSL.() -> Unit = {}
 ): SlotDSL = slot(calculateSlot(line, slot), item, block)
 
 inline fun MenuDSL.slot(
         slot: Int,
         item: ItemStack?,
-        block: SlotDSL.() -> Unit
+        block: SlotDSL.() -> Unit = {}
 ): SlotDSL = baseSlot.clone(item).apply(block).also {
     setSlot(slot, it)
 }
