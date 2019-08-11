@@ -1,7 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command
 
+import br.com.devsrsouza.kotlinbukkitapi.extensions.allPermission
+import br.com.devsrsouza.kotlinbukkitapi.extensions.anyPermission
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.command.*
+import br.com.devsrsouza.kotlinbukkitapi.extensions.hasPermissionOrStar
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.command.CommandSender
@@ -95,7 +98,8 @@ fun <T : CommandSender> Executor<T>.argumentExecutorBuilder(
 ) = Executor(
         sender,
         this@argumentExecutorBuilder.label + " " + label,
-        runCatching { args.sliceArray(posIndex..args.size) }.getOrDefault((emptyArray()))
+        runCatching { args.sliceArray(posIndex..args.size) }.getOrDefault((emptyArray())),
+        command
 )
 
 inline fun TabCompleter.argumentCompleteBuilder(
@@ -135,10 +139,32 @@ inline fun <reified T> Executor<*>.array(
     }
 }
 
+inline fun <reified T> Executor<*>.permission(
+        permission: String, builder: () -> T
+): T = permission({ sender.hasPermission(permission) }, builder)
+
+inline fun <reified T> Executor<*>.permissionOrStar(
+        permission: String, builder: () -> T
+): T = permission({ sender.hasPermissionOrStar(permission) }, builder)
+
+inline fun <reified T> Executor<*>.anyPermission(
+        vararg permissions: String, builder: () -> T
+): T = permission({ sender.anyPermission(*permissions) }, builder)
+
+inline fun <reified T> Executor<*>.allPermission(
+        vararg permissions: String, builder: () -> T
+): T = permission({ sender.allPermission(*permissions) }, builder)
+
+inline fun <reified T> Executor<*>.permission(
+        permissionChecker: () -> Boolean,
+        builder: () -> T
+): T = if(permissionChecker()) builder() else exception(command.permissionMessage)
+
 class Executor<E : CommandSender>(
         val sender: E,
         val label: String,
-        val args: Array<out String>
+        val args: Array<out String>,
+        val command: CommandDSL
 )
 
 class TabCompleter(
@@ -183,15 +209,15 @@ open class CommandDSL(
             try {
                 val genericExecutor = executors.getByInstance(sender::class)
                 if (genericExecutor != null) {
-                    genericExecutor.invoke(Executor(sender, label, args))
+                    genericExecutor.invoke(Executor(sender, label, args, this))
                 } else {
                     val hasPlayer = executors.getByInstance(Player::class)
                     if (hasPlayer != null) {
                         if (executor != null) {
-                            executor?.invoke(Executor(sender, label, args))
+                            executor?.invoke(Executor(sender, label, args, this))
                         } else sender.sendMessage(onlyInGameMessage)
                     } else {
-                        executor?.invoke(Executor(sender, label, args))
+                        executor?.invoke(Executor(sender, label, args, this))
                     }
                 }
             } catch (ex: CommandException) {
