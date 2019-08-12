@@ -30,9 +30,13 @@ object KotlinSerializer {
                 isMapKeyString(prop) && isMapValuePrimitive(prop) -> put(obj)
                 isMapKeyString(prop) -> {
                     val map = obj as Map<String, Any>
+
+                    val newMap = mutableMapOf<String, Any>()
                     for ((key, value) in map) {
-                        put(instanceToMap(value, adapter), key)
+                        newMap.put(key, instanceToMap(value, adapter))
                     }
+
+                    put(newMap)
                 }
                 isEnum(prop) -> put((obj as Enum<*>).name)
                 else -> put(instanceToMap(obj, adapter))
