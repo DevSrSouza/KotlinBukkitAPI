@@ -4,6 +4,10 @@ import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.block.Block
 import java.lang.IllegalArgumentException
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeProjection
+import kotlin.reflect.KVariance
+import kotlin.reflect.full.createType
 
 class BlockParser(
         val type: ParserType = ParserType.MAP
@@ -18,16 +22,21 @@ class BlockParser(
             val z = slices[3].toInt()
 
             return world.getBlockAt(x, y, z)
-        } else if(any is BlockWrapper) {
-            return any.toBlock()
+        } else if(any is Map<*, *>) {
+            val map = any as Map<String, Any>
+            val world = Bukkit.getWorld(map["world"] as String)
+            val x = map["x"] as Int
+            val y = map["y"] as Int
+            val z = map["z"] as Int
+            return world.getBlockAt(x, y, z)
         } else throw IllegalArgumentException("can't parse ${any::class.simpleName} to Location")
     }
 
-    override fun render(element: Block): Any {
+    override fun render(element: Block): Pair<Any, KType> {
         element.run {
             return when (this@BlockParser.type) {
-                ParserType.STRING -> "${world.name};$x;$y;$z"
-                ParserType.MAP -> BlockWrapper(world.name, x, y, z)
+                ParserType.STRING -> "${world.name};$x;$y;$z" to String::class.createType()
+                ParserType.MAP -> BlockWrapper(world.name, x, y, z) to BlockWrapper::class.createType()
             }
         }
     }

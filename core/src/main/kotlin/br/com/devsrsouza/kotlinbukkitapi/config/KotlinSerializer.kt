@@ -6,29 +6,32 @@ import kotlin.reflect.jvm.isAccessible
 
 object KotlinSerializer {
 
-    fun instanceToMap(instance: Any, adapter: PropertyAdapter): Map<String, Any> {
+    fun instanceToMap(instance: Any, adapter: PropertySaveAdapter): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
 
         val clazz = instance::class
         val properties = publicMutablePropertiesFrom(clazz)
         loop@ for (prop in properties) {
             fun put(any: Any, key: String = prop.name) {
-                map.put(key, adapter(instance, prop, any))
+                map.put(key, any)
             }
 
-            val obj = prop.get(instance)
+            prop.isAccessible = true
+
+            //val obj = prop.get(instance)
+            val (obj, type) = adapter(instance, prop, prop.returnType, prop.get(instance))
             when {
-                prop.isPrimitive -> put(obj)
-                isListPrimitive(prop) -> put(obj)
-                isList(prop) -> {
+                type.isPrimitive -> put(obj)
+                type.isList && type.isFirstGenericPrimitive -> put(obj)
+                type.isList -> {
                     val list = obj as List<Any>
                     val map = list.withIndex().associate { (key, value) ->
                         key.toString() to instanceToMap(value, adapter)
                     }
                     put(map)
                 }
-                isMapKeyString(prop) && isMapValuePrimitive(prop) -> put(obj)
-                isMapKeyString(prop) -> {
+                type.isMap && type.isFirstGenericString && type.isSecondGenericPrimitive -> put(obj)
+                type.isMap && type.isFirstGenericString -> {
                     val map = obj as Map<String, Any>
 
                     val newMap = mutableMapOf<String, Any>()
@@ -38,7 +41,7 @@ object KotlinSerializer {
 
                     put(newMap)
                 }
-                isEnum(prop) -> put((obj as Enum<*>).name)
+                type.isEnum -> put((obj as Enum<*>).name)
                 else -> put(instanceToMap(obj, adapter))
             }
         }
@@ -46,43 +49,45 @@ object KotlinSerializer {
         return map
     }
 
-    fun <T : Any> mapToInstance(type: KClass<T>, map: Map<String, Any>, adapter: PropertyAdapter): T {
+    fun <T : Any> mapToInstance(type: KClass<T>, map: Map<String, Any>, adapter: PropertyLoadAdapter): T {
         val instance = type.objectInstance ?: type.createInstance()
 
         val properties = publicMutablePropertiesFrom(type)
         loop@ for (prop in properties) {
-            fun set(any: Any) {
-                val setter = prop.setter.apply { isAccessible = true }
-                setter.call(
-                        instance,
-                        adapter(
-                                instance,
-                                prop,
-                                if (any is Number) fixNumberType(prop, any) else any
-                        )
-                )
-            }
-            val obj = map.get(prop.name) ?: continue@loop
+            val fromMap = map.get(prop.name) ?: continue@loop
+            val type = prop.returnType
 
             prop.isAccessible = true
 
+            val obj = adapter(
+                    instance,
+                    prop,
+                    if (fromMap is Number) fixNumberType(type, fromMap) else fromMap
+            )
+
+            fun set(any: Any) {
+                val setter = prop.setter.apply { isAccessible = true }
+                setter.call(instance, any)
+            }
+
             when {
-                prop.isPrimitive -> set(obj)
-                isListPrimitive(prop) -> set(obj)
-                isList(prop) -> {
-                    val type = getListTypeClass(prop) ?: continue@loop
+                type.isPrimitive -> set(obj)
+                type.isList && type.isFirstGenericPrimitive -> set(obj)
+                type.isList -> {
+                    val type = type.firstGenericType?.kclass ?: continue@loop
                     val list = obj as Map<String, Any>
 
                     set(list.values.map { mapToInstance(type, it as Map<String, Any>, adapter) })
                 }
-                isMapKeyString(prop) && isMapValuePrimitive(prop) -> set(obj)
-                isMapKeyString(prop) -> {
-                    val type = getListTypeClass(prop) ?: continue@loop
+                type.isMap && type.isFirstGenericString && type.isSecondGenericPrimitive -> set(obj)
+                type.isMap && type.isFirstGenericString -> {
+                    val type = type.firstGenericType?.kclass ?: continue@loop
                     val map = obj as Map<String, Any>
 
                     set(map.mapValues { mapToInstance(type, it as Map<String, Any>, adapter) })
                 }
-                isEnum(prop) -> {
+                type.classifier == obj::class -> set(obj)
+                type.isEnum -> {
                     val enumClass = prop.returnType.classifier as KClass<Enum<*>>
                     val value = (obj as? String)?.let { getEnumValueByName(enumClass, it) }
                             ?: continue@loop
@@ -90,7 +95,7 @@ object KotlinSerializer {
                     set(value)
                 }
                 else -> {
-                    val type = prop.returnTypeClass() ?: continue@loop
+                    val type = prop.returnType.classifier as? KClass<*> ?: continue@loop
                     set(mapToInstance(type, obj as Map<String, Any>, adapter))
                 }
             }

@@ -3,6 +3,10 @@ package br.com.devsrsouza.kotlinbukkitapi.config.parser
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 import java.lang.IllegalArgumentException
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeProjection
+import kotlin.reflect.KVariance
+import kotlin.reflect.full.createType
 
 class ChunkParser(
         val type: ParserType = ParserType.MAP
@@ -16,16 +20,20 @@ class ChunkParser(
             val z = slices[3].toInt()
 
             return world.getChunkAt(x, z)
-        } else if(any is ChunkWrapper) {
-            return any.toChunk()
+        } else if(any is Map<*, *>) {
+            val map = any as Map<String, Any>
+            val world = Bukkit.getWorld(map["world"] as String)
+            val x = map["x"] as Int
+            val z = map["z"] as Int
+            return world.getChunkAt(x, z)
         } else throw IllegalArgumentException("can't parse ${any::class.simpleName} to Chunk")
     }
 
-    override fun render(element: Chunk): Any {
+    override fun render(element: Chunk): Pair<Any, KType> {
         element.run {
             return when (type) {
-                ParserType.STRING -> "${world.name};$x;$z"
-                ParserType.MAP -> ChunkWrapper(world.name, x, z)
+                ParserType.STRING -> "${world.name};$x;$z" to String::class.createType()
+                ParserType.MAP -> ChunkWrapper(world.name, x, z) to ChunkWrapper::class.createType()
             }
         }
     }

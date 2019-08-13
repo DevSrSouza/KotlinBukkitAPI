@@ -1,11 +1,13 @@
 package br.com.devsrsouza.kotlinbukkitapi.config.parser
 
+import kotlin.reflect.KType
+
 inline fun <T> newParser(builder: ObjectParserDSLBuilder<T>.() -> Unit): ObjectParser<T> {
     return ObjectParserDSLImpl<T>().apply(builder)
 }
 
 typealias ParseCallback<T> = (any: Any) -> T
-typealias RenderCallback<T> = (element: T) -> Any
+typealias RenderCallback<T> = (element: T) -> Pair<Any, KType>
 
 interface ObjectParserDSLBuilder<T> {
     fun parse(callback: ParseCallback<T>)
@@ -22,7 +24,7 @@ class ObjectParserDSLImpl<T> : ObjectParser<T>, ObjectParserDSLBuilder<T> {
         return parseCallback(any)
     }
 
-    override fun render(element: T): Any {
+    override fun render(element: T): Pair<Any, KType> {
         return renderCallback(element)
     }
 

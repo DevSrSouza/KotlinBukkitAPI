@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.config.adapter
 
-import br.com.devsrsouza.kotlinbukkitapi.config.PropertyAdapter
+import br.com.devsrsouza.kotlinbukkitapi.config.PropertyLoadAdapter
+import br.com.devsrsouza.kotlinbukkitapi.config.PropertySaveAdapter
 import br.com.devsrsouza.kotlinbukkitapi.config.getDelegateFromType
 import br.com.devsrsouza.kotlinbukkitapi.config.parser.ObjectParser
 import br.com.devsrsouza.kotlinbukkitapi.config.parser.ObjectParserDSLBuilder
@@ -24,14 +25,16 @@ class ObjectParserDelegate<T>(val default: T, val parser: ObjectParser<T>) {
     }
 }
 
-fun parserParseAdapter(): PropertyAdapter = builder@{ instance, property, value ->
-    val delegate = property.getDelegateFromType<ObjectParserDelegate<Any>>(instance) ?: return@builder value
+fun parserParseAdapter(): PropertyLoadAdapter = builder@{ instance, property, value ->
+    val delegate = property.getDelegateFromType<ObjectParserDelegate<Any>>(instance)
+            ?: return@builder value
 
     delegate.parser.parse(value)
 }
 
-fun parserRenderAdapter(): PropertyAdapter = builder@{ instance, property, value ->
-    val delegate = property.getDelegateFromType<ObjectParserDelegate<Any>>(instance) ?: return@builder value
+fun parserRenderAdapter(): PropertySaveAdapter = builder@{ instance, property, type, value ->
+    val delegate = property.getDelegateFromType<ObjectParserDelegate<Any>>(instance)
+            ?: return@builder value to type
 
     delegate.parser.render(value)
 }

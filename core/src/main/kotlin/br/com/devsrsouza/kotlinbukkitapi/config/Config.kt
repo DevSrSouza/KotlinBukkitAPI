@@ -28,7 +28,7 @@ enum class ConfigurationType { YAML, HOCON }
 
 fun <T : Any> ConfigurationSection.saveFrom(
         instance: T,
-        adapter: PropertyAdapter = defaultSaveAdapter()
+        adapter: PropertySaveAdapter = defaultSaveAdapter()
 ) {
     val serialized = KotlinSerializer.instanceToMap(instance, adapter)
 
@@ -37,7 +37,7 @@ fun <T : Any> ConfigurationSection.saveFrom(
 
 fun <T : Any> ConfigurationSection.saveMissingFrom(
         instance: T,
-        adapter: PropertyAdapter = defaultSaveAdapter()
+        adapter: PropertySaveAdapter = defaultSaveAdapter()
 ): Int {
     val serialized = KotlinSerializer.instanceToMap(instance, adapter)
 
@@ -46,7 +46,7 @@ fun <T : Any> ConfigurationSection.saveMissingFrom(
 
 fun <T : Any> ConfigurationSection.loadFrom(
         type: KClass<T>,
-        adapter: PropertyAdapter = defaultLoadAdapter()
+        adapter: PropertyLoadAdapter = defaultLoadAdapter()
 ) {
     val map = toMap()
     KotlinSerializer.mapToInstance(type, map, adapter)
@@ -74,7 +74,7 @@ fun ConfigurationSection.putIfMissing(map: Map<String, Any>): Int {
 }
 
 fun ConfigurationSection.toMap(): Map<String, Any> {
-    return getValues(true).apply {
+    return getValues(false).apply {
         forEach { k, v ->
             if (v is ConfigurationSection) {
                 set(k, v.toMap())

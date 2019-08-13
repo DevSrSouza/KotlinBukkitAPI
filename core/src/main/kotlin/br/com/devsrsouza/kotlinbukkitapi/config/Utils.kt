@@ -1,8 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.config
 
 import kotlin.reflect.*
-import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.*
 
 fun publicMutablePropertiesFrom(clazz: KClass<*>) = clazz.memberProperties
         .filterIsInstance<KMutableProperty1<Any, Any>>()
@@ -15,107 +14,28 @@ inline fun <reified T> KMutableProperty1<Any, Any>.getDelegateFromType(instance:
 }
 
 fun primitiveTypes() = listOf(String::class, Boolean::class,
-        Byte::class, Short::class, Int::class, Long::class, Float::class, Double::class)
+        Byte::class, Short::class, Int::class, Long::class, Float::class, Double::class
+)
 
-fun KMutableProperty1<*, *>.returnTypeClass(): KClass<*>? {
-    val type = returnType.classifier ?: return null
-    return type as? KClass<*>
-}
-
-fun KMutableProperty1<*, *>.isReturnTypeSubclassOf(clazz: KClass<*>): Boolean {
-    val typeClazz = returnTypeClass() ?: return false
-
-    return typeClazz.isSubclassOf(clazz)
-}
-
-val KMutableProperty1<*, *>.genericTypes get() = returnType.arguments
-
-val KMutableProperty1<*, *>.genericTypesOrNull get() = genericTypes.takeIf { it.isNotEmpty() }
-
-val KMutableProperty1<*, *>.hasGenericTypes get() = genericTypes.isNotEmpty()
-
-val KMutableProperty1<*, *>.hasStarGenericType get() = genericTypes.any {
-    it.type == null && it.variance == null
-}
+val KType.genericTypes get() = arguments
+val KType.genericTypesOrNull get() = genericTypes.takeIf { it.isNotEmpty() }
+val KType.isPrimitive: Boolean get() = primitiveTypes().any { it == classifier }
+fun KType.isSubclassOf(klass: KClass<*>) = (classifier as? KClass<*>)?.isSubclassOf(klass) == true
+val KType.isList: Boolean get() = isSubclassOf(List::class)
+val KType.isMutableList: Boolean get() = isSubclassOf(MutableList::class)
+val KType.isMap: Boolean get() = isSubclassOf(Map::class)
+val KType.isMutableMap: Boolean get() = isSubclassOf(MutableMap::class)
 
 val KTypeProjection.kclass: KClass<*>? get() = type?.classifier as? KClass<*>
+val KType.firstGenericType: KTypeProjection? get() = genericTypes.getOrNull(0)
+val KType.secondGenericType: KTypeProjection? get() = genericTypes.getOrNull(1)
 
-val KClass<*>.isPrimitive: Boolean get() {
-    return primitiveTypes().any { it == this }
-}
+val KType.isFirstGenericString: Boolean get() = firstGenericType?.kclass == String::class
+val KType.isFirstGenericPrimitive: Boolean get() = firstGenericType?.type?.isPrimitive == true
+val KType.isSecondGenericPrimitive: Boolean get() = secondGenericType?.type?.isPrimitive == true
 
-val KMutableProperty1<*, *>.isPrimitive: Boolean get() {
-    val clazz = returnTypeClass() ?: return false
-    return primitiveTypes().any { it == clazz }
-}
-
-fun isList(property: KMutableProperty1<*, *>): Boolean {
-    return property.isReturnTypeSubclassOf(List::class)
-}
-
-fun isMutableList(property: KMutableProperty1<*, *>): Boolean {
-    return property.isReturnTypeSubclassOf(MutableList::class)
-}
-
-fun getListTypeClass(property: KMutableProperty1<*, *>): KClass<*>? {
-    if(isList(property)) {
-        val parameters = property.genericTypesOrNull
-                ?: return null
-
-        val projection = parameters[0]
-
-        return projection.kclass
-    } else return null
-}
-
-fun isListString(property: KMutableProperty1<*, *>): Boolean {
-    return getListTypeClass(property) == String::class
-}
-
-fun isListPrimitive(property: KMutableProperty1<*, *>): Boolean {
-    return getListTypeClass(property)?.isPrimitive == true
-}
-
-fun isMap(property: KMutableProperty1<*, *>): Boolean {
-    return property.isReturnTypeSubclassOf(Map::class)
-}
-
-fun isMutableMap(property: KMutableProperty1<*, *>): Boolean {
-    return property.isReturnTypeSubclassOf(MutableMap::class)
-}
-
-fun getMapKeyClass(property: KMutableProperty1<*, *>): KClass<*>? {
-    if(isMap(property)) {
-        val parameters = property.genericTypesOrNull
-                ?: return null
-
-        val projection = parameters[0]
-
-        return projection.kclass
-    } else return null
-}
-
-fun isMapKeyString(property: KMutableProperty1<*, *>): Boolean {
-    return getMapKeyClass(property) == String::class
-}
-
-fun getMapValueClass(property: KMutableProperty1<*, *>): KClass<*>? {
-    if(isMap(property)) {
-        val parameters = property.genericTypesOrNull
-                ?: return null
-
-        val projection = parameters.getOrNull(1) ?: return null
-
-        return projection.kclass
-    } else return null
-}
-
-fun isMapValuePrimitive(property: KMutableProperty1<*, *>): Boolean {
-    return getMapValueClass(property)?.isPrimitive != null
-}
-
-fun fixNumberType(property: KMutableProperty1<*, *>, any: Number): Number {
-    return when(property.returnTypeClass()) {
+fun fixNumberType(type: KType, any: Number): Number {
+    return when(type.classifier) {
         Byte::class -> any.toByte()
         Short::class -> any.toShort()
         Int::class -> any.toInt()
@@ -126,9 +46,8 @@ fun fixNumberType(property: KMutableProperty1<*, *>, any: Number): Number {
     }
 }
 
-fun isEnum(property: KMutableProperty1<*, *>): Boolean {
-    return property.isReturnTypeSubclassOf(Enum::class)
-}
+val KType.isEnum: Boolean get() = isSubclassOf(Enum::class)
+
 fun getEnumValues(enumClass: KClass<Enum<*>>): Array<Enum<*>> = enumClass.java.enumConstants
 
 fun getEnumValueByName(enumClass: KClass<Enum<*>>, name: String): Any? {
