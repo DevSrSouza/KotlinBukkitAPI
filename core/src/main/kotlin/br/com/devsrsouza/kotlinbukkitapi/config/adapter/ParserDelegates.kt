@@ -1,12 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi.config.adapter
 
-import br.com.devsrsouza.kotlinbukkitapi.config.parser.BlockParser
-import br.com.devsrsouza.kotlinbukkitapi.config.parser.ChunkParser
-import br.com.devsrsouza.kotlinbukkitapi.config.parser.LocationParser
-import br.com.devsrsouza.kotlinbukkitapi.config.parser.ParserType
+import br.com.devsrsouza.kotlinbukkitapi.config.parser.*
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.block.Block
+import org.bukkit.material.MaterialData
 
 fun location(
         default: Location,
@@ -22,3 +20,7 @@ fun chunk(
         default: Chunk,
         type: ParserType = ParserType.MAP
 ) = ObjectParserDelegate(default, ChunkParser(type))
+
+fun materialData(
+        default: MaterialData
+) = ObjectParserDelegate(default, MaterialDataParser)
