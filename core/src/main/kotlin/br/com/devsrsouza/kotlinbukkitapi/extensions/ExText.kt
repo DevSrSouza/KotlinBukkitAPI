@@ -20,7 +20,8 @@ fun CommandSender.msg(message: Array<String>) = sendMessage(message)
 
 fun textOf(text: String) = text.asText()
 
-operator fun String.unaryPlus() = ChatColor.translateAlternateColorCodes('&', this)
+fun String.translateColor(code: Char = '&') = ChatColor.translateAlternateColorCodes(code, this)
+operator fun String.unaryPlus() = translateColor()
 operator fun String.unaryMinus() = replace('§', '&')
 operator fun ChatColor.plus(text: String) = toString() + text
 fun translateColor(default: String, colorChar: Char = '&') = TranslateChatColorDelegate(default, colorChar)
