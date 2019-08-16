@@ -18,6 +18,18 @@ fun Executor<*>.string(
         argMissing: BaseComponent = MISSING_STRING_PARAMETER
 ): String = args.getOrNull(index) ?: throw CommandException(argMissing, true)
 
+val TEXT_STRING_PARAMETER = "Missing a text argument.".color(ChatColor.RED)
+
+fun Executor<*>.text(
+        startIndex: Int,
+        endIndex: Int = args.size,
+        separator: String = " ",
+        argMissing: BaseComponent = TEXT_STRING_PARAMETER
+): String {
+    if(startIndex >= args.size) exception(argMissing)
+    return array(startIndex, endIndex) { string(it) }.joinToString(separator)
+}
+
 // BOOLEAN
 
 val MISSING_BOOLEAN_PARAMETER = "Missing a true/false argument.".color(ChatColor.RED)

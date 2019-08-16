@@ -26,6 +26,4 @@ inline fun <reified T : Enum<T>> Executor<*>.enum(
         argMissing: BaseComponent = MISSING_ENUM_PARAMETER,
         notFound: BaseComponent = ENUM_VALUE_NOT_FOUND,
         additionalNames: Map<String, T> = mapOf()
-): T {
-    return enumOrNull(index, argMissing, additionalNames) ?: exception(notFound)
-}
+): T = enumOrNull(index, argMissing, additionalNames) ?: exception(notFound)
