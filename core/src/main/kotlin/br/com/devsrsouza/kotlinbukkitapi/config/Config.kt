@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.config
 
 import br.com.devsrsouza.config4bukkit.HoconConfiguration
+import br.com.devsrsouza.json4bukkit.JsonConfiguration
 import org.bukkit.configuration.Configuration
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.FileConfiguration
@@ -15,6 +16,7 @@ class BukkitConfig(
 
     constructor(file: File, type: ConfigurationType = ConfigurationType.YAML) : this(file, when (type) {
         ConfigurationType.YAML -> YamlConfiguration()
+        ConfigurationType.JSON -> JsonConfiguration()
         ConfigurationType.HOCON -> HoconConfiguration()
     })
 
@@ -24,7 +26,7 @@ class BukkitConfig(
     fun reload() = apply { fileConfiguration.load(file) }
 }
 
-enum class ConfigurationType { YAML, HOCON }
+enum class ConfigurationType { YAML, JSON, HOCON }
 
 fun <T : Any> ConfigurationSection.saveFrom(
         instance: T,
