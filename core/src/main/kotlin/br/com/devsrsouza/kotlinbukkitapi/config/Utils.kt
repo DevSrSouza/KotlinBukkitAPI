@@ -21,6 +21,7 @@ val KType.genericTypes get() = arguments
 val KType.genericTypesOrNull get() = genericTypes.takeIf { it.isNotEmpty() }
 val KType.isPrimitive: Boolean get() = primitiveTypes().any { it == classifier }
 fun KType.isSubclassOf(klass: KClass<*>) = (classifier as? KClass<*>)?.isSubclassOf(klass) == true
+val KType.isExactlyAny: Boolean get() = classifier as KClass<*>? == Any::class
 val KType.isList: Boolean get() = isSubclassOf(List::class)
 val KType.isMutableList: Boolean get() = isSubclassOf(MutableList::class)
 val KType.isMap: Boolean get() = isSubclassOf(Map::class)
@@ -32,7 +33,9 @@ val KType.secondGenericType: KTypeProjection? get() = genericTypes.getOrNull(1)
 
 val KType.isFirstGenericString: Boolean get() = firstGenericType?.kclass == String::class
 val KType.isFirstGenericPrimitive: Boolean get() = firstGenericType?.type?.isPrimitive == true
+val KType.isFirstGenericExactlyAny: Boolean get() = firstGenericType?.type?.isExactlyAny == true
 val KType.isSecondGenericPrimitive: Boolean get() = secondGenericType?.type?.isPrimitive == true
+val KType.isSecondGenericExactlyAny: Boolean get() = secondGenericType?.type?.isExactlyAny == true
 
 fun fixNumberType(type: KType, any: Number): Number {
     return when(type.classifier) {

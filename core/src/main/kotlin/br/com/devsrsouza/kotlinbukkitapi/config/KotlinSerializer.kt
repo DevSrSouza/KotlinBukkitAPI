@@ -1,7 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi.config
 
 import kotlin.reflect.KClass
+import kotlin.reflect.KType
+import kotlin.reflect.KTypeProjection
 import kotlin.reflect.full.createInstance
+import kotlin.reflect.full.createType
 import kotlin.reflect.jvm.isAccessible
 
 object KotlinSerializer {
@@ -20,33 +23,57 @@ object KotlinSerializer {
 
             //val obj = prop.get(instance)
             val (obj, type) = adapter(instance, prop, prop.returnType, prop.get(instance))
-            when {
-                type.isPrimitive -> put(obj)
-                type.isList && type.isFirstGenericPrimitive -> put(obj)
-                type.isList -> {
-                    val list = obj as List<Any>
-                    val map = list.withIndex().associate { (key, value) ->
-                        key.toString() to instanceToMap(value, adapter)
-                    }
-                    put(map)
-                }
-                type.isMap && type.isFirstGenericString && type.isSecondGenericPrimitive -> put(obj)
-                type.isMap && type.isFirstGenericString -> {
-                    val map = obj as Map<String, Any>
 
-                    val newMap = mutableMapOf<String, Any>()
-                    for ((key, value) in map) {
-                        newMap.put(key, instanceToMap(value, adapter))
-                    }
-
-                    put(newMap)
-                }
-                type.isEnum -> put((obj as Enum<*>).name)
-                else -> put(instanceToMap(obj, adapter))
-            }
+            put(instanceFromType(obj, type, adapter))
         }
 
         return map
+    }
+
+    private fun instanceFromType(obj: Any, type: KType, adapter: PropertySaveAdapter): Any {
+        when {
+            type.isPrimitive -> return obj
+            type.isList && type.isFirstGenericPrimitive -> return obj
+            type.isList && type.isFirstGenericExactlyAny -> return obj // JUST PRIMITIVE TYPE (adapters)
+            type.isList -> {
+                val list = obj as List<Any>
+                val map = list.withIndex().associate { (key, value) ->
+                    key.toString() to instanceToMap(value, adapter)
+                }
+
+                return map
+            }
+            type.isMap && type.isFirstGenericString && type.isSecondGenericPrimitive -> return obj
+            type.isMap && type.isFirstGenericString && type.isSecondGenericExactlyAny -> {
+                // adapter support ONLY!!!!
+
+                val map = obj as Map<String, Any>
+
+                val newMap = mutableMapOf<String, Any>()
+                for ((key, value) in map) {
+                    val kclass = value::class
+                    newMap[key] = instanceFromType(
+                            value,
+                            kclass.createType(kclass.typeParameters.map { KTypeProjection.invariant(Any::class.createType()) }),
+                            adapter
+                    )
+                }
+
+                return newMap
+            }
+            type.isMap && type.isFirstGenericString -> {
+                val map = obj as Map<String, Any>
+
+                val newMap = mutableMapOf<String, Any>()
+                for ((key, value) in map) {
+                    newMap[key] = instanceToMap(value, adapter)
+                }
+
+                return newMap
+            }
+            type.isEnum -> return (obj as Enum<*>).name
+            else -> return instanceToMap(obj, adapter)
+        }
     }
 
     fun <T : Any> mapToInstance(type: KClass<T>, map: Map<String, Any>, adapter: PropertyLoadAdapter): T {
