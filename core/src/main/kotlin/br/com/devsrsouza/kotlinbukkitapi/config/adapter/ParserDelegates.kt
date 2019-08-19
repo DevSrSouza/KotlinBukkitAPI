@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.config.adapter
 
 import br.com.devsrsouza.kotlinbukkitapi.config.parser.*
+import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.block.Block
@@ -24,3 +25,7 @@ fun chunk(
 fun materialData(
         default: MaterialData
 ) = ObjectParserDelegate(default, MaterialDataParser)
+
+fun textComponent(
+        default: TextComponent
+) = ObjectParserDelegate(default, ComponentParser)
