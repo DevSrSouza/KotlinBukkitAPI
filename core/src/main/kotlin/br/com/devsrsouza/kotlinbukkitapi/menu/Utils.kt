@@ -12,7 +12,7 @@ fun rawSlot(slot: Int) = slot - 1
 
 fun Menu<*>.slotOrBaseSlot(slot: Int) = slots[slot] ?: baseSlot
 fun Menu<*>.rangeOfSlots() = 1..calculateEndLine(lines)
-fun Menu<*>.viewersFromPlayers(vararg players: Player) = viewers.filterKeys { it in players }
+fun Menu<*>.viewersFromPlayers(players: Set<Player>) = viewers.filterKeys { it in players }
 
 fun Menu<*>.slotsWithBaseSlot() = slots.values + baseSlot
 

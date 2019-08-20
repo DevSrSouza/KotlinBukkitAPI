@@ -26,8 +26,11 @@ interface Menu<T : Slot> : WithPlugin<Plugin>, InventoryHolder {
 
     fun setSlot(slot: Int, slotObj: T)
 
-    fun update(vararg players: Player)
-    fun updateSlot(slot: Slot, vararg players: Player)
+    fun update(players: Set<Player> = viewers.keys)
+    fun updateSlot(slot: Slot, players: Set<Player> = viewers.keys)
+
+    fun update(vararg players: Player) = update(players.toSet())
+    fun updateSlot(slot: Slot, vararg players: Player) = updateSlot(slot, players.toSet())
 
     fun openToPlayer(vararg players: Player)
 

@@ -67,8 +67,8 @@ class MenuDSLImpl(
         slots.put(slot, slotObj)
     }
 
-    override fun update(vararg players: Player) {
-        val viewers = viewersFromPlayers(*players)
+    override fun update(players: Set<Player>) {
+        val viewers = viewersFromPlayers(players)
         for((player, inventory) in viewers) {
             val update = MenuPlayerUpdate(this, player, inventory, title)
             eventHandler.update(update)
@@ -83,14 +83,14 @@ class MenuDSLImpl(
         }
     }
 
-    override fun updateSlot(slot: Slot, vararg players: Player) {
+    override fun updateSlot(slot: Slot, players: Set<Player>) {
         val slots: Map<Int, SlotDSL> = if(slot === baseSlot) {
             rangeOfSlots().mapNotNull { if(slots[it] == null) it to slot else null }.toMap()
         } else {
             rangeOfSlots().mapNotNull { if(slot === slots[it]) it to slot else null }.toMap()
         }
 
-        for((player, inventory) in viewersFromPlayers(*players)) {
+        for((player, inventory) in viewersFromPlayers(players)) {
             for((pos, slot) in slots) {
                 updateSlotOnlyPos(pos, slot, player, inventory)
             }
