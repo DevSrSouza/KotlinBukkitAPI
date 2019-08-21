@@ -21,9 +21,13 @@ fun CommandSender.msg(message: Array<String>) = sendMessage(message)
 fun textOf(text: String) = text.asText()
 
 fun String.translateColor(code: Char = '&') = ChatColor.translateAlternateColorCodes(code, this)
+fun Collection<String>.translateColor(code: Char = '&') = map { it.translateColor(code) }
+fun <V> Map<String, V>.translateColorKeys(code: Char = '&') = mapKeys { it.key.translateColor(code) }
+fun <K> Map<K, String>.translateColorValues(code: Char = '&') = mapValues { it.value.translateColor(code) }
 operator fun String.unaryPlus() = translateColor()
 operator fun String.unaryMinus() = replace('§', '&')
 operator fun ChatColor.plus(text: String) = toString() + text
+
 fun translateColor(default: String, colorChar: Char = '&') = TranslateChatColorDelegate(default, colorChar)
 
 class TranslateChatColorDelegate(val realValue: String, val colorChar: Char = '&') {
