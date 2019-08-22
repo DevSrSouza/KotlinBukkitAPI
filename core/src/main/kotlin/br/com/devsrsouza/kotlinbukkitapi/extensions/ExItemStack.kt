@@ -28,8 +28,16 @@ inline fun <reified T : ItemMeta> ItemStack.meta(
     itemMeta = (itemMeta as? T)?.apply(block) ?: itemMeta
 }
 
-fun Material.asItemStack(amount: Int = 1, data: Short = 0) = ItemStack(this, amount, data)
+fun Material.asItemStack(
+        amount: Int = 1,
+        data: Short = 0,
+        meta: ItemMeta.() -> Unit = {}
+) = item(this, amount, data, meta)
 fun Material.asMaterialData(data: Byte = 0) = MaterialData(this, data)
+fun MaterialData.toItemStack(
+        amount: Int = 1,
+        meta: ItemMeta.() -> Unit = {}
+) = toItemStack(amount).meta(meta)
 
 /**
  * get head from base64
