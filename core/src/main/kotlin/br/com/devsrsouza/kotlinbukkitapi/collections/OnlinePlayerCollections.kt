@@ -200,6 +200,12 @@ interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> 
             return true
         } else return false
     }
+
+    fun clearQuiting() {
+        toMutableList().forEach {
+            quit(it)
+        }
+    }
 }
 
 class OnlinePlayerMap<V>(override val plugin: Plugin) : LinkedHashMap<Player, V>(), KListener<Plugin> {
@@ -234,6 +240,12 @@ class OnlinePlayerMap<V>(override val plugin: Plugin) : LinkedHashMap<Player, V>
     override fun remove(key: Player, value: V): Boolean {
         return super.remove(key, value).also {
             if(isEmpty()) unregisterAll()
+        }
+    }
+
+    fun clearQuiting() {
+        keys.toMutableList().forEach {
+            quit(it)
         }
     }
 }
