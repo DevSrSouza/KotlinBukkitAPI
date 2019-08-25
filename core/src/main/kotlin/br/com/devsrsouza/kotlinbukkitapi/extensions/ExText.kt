@@ -86,7 +86,7 @@ fun String.showText(vararg components: BaseComponent) = hover(HoverEvent(HoverEv
 
 fun TextComponent.append(text: String) = apply { addExtra(text) }
 fun TextComponent.append(text: BaseComponent) = apply { addExtra(text) }
-fun TextComponent.breakLine() = apply { addExtra("\n") }
+fun TextComponent.breakLine() = apply { addExtra("\\n") }
 
 fun <T : BaseComponent> T.color(color: BungeeColor) = apply { this.color = color }
 fun <T : BaseComponent> T.color(color: ChatColor) = apply { this.color = BungeeColor.getByChar(color.char) }
