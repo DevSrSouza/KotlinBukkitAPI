@@ -3,7 +3,7 @@ package br.com.devsrsouza.kotlinbukkitapi.collections
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.registerEvents
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.unregisterAll
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.unregisterAllListeners
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerKickEvent
@@ -114,32 +114,32 @@ class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(), Onli
 
     override fun removeFirst(): Player {
         return super.removeFirst().also {
-            if (isEmpty()) unregisterAll()
+            if (isEmpty()) unregisterAllListeners()
         }
     }
 
     override fun removeLastOccurrence(p0: Any?): Boolean {
         return super.removeLastOccurrence(p0).also {
-            if (isEmpty()) unregisterAll()
+            if (isEmpty()) unregisterAllListeners()
         }
     }
 
     override fun removeAt(p0: Int): Player {
         return super.removeAt(p0).also {
-            if (isEmpty()) unregisterAll()
+            if (isEmpty()) unregisterAllListeners()
         }
     }
 
     override fun remove(element: Player): Boolean {
         if(super.remove(element)) {
-            if (isEmpty()) unregisterAll()
+            if (isEmpty()) unregisterAllListeners()
             return true
         } else return false
     }
 
     override fun removeLast(): Player {
         return super.removeLast().also {
-            if (isEmpty()) unregisterAll()
+            if (isEmpty()) unregisterAllListeners()
         }
     }
 }
@@ -167,7 +167,7 @@ class OnlinePlayerSet(override val plugin: Plugin) : LinkedHashSet<Player>(), On
 
     override fun remove(element: Player): Boolean {
         if(super.remove(element)) {
-            if (isEmpty()) unregisterAll()
+            if (isEmpty()) unregisterAllListeners()
             return true
         } else return false
     }
@@ -196,7 +196,7 @@ interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> 
 
     fun quit(player: Player): Boolean {
         if (remove(player)) {
-            if (isEmpty()) unregisterAll()
+            if (isEmpty()) unregisterAllListeners()
             return true
         } else return false
     }
@@ -227,19 +227,19 @@ class OnlinePlayerMap<V>(override val plugin: Plugin) : LinkedHashMap<Player, V>
             whenQuit.remove(player)?.also { block ->
                 block.invoke(player, it)
             }
-            if(isEmpty()) unregisterAll()
+            if(isEmpty()) unregisterAllListeners()
         }
     }
 
     override fun remove(key: Player): V? {
         return super.remove(key).also {
-            if(isEmpty()) unregisterAll()
+            if(isEmpty()) unregisterAllListeners()
         }
     }
 
     override fun remove(key: Player, value: V): Boolean {
         return super.remove(key, value).also {
-            if(isEmpty()) unregisterAll()
+            if(isEmpty()) unregisterAllListeners()
         }
     }
 

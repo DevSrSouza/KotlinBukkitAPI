@@ -34,7 +34,7 @@ inline fun <reified T : Event> Listener.event(
 inline fun WithPlugin<*>.events(block: KListener<*>.() -> Unit) = plugin.events(block)
 inline fun Plugin.events(block: KListener<*>.() -> Unit) = InlineKListener(this).apply(block)
 
-fun Listener.unregisterAll() = HandlerList.unregisterAll(this)
+fun Listener.unregisterAllListeners() = HandlerList.unregisterAll(this)
 
 fun Listener.registerEvents(plugin: Plugin)
         = plugin.server.pluginManager.registerEvents(this, plugin)
