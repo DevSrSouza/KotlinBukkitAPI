@@ -2,11 +2,10 @@ package br.com.devsrsouza.kotlinbukkitapi.extensions.entity
 
 import br.com.devsrsouza.kotlinbukkitapi.extensions.location.spawn
 import org.bukkit.Location
-import org.bukkit.entity.Entity
-import org.bukkit.entity.EntityType
-import org.bukkit.entity.Firework
-import org.bukkit.entity.Player
+import org.bukkit.entity.*
 import org.bukkit.inventory.meta.FireworkMeta
+import org.bukkit.projectiles.ProjectileSource
+import org.bukkit.util.Vector
 import kotlin.contracts.contract
 
 val Entity.isPlayer: Boolean
@@ -24,3 +23,6 @@ inline fun firework(location: Location, block: FireworkMeta.() -> Unit): Firewor
 inline fun Firework.meta(block: FireworkMeta.() -> Unit) = apply {
     fireworkMeta = fireworkMeta.apply(block)
 }
+
+inline fun <reified T : Projectile> ProjectileSource.launchProjectile() = launchProjectile(T::class.java)
+inline fun <reified T : Projectile> ProjectileSource.launchProjectile(vector: Vector) = launchProjectile(T::class.java, vector)
