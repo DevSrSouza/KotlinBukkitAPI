@@ -23,3 +23,11 @@ fun Player.playNote(instrument: Instrument, note: Note) = playNote(location, ins
 fun <T> Player.playEffect(effect: Effect, data: T? = null) = playEffect(player.location, effect, data)
 
 fun CommandSender.msg(message: List<String>) = message.forEach { msg(it) }
+
+fun Player.resetWalkSpeed() {
+    player.walkSpeed = 0.2f
+}
+
+fun Player.resetFlySpeed() {
+    player.flySpeed = 0.1f
+}
