@@ -1,12 +1,9 @@
 package br.com.devsrsouza.kotlinbukkitapi.config.parser
 
 import org.bukkit.Bukkit
-import org.bukkit.Location
 import org.bukkit.block.Block
 import java.lang.IllegalArgumentException
 import kotlin.reflect.KType
-import kotlin.reflect.KTypeProjection
-import kotlin.reflect.KVariance
 import kotlin.reflect.full.createType
 
 class BlockParser(
