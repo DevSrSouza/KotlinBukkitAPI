@@ -1,14 +1,13 @@
-package br.com.devsrsouza.kotlinbukkitapi.controllers
+package br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
-import br.com.devsrsouza.kotlinbukkitapi.utils.PluginLifecycle
-import br.com.devsrsouza.kotlinbukkitapi.utils.reloadLifecycle
+import br.com.devsrsouza.kotlinbukkitapi.utils.*
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 
-internal object LifecycleController : KListener<KotlinBukkitAPI> {
+internal object PluginLifecycleController : KListener<KotlinBukkitAPI> {
     override val plugin: KotlinBukkitAPI get() = KotlinBukkitAPI.INSTANCE
 
     val lifecycles = hashMapOf<String, MutableList<PluginLifecycle<*>>>()
