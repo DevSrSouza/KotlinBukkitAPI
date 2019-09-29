@@ -4,7 +4,7 @@ import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.MenuDSL
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
-fun MenuDSL.newSlot(item: ItemStack, builder: SlotDSL.() -> Unit): SlotDSL {
+fun MenuDSL.newSlot(item: ItemStack?, builder: SlotDSL.() -> Unit): SlotDSL {
     return SlotDSLImpl(item, cancel).apply(builder)
 }
 
