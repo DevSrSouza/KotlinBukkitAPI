@@ -4,6 +4,42 @@ import org.bukkit.Chunk
 import org.bukkit.Location
 import org.bukkit.block.Block
 
+// BUKKIT THINGS
+
+operator fun PosRange<*, BlockPos>.contains(other: Location) = contains(other.asPos())
+operator fun PosRange<*, BlockPos>.contains(other: Block) = contains(other.asPos())
+operator fun PosRange<*, ChunkPos>.contains(other: Chunk) = contains(other.asPos())
+
+operator fun Location.rangeTo(other: Location): PosRange<Location, BlockPos> {
+    return PosRange(this.asBlockPos(), other.asBlockPos()) {
+        RangeIteratorWithFactor<Location, BlockPos>(
+                this, other,
+                { it.asBukkitLocation(world) },
+                { it.asBlockPos() }
+        )
+    }
+}
+
+operator fun Block.rangeTo(other: Block): PosRange<Block, BlockPos> {
+    return PosRange(this.asPos(), other.asPos()) {
+        RangeIteratorWithFactor<Block, BlockPos>(
+                this, other,
+                { it.asBukkitBlock(world) },
+                { it.asPos() }
+        )
+    }
+}
+
+operator fun Chunk.rangeTo(other: Chunk): PosRange<Chunk, ChunkPos> {
+    return PosRange(this.asPos(), other.asPos()) {
+        RangeIteratorWithFactor<Chunk, ChunkPos>(
+                this, other,
+                { it.asBukkitChunk(world) },
+                { it.asPos() }
+        )
+    }
+}
+
 class PosRange<T, POS : VectorComparable<POS>>(
         val first: POS,
         val last: POS,
@@ -72,40 +108,4 @@ class RangeIteratorWithFactor<T, POS : VectorComparable<POS>>(
 
     override fun hasNext() = iterator.hasNext()
     override fun next() = factor(iterator.next())
-}
-
-// BUKKIT THINGS
-
-operator fun PosRange<*, BlockPos>.contains(other: Location) = contains(other.asPos())
-operator fun PosRange<*, BlockPos>.contains(other: Block) = contains(other.asPos())
-operator fun PosRange<*, ChunkPos>.contains(other: Chunk) = contains(other.asPos())
-
-operator fun Location.rangeTo(other: Location): PosRange<Location, BlockPos> {
-    return PosRange(this.asBlockPos(), other.asBlockPos()) {
-        RangeIteratorWithFactor<Location, BlockPos>(
-                this, other,
-                { it.asBukkitLocation(world) },
-                { it.asBlockPos() }
-        )
-    }
-}
-
-operator fun Block.rangeTo(other: Block): PosRange<Block, BlockPos> {
-    return PosRange(this.asPos(), other.asPos()) {
-        RangeIteratorWithFactor<Block, BlockPos>(
-                this, other,
-                { it.asBukkitBlock(world) },
-                { it.asPos() }
-        )
-    }
-}
-
-operator fun Chunk.rangeTo(other: Chunk): PosRange<Chunk, ChunkPos> {
-    return PosRange(this.asPos(), other.asPos()) {
-        RangeIteratorWithFactor<Chunk, ChunkPos>(
-                this, other,
-                { it.asBukkitChunk(world) },
-                { it.asPos() }
-        )
-    }
 }

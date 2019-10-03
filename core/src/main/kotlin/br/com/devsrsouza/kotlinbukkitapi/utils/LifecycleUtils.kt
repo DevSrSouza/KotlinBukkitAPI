@@ -98,13 +98,16 @@ inline fun <reified T : PlayerLifecycle<P>, P : Plugin> P.registerPlayerLifecycl
 class DefaultPlayerLifecycleFactory<T : PlayerLifecycle<P>, P : Plugin>(
         val typeClass: KClass<T>
 ) : PlayerLifecycleFactory<T, P> {
-    override fun create(player: Player, plugin: P): T {
-        return typeClass.constructors.find {
-            val isPlayer = it.valueParameters.argumentIsSubclassOf<Player>(0)
-            val isPlugin = it.valueParameters.argumentIsSubclassOf<Plugin>(1)
 
-            isPlayer && isPlugin
-        }?.call(player, plugin) ?: throw IllegalArgumentException(
+    val constructor = typeClass.constructors.find {
+        val isPlayer = it.valueParameters.argumentIsSubclassOf<Player>(0)
+        val isPlugin = it.valueParameters.argumentIsSubclassOf<Plugin>(1)
+
+        isPlayer && isPlugin
+    }
+
+    override fun create(player: Player, plugin: P): T {
+        return constructor?.call(player, plugin) ?: throw IllegalArgumentException(
                 "Could not find the constructor with player, plugin for ${typeClass.qualifiedName}"
         )
     }
