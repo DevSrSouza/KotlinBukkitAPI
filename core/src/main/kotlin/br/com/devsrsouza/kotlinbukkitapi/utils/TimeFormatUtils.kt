@@ -6,10 +6,10 @@ const val DEFAULT_FORMAT_STYLE = "%YEAR %MONTH %WEEK %DAY %HOUR %MIN %SEC"
 val Long.formatter: TimeFormat get() = TimeFormat(this)
 val Int.formatter: TimeFormat get() = TimeFormat(this.toLong())
 
-val TimeFormat.PTBR get() = format(PTBRFormat)
-val TimeFormat.EN get() = format(ENFormat)
+val TimeFormat.PTBR: String get() = format(PTBRFormat)
+val TimeFormat.EN: String get() = format(ENFormat)
 
-interface FormatLang {
+interface IFormatLang {
     val second: String
     val seconds: String
     val minute: String
@@ -30,9 +30,11 @@ interface FormatLang {
  * @param time in second
  */
 inline class TimeFormat(private val time: Long) {
-    fun format(lang: FormatLang,
-               formatStyle: String = DEFAULT_FORMAT_STYLE,
-               formatSpacer: Char = DEFAULT_SPACER): String {
+    fun format(
+            lang: IFormatLang,
+            formatStyle: String = DEFAULT_FORMAT_STYLE,
+            formatSpacer: Char = DEFAULT_SPACER
+    ): String {
 
         val seconds = time % 60
         val minutes = time / 60 % 60
@@ -62,7 +64,24 @@ inline class TimeFormat(private val time: Long) {
     }
 }
 
-object PTBRFormat : FormatLang {
+data class FormatLang(
+        override val second: String,
+        override val seconds: String,
+        override val minute: String,
+        override val minutes: String,
+        override val hour: String,
+        override val hours: String,
+        override val day: String,
+        override val days: String,
+        override val week: String,
+        override val weeks: String,
+        override val month: String,
+        override val months: String,
+        override val year: String,
+        override val years: String
+) : IFormatLang
+
+object PTBRFormat : IFormatLang {
     override val second: String get() = "segundo"
     override val seconds: String get() = "segundos"
 
@@ -85,7 +104,7 @@ object PTBRFormat : FormatLang {
     override val years: String get() = "anos"
 }
 
-object ENFormat : FormatLang {
+object ENFormat : IFormatLang {
     override val second: String get() = "second"
     override val seconds: String get() = "seconds"
 
