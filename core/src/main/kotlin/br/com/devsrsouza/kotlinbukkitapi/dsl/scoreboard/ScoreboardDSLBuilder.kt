@@ -18,25 +18,55 @@ annotation class ScoreboardDSLMarker
 @ScoreboardDSLMarker
 inline fun WithPlugin<*>.scoreboard(
         title: String,
-        block: ScoreboardDSL.() -> Unit
+        block: ScoreboardDSLBuilder.() -> Unit
 ) = plugin.scoreboard(title, block)
 
 @ScoreboardDSLMarker
 inline fun Plugin.scoreboard(
         title: String,
-        block: ScoreboardDSL.() -> Unit
+        block: ScoreboardDSLBuilder.() -> Unit
 ) = scoreboard(title, this, block)
 
+/**
+ *
+ * onRender events: Called when show/set the scoreboard to a player
+ * onUpdate events: Called when updateDelay trigger or force update by using [ScoreboardDSL.updateTitle],
+ * [ScoreboardDSL.updateLine], [ScoreboardDSL.updateLines].
+ */
 @ScoreboardDSLMarker
 inline fun scoreboard(
         title: String,
         plugin: Plugin,
-        block: ScoreboardDSL.() -> Unit
-) = ScoreboardDSL(plugin, title).apply(block)
+        block: ScoreboardDSLBuilder.() -> Unit
+): ScoreboardDSL = ScoreboardDSLBuilder(plugin, title).apply(block)
 
 val linesBounds = 1..16
 
-class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
+interface ScoreboardDSL {
+    /**
+     * Show/set the built scoreboard to a [player]
+     */
+    fun show(player: Player)
+
+    /**
+     * Update the title to all players with the scoreboard set see [show])
+     */
+    fun updateTitle()
+
+    /**
+     * Update a specific line to all players with the scoreboard set see [show])
+     *
+     * Returns false if the line doesn't exists, true if the line was founded and update.
+     */
+    fun updateLine(line: Int): Boolean
+
+    /**
+     * Update all lines to all players with the scoreboard set (see [show])
+     */
+    fun updateLines()
+}
+
+class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : ScoreboardDSL {
 
     private val lines = mutableMapOf<Int, ScoreboardLine>()
     private val players = plugin.onlinePlayerMapOf<Objective>()
@@ -95,6 +125,13 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
         lines(*lines, startInLine = startInLine, block = {})
     }
 
+    /**
+     * Add a array of lines at scoreboard starting at the [startInLine] value with a builder.
+     *
+     * In the builder you can use [ScoreboardLine.onRender] to change the value
+     * when the line renders to the player, or [ScoreboardLine.onUpdate] when you call [updateLine] or
+     * specify a value greater then 0 to [updateTitleDelay] to update all lines periodic.
+     */
     @ScoreboardDSLMarker
     inline fun lines(vararg lines: String, startInLine: Int = 1, block: ScoreboardLine.() -> Unit) {
         for ((index, line) in lines.withIndex()) {
@@ -110,10 +147,13 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
         titleController = it
     }
 
+    /**
+     * The DSL block to manage how the title of the scoreboard will be displayed to a specific player.
+     */
     @ScoreboardDSLMarker
     inline fun title(block: ScoreboardTitle.() -> Unit) = titleController(ScoreboardTitle(this).apply(block))
 
-    fun show(player: Player) {
+    override fun show(player: Player) {
         val max = lines.keys.max()
         if (max != null) {
             if (players.get(player)?.scoreboard != null) return
@@ -191,14 +231,14 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
         }
     }
 
-    fun updateTitle() {
+    override fun updateTitle() {
         for ((player, objective) in players) {
             val titleUpdate = TitleUpdate(player, title).also { titleController?.updateEvent?.invoke(it) }
             objective.displayName = titleUpdate.newTitle
         }
     }
 
-    fun updateLine(line: Int): Boolean {
+    override fun updateLine(line: Int): Boolean {
         if (lines[line] == null) return false
         for ((player, objective) in players) {
             lineBuild(objective, line) { sbLine ->
@@ -210,7 +250,7 @@ class ScoreboardDSL(internal val plugin: Plugin, var title: String) {
         return true
     }
 
-    fun updateLines() {
+    override fun updateLines() {
         val max = lines.keys.max()
         if (max != null) {
             for (i in 1..max) {
@@ -230,7 +270,7 @@ class TitleUpdate(override val player: Player, override var newTitle: String) : 
 typealias TitleRenderEvent = TitleRender.() -> Unit
 typealias TitleUpdateEvent = TitleUpdate.() -> Unit
 
-class ScoreboardTitle(private val scoreboard: ScoreboardDSL) {
+class ScoreboardTitle(private val scoreboard: ScoreboardDSLBuilder) {
     internal var renderEvent: TitleRenderEvent? = null
     internal var updateEvent: TitleUpdateEvent? = null
 
@@ -253,7 +293,7 @@ class LineUpdate(override val player: Player, override var newText: String) : Pl
 typealias LineRenderEvent = LineRender.() -> Unit
 typealias LineUpdateEvent = LineUpdate.() -> Unit
 
-class ScoreboardLine(private val scoreboard: ScoreboardDSL, text: String) {
+class ScoreboardLine(private val scoreboard: ScoreboardDSLBuilder, text: String) {
     var text: String = text
         internal set
 
