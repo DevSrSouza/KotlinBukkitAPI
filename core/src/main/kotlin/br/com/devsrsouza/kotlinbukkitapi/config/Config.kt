@@ -1,6 +1,5 @@
 package br.com.devsrsouza.kotlinbukkitapi.config
 
-import br.com.devsrsouza.config4bukkit.HoconConfiguration
 import br.com.devsrsouza.json4bukkit.JsonConfiguration
 import org.bukkit.configuration.Configuration
 import org.bukkit.configuration.ConfigurationSection
@@ -17,7 +16,6 @@ class BukkitConfig(
     constructor(file: File, type: ConfigurationType = ConfigurationType.YAML) : this(file, when (type) {
         ConfigurationType.YAML -> YamlConfiguration()
         ConfigurationType.JSON -> JsonConfiguration()
-        ConfigurationType.HOCON -> HoconConfiguration()
     })
 
     init { fileConfiguration.load(file) }
@@ -26,8 +24,11 @@ class BukkitConfig(
     fun reload() = apply { fileConfiguration.load(file) }
 }
 
-enum class ConfigurationType { YAML, JSON, HOCON }
+enum class ConfigurationType { YAML, JSON }
 
+/**
+ * Save all public `var` property from the [instance] into the config.
+ */
 fun <T : Any> ConfigurationSection.saveFrom(
         instance: T,
         adapter: PropertySaveAdapter = defaultSaveAdapter()
@@ -37,6 +38,9 @@ fun <T : Any> ConfigurationSection.saveFrom(
     putAll(serialized)
 }
 
+/**
+ * Save all missing public `var` property values from [instance] into the config.
+ */
 fun <T : Any> ConfigurationSection.saveMissingFrom(
         instance: T,
         adapter: PropertySaveAdapter = defaultSaveAdapter()
@@ -46,6 +50,9 @@ fun <T : Any> ConfigurationSection.saveMissingFrom(
     return putIfMissing(serialized)
 }
 
+/**
+ * Load from the config the values based on public `var` property from the [type].
+ */
 fun <T : Any> ConfigurationSection.loadFrom(
         type: KClass<T>,
         adapter: PropertyLoadAdapter = defaultLoadAdapter()
