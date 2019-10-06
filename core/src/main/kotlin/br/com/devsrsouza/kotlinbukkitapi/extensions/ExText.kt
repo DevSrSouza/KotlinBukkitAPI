@@ -109,65 +109,153 @@ fun <T : BaseComponent> T.showText(vararg components: BaseComponent) = hover(Hov
  * Replaces
  */
 
-fun <T : BaseComponent> T.replace(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+/**
+ * Replace current [TextComponent.text], [BaseComponent.hover] text
+ * and [BaseComponent.click] text using [String.replace].
+ */
+fun <T : BaseComponent> T.replace(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) = apply {
     replaceOnHover(oldValue, newValue, ignoreCase)
     replaceOnClick(oldValue, newValue, ignoreCase)
     (this as? TextComponent)?.replaceOnText(oldValue, newValue, ignoreCase)
 }
-fun <T : BaseComponent> T.replaceAll(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+
+/**
+ * Replace the current [BaseComponent] text, hover and click and all the [BaseComponent.extra]
+ *
+ * See [BaseComponent.replace].
+ */
+fun <T : BaseComponent> T.replaceAll(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) = apply {
     replaceOnAllHovers(oldValue, newValue, ignoreCase)
     replaceOnAllClick(oldValue, newValue, ignoreCase)
     (this as? TextComponent)?.replaceOnAllTexts(oldValue, newValue, ignoreCase)
 }
 
-fun <T : BaseComponent> T.replaceOnHover(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+/**
+ * Replace the current [BaseComponent] hover [oldValue] to [newValue] with [String.replace]
+ */
+fun <T : BaseComponent> T.replaceOnHover(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) = apply {
     if(hoverEvent != null)
         for (component in hoverEvent.value)
             if (component is TextComponent) component.replaceOnAllTexts(oldValue, newValue, ignoreCase)
 }
-fun <T : BaseComponent> T.replaceOnAllHovers(oldValue: String, newValue: String, ignoreCase: Boolean = false) : T = apply{
+
+/**
+ * Replace the current [BaseComponent] hover and all the [BaseComponent.extra]
+ *
+ * See [BaseComponent.replaceOnHover]
+ */
+fun <T : BaseComponent> T.replaceOnAllHovers(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) : T = apply{
     replaceOnHover(oldValue, newValue, ignoreCase)
     if(extra != null)
         for (component in extra)
             component.replaceOnAllHovers(oldValue, newValue, ignoreCase)
 }
-fun <T : BaseComponent> T.replaceOnShowText(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+
+fun <T : BaseComponent> T.replaceOnShowText(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) = apply {
     if(hoverEvent != null)
         if(hoverEvent.action == HoverEvent.Action.SHOW_TEXT)
             for (component in hoverEvent.value)
                 if(component is TextComponent)
                     component.replaceOnAllTexts(oldValue, newValue, ignoreCase)
 }
-fun <T : BaseComponent> T.replaceOnAllShowText(oldValue: String, newValue: String, ignoreCase: Boolean = false) : T = apply {
+fun <T : BaseComponent> T.replaceOnAllShowText(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) : T = apply {
     replaceOnShowText(oldValue, newValue, ignoreCase)
     if(extra != null)
         for (component in extra) component.replaceOnAllShowText(oldValue, newValue, ignoreCase)
 }
-fun <T : BaseComponent> T.replaceOnClick(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+
+/**
+ * Replace the current [BaseComponent] click [oldValue] to [newValue] with [String.replace]
+ */
+fun <T : BaseComponent> T.replaceOnClick(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) = apply {
     if(clickEvent != null)
         click(ClickEvent(clickEvent.action, clickEvent.value.replace(oldValue, newValue, ignoreCase)))
 }
-fun <T : BaseComponent> T.replaceOnAllClick(oldValue: String, newValue: String, ignoreCase: Boolean = false) : T = apply {
+
+/**
+ * Replace the current [BaseComponent] click and all [BaseComponent.extra]
+ *
+ * See [BaseComponent.replaceOnClick]
+ */
+fun <T : BaseComponent> T.replaceOnAllClick(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) : T = apply {
     replaceOnClick(oldValue, newValue, ignoreCase)
     if(extra != null)
         for (component in extra)
             component.replaceOnAllClick(oldValue, newValue, ignoreCase)
 }
-fun <T : BaseComponent> T.replaceOnRunCommand(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+
+fun <T : BaseComponent> T.replaceOnRunCommand(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) = apply {
     if(clickEvent != null && clickEvent.action == ClickEvent.Action.RUN_COMMAND)
         runCommand(clickEvent.value.replace(oldValue, newValue, ignoreCase))
 }
-fun <T : BaseComponent> T.replaceOnAllRunCommand(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+fun <T : BaseComponent> T.replaceOnAllRunCommand(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) = apply {
     replaceOnRunCommand(oldValue, newValue, ignoreCase)
     if(extra != null)
         for (component in extra)
             component.replaceOnRunCommand(oldValue, newValue, ignoreCase)
 }
 
-fun TextComponent.replaceOnText(oldValue: String, newValue: String, ignoreCase: Boolean = false) = apply {
+/**
+ * Replace the [TextComponent.text] with [String.replace]
+ */
+fun TextComponent.replaceOnText(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) = apply {
     this.text = text.replace(oldValue, newValue, ignoreCase)
 }
-fun TextComponent.replaceOnAllTexts(oldValue: String, newValue: String, ignoreCase: Boolean = false) : TextComponent = apply {
+
+/**
+ * Replace the current [TextComponent.text] and all the [TextComponent.extra].
+ *
+ * See [TextComponent.replaceOnText]
+ */
+fun TextComponent.replaceOnAllTexts(
+        oldValue: String,
+        newValue: String,
+        ignoreCase: Boolean = false
+) : TextComponent = apply {
     replaceOnText(oldValue, newValue, ignoreCase)
     if(extra != null)
         for (component in extra)
@@ -175,11 +263,23 @@ fun TextComponent.replaceOnAllTexts(oldValue: String, newValue: String, ignoreCa
                 component.replaceOnAllTexts(oldValue, newValue, ignoreCase)
 }
 
-fun TextComponent.replace(oldValue: String, newValue: TextComponent, ignoreCase: Boolean = false)
-        = split(oldValue, ignoreCase = ignoreCase, limit = 0).joinToText(newValue)
+/**
+ * Replace the current [TextComponent.text] [oldValue] to [newValue].
+ */
+fun TextComponent.replace(
+        oldValue: String,
+        newValue: TextComponent,
+        ignoreCase: Boolean = false
+) = split(oldValue, ignoreCase = ignoreCase, limit = 0).joinToText(newValue)
 
-fun TextComponent.replaceAll(oldValue: String, newValue: TextComponent, ignoreCase: Boolean = false) : TextComponent
-        = replace(oldValue, newValue, ignoreCase).apply {
+/**
+ * Replace the current [TextComponent.text] and all the [TextComponent.extra] [oldValue] to [newValue].
+ */
+fun TextComponent.replaceAll(
+        oldValue: String,
+        newValue: TextComponent,
+        ignoreCase: Boolean = false
+) : TextComponent = replace(oldValue, newValue, ignoreCase).apply {
     if(extra != null)
         extra = extra.map {
             if(it is TextComponent)
@@ -188,7 +288,18 @@ fun TextComponent.replaceAll(oldValue: String, newValue: TextComponent, ignoreCa
         }.toMutableList()
 }
 
-fun TextComponent.split(vararg delimiters: String, ignoreCase: Boolean = false, limit: Int = 0): List<TextComponent> {
+/**
+ * Splits this [TextComponent.text] into a list of [TextComponent] around occurrences of the specified [delimiters].
+ *
+ * @param delimiters One or more characters to be used as delimiters.
+ * @param ignoreCase `true` to ignore character case when matching a delimiter. By default `false`.
+ * @param limit The maximum number of substrings to return.
+ */
+fun TextComponent.split(
+        vararg delimiters: String,
+        ignoreCase: Boolean = false,
+        limit: Int = 0
+): List<TextComponent> {
     val copy = duplicate().apply { extra?.clear() }
     val list = text.split(*delimiters, ignoreCase = ignoreCase, limit = limit).map {
         (copy.duplicate() as TextComponent).apply {
@@ -201,10 +312,19 @@ fun TextComponent.split(vararg delimiters: String, ignoreCase: Boolean = false, 
     return list
 }
 
-fun List<TextComponent>.joinToText(separator: TextComponent? = null,
-                                   prefix: TextComponent? = null,
-                                   suffix: TextComponent? = null,
-                                   limit: Int = -1) : TextComponent {
+/**
+ * Creates a [TextComponent] from all the elements separated using [separator] (none by default)
+ * and using the given [prefix] (none by default) and [postfix] (none by default).
+ *
+ * If the collection could be huge, you can specify a non-negative value of [limit], in which case only the first [limit]
+ * elements will be appended.
+ */
+fun List<TextComponent>.joinToText(
+        separator: TextComponent? = null,
+        prefix: TextComponent? = null,
+        suffix: TextComponent? = null,
+        limit: Int = -1
+): TextComponent {
     if(isEmpty()) return TextComponent("")
 
     var component = prefix?.append(get(0)) ?: get(0)
