@@ -13,11 +13,7 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 | Kotlin STD | 1.3.31 |
 | Kotlin Reflect | 1.3.31 |
 | [Spigot API](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/) | 1.8.8 |
-| [Spigot Server](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/)  | 1.8-1.14 |
-| [Config4Bukkit](https://github.com/DevSrSouza/Config4Bukkit) | 1.0.0 |
-| [Config](https://github.com/lightbend/config) | 1.3.2 |
-| [KotlinNBT](https://github.com/DevSrSouza/KotlinNBT) | 1.0.0 |
-| [Kotlinx-io](https://github.com/Kotlin/kotlinx-io) | 0.1.7 |
+| [Kotlinx-coroutines](https://github.com/Kotlin/kotlinx.coroutines/) | 1.3.2 |
 
 ### Links
 - [Examples and **documentation**](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
@@ -75,6 +71,8 @@ First of all, you need to put KotlinBukkitAPI as a dependency on your **plugin.y
 depend: [KotlinBukkitAPI]
 ```
 
+# Examples
+
 Event DSL example
 ```kotlin
 plugin.events {
@@ -82,12 +80,12 @@ plugin.events {
   // the "event" method need to be on a Listener class
   event<PlayerJoinEvent> {
     // inside of this block is the Event type you chose, we chose PlayerJoinEvent
-    player.msg(+"&3Welcome ${player.name}") // The plus sign converts the "&" prefixed characters to Minecraft's text formatting
+    player.msg("&3Welcome ${player.name}".translateColor()) // The plus sign converts the "&" prefixed characters to Minecraft's text formatting
   }
   
   // you can put more than one event method inside of "events" block
   event<PlayerQuitEvent> {
-    broadcast(+"&eThe player &c${player.name} &eleft :(") // broadcast method send message to other players
+    broadcast("&eThe player &c${player.name} &eleft :(".translateColor()) // broadcast method send message to other players
   }
 }
 
@@ -108,36 +106,17 @@ plugin.simpleCommand("twitter") {
 
 Item meta DSL and other stuff
 ```kotlin
-plugin.simpleCommand("some-name") {
-
-  if(sender is Player) { // checking if CommandSender is a player
-    val player = sender as Player
-    player.vault.economy.deposit(2500.0) // you can see more about the vault api on KVault.kt
-    
-    // let's make an item with kotlin and ItemMeta DSL
-    val gem = ItemStack(Material.DIAMOND).apply {
-      amount = 5
-      meta<ItemMeta> { // here you can put any meta type you want, like BannerMeta (if the item is a banner)
-        // here is the same idea of event block but here you only que put the ItemMeta type, like BannerMeta, BookMeta
-        displayName = +"&bGem"
-      }
-    }
-    
-    player.inventory.addItem(gem) // adding the item to the inventory
-    
-    // okay, now lets use the real power of meta block
-    
-    if(player.hasPermission("powerful.book")) { // here we verify if player has the permission to get our book
-      val encbook = ItemStack(Material.ENCHANTED_BOOK).apply {
-        meta<EnchantmentStorageMeta> { // the EnchantmentStorageMeta implement ItemMeta, then we have the methods of ItemMeta and EnchantmentStorageMeta on this block
-          displayName = +"&4&lThe powerful BOOK"
-          addStoredEnchant(Enchantment.DAMAGE_ALL, 10, true) // putting sharpness 10 to the book
-        }
-      }
-      player.inventory.addItem(encbook)
-    }
-    
-  } else sender.msg("Command just for players")
+val gem = item(Material.DIAMOND).apply {
+  amount = 5
+  meta<ItemMeta> { // here you can put any meta type you want, like BannerMeta (if the item is a banner)
+    // here is the same idea of event block but here you only que put the ItemMeta type, like BannerMeta, BookMeta
+    displayName = +"&bGem"
+  }
+}
+val encbook = item(Material.ENCHANTED_BOOK).meta<EnchantmentStorageMeta> {
+  // the EnchantmentStorageMeta implement ItemMeta, then we have the methods of ItemMeta and EnchantmentStorageMeta on this block
+  displayName = +"&4&lThe powerful BOOK"
+  addStoredEnchant(Enchantment.DAMAGE_ALL, 10, true) // putting sharpness 10 to the book
 }
 ```
 
@@ -180,13 +159,8 @@ val myMenu = menu(+"&cWarps", 3, true) { // cancel true to cancel player interac
   }
 }
 
-// now we need a command to open the menu to the player
-plugin.simpleCommand("warps") {
-  if(sender is Player) {
-    val player = sender as Player
-    myMenu.openToPlayer(player) // here we open the menu to de Player
-  }
-}
+// open to player
+myMenu.openToPlayer(player)
 ```
 
 Expiration List
