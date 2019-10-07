@@ -16,6 +16,8 @@ import kotlin.collections.LinkedHashSet
 typealias WhenPlayerQuitCollectionCallback = Player.() -> Unit
 typealias WhenPlayerQuitMapCallback<V> = Player.(V) -> Unit
 
+// List
+
 fun Plugin.onlinePlayerListOf() = OnlinePlayerList(this)
 
 fun WithPlugin<*>.onlinePlayerListOf() = plugin.onlinePlayerListOf()
@@ -38,6 +40,8 @@ fun Plugin.onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitCollection
 fun WithPlugin<*>.onlinePlayerListOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>)
         = plugin.onlinePlayerListOf(*pair)
 
+// Set
+
 fun Plugin.onlinePlayerSetOf() = OnlinePlayerSet(this)
 
 fun WithPlugin<*>.onlinePlayerSetOf() = plugin.onlinePlayerSetOf()
@@ -59,6 +63,8 @@ fun Plugin.onlinePlayerSetOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionC
 
 fun WithPlugin<*>.onlinePlayerSetOf(vararg pair: Pair<Player, WhenPlayerQuitCollectionCallback>)
         = plugin.onlinePlayerSetOf(*pair)
+
+// Map
 
 fun <V> Plugin.onlinePlayerMapOf() = OnlinePlayerMap<V>(this)
 
