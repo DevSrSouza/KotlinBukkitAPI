@@ -4,40 +4,44 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 
 * Need help? contact me on [Twitter](https://twitter.com/DevSrSouza)
 
-### Prerequisites
-* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html)
+# Project
 
-### Dependencies
+## Dependencies
+| Name | Version |
+| --- | --- |
+| [Spigot API](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/) | 1.8.8 |
+
+## Dependencies Embed
 | Name | Version |
 | --- | --- |
 | Kotlin STD | 1.3.31 |
 | Kotlin Reflect | 1.3.31 |
-| [Spigot API](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/) | 1.8.8 |
 | [Kotlinx-coroutines](https://github.com/Kotlin/kotlinx.coroutines/) | 1.3.2 |
-
-### Links
-- [Examples and **documentation**](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
-- [Clone and building](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/Clone-and-build)
+| [Skedule](https://github.com/okkero/Skedule) | 1.2.6 |
 
 ## Modules
 | Module | Description |
 | --- | --- |
 | Core | The heart of the project containing the important API |
 | Plugins | Extensions for others plugins like Vault, PlaceholderAPI and others |
-| Server | Functions that don't have in Bukkit API like title, action bar, NBT, etc.. |
 | Exposed | Extensions for SQL framework [Exposed](https://github.com/JetBrains/Exposed/) |
 
-### Setup for development
+# Links
+- [Examples and **documentation**](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
+- [Clone and building](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/Clone-and-build)
 
-#### Unix (Linux / Mac)
-```
-./gradlew publishToMavenLocal
-```
+# Setup for development
 
-#### Windows
+### Gradle
 
-```
-gradlew publishToMavenLocal
+```groovy
+repositories {
+  mavenLocal()
+}
+
+dependencies {
+  compileOnly 'br.com.devsrsouza.kotlinbukkitapi:core:0.1.0-SNAPSHOT' // core
+}
 ```
 
 ### Maven
@@ -52,18 +56,6 @@ gradlew publishToMavenLocal
 </dependency>
 ```
 
-### Gradle
-
-```groovy
-repositories {
-  mavenLocal()
-}
-
-dependencies {
-  compileOnly 'br.com.devsrsouza.kotlinbukkitapi:core:0.1.0-SNAPSHOT' // core
-}
-```
-
 # Getting Started
 
 First of all, you need to put KotlinBukkitAPI as a dependency on your **plugin.yml**
@@ -76,30 +68,19 @@ depend: [KotlinBukkitAPI]
 Event DSL example
 ```kotlin
 plugin.events {
-  // inside of the block "events" is a Listener
-  // the "event" method need to be on a Listener class
   event<PlayerJoinEvent> {
-    // inside of this block is the Event type you chose, we chose PlayerJoinEvent
-    player.msg("&3Welcome ${player.name}".translateColor()) // The plus sign converts the "&" prefixed characters to Minecraft's text formatting
+    player.msg("&3Welcome ${player.name}".translateColor()) 
   }
   
-  // you can put more than one event method inside of "events" block
   event<PlayerQuitEvent> {
-    broadcast("&eThe player &c${player.name} &eleft :(".translateColor()) // broadcast method send message to other players
+    broadcast("&eThe player &c${player.name} &eleft :(".translateColor())
   }
 }
-
 ```
 
 Simple Command DSL example
 ```kotlin
 plugin.simpleCommand("twitter") {
-  // in this block you have the class CommandMaker, which have the properties:
-  // sender - CommandSender
-  // command - Command
-  // label - String
-  // args - Array<String>
-  
   sender.msg(+"&eFollow me on Twitter :D &ahttps://twitter.com/DevSrSouza")
 }
 ```
@@ -108,29 +89,20 @@ Item meta DSL and other stuff
 ```kotlin
 val gem = item(Material.DIAMOND).apply {
   amount = 5
-  meta<ItemMeta> { // here you can put any meta type you want, like BannerMeta (if the item is a banner)
-    // here is the same idea of event block but here you only que put the ItemMeta type, like BannerMeta, BookMeta
+  meta<ItemMeta> {
     displayName = +"&bGem"
   }
 }
 val encbook = item(Material.ENCHANTED_BOOK).meta<EnchantmentStorageMeta> {
-  // the EnchantmentStorageMeta implement ItemMeta, then we have the methods of ItemMeta and EnchantmentStorageMeta on this block
   displayName = +"&4&lThe powerful BOOK"
   addStoredEnchant(Enchantment.DAMAGE_ALL, 10, true) // putting sharpness 10 to the book
 }
 ```
 
 Menu creator DSL
-```kotlin
-// okay, let's make a Menu
-// fun Plugin.menu(displayName: String, lines: Int, cancel: Boolean = false, block: Menu.() -> Unit)
-val myMenu = menu(+"&cWarps", 3, true) { // cancel true to cancel player interact with inventory by default
-  // this menu will be a menu with 3 lines (27 slots) and the name "Warps" in red
-  // this block is a Menu
+val myMenu = menu(+"&cWarps", 3, true) {
 
-  // registering a slot
   slot(2, 4) { // Line, Slot
-    // inside of this block will be a Slot
     item = ItemStack(Material.DIAMOND_SWORD).apply {
       addEnchantment(Enchantment.DAMAGE_ALL, 5)
 
@@ -161,27 +133,4 @@ val myMenu = menu(+"&cWarps", 3, true) { // cancel true to cancel player interac
 
 // open to player
 myMenu.openToPlayer(player)
-```
-
-Expiration List
-```kotlin
-// this list auto expire values for you :3
-val list = plugin.expirationListOf<Player>()
-
-plugin.simpleCommand("cooldown") {
-  if(sender is Player) {
-    val player = sender as Player
-    val time = list.missingTime(player) // this return the missing time to expire in seconds or null if don't have the value in list
-    if(time == null) {
-      player.msg("Hi, welcome my friend. Take this diamonds :3")
-      player.inventory.addItem(ItemStack(Material.DIAMOND))
-    } else {
-      // add(element: E, expireTime: Int, onExpire: OnExipereBlock<E>? = null)
-      list.add(player, 60) {
-        player.msg("Hey, now you can get diamonds again :D")
-      }
-      player.msg("Hi, wait $time seconds before using this command!")
-    }
-  }
-}
 ```
