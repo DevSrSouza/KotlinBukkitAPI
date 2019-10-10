@@ -100,6 +100,7 @@ val encbook = item(Material.ENCHANTED_BOOK).meta<EnchantmentStorageMeta> {
 ```
 
 Menu creator DSL
+```kotlin
 val myMenu = menu(+"&cWarps", 3, true) {
 
   slot(2, 4) { // Line, Slot
