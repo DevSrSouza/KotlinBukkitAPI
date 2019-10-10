@@ -1,6 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.world
 
 import br.com.devsrsouza.kotlinbukkitapi.extensions.item.asMaterialData
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.World
@@ -8,6 +9,10 @@ import org.bukkit.block.Block
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Item
 import org.bukkit.material.MaterialData
+
+fun mainWorld() = Bukkit.getWorlds()[0]
+fun chunk(world: World, x: Int, y: Int) = world.getChunkAt(x, y)
+fun chunk(block: Block) = chunk(block.world, block.x shr 4, block.z shr 4)
 
 inline fun <reified T : Entity> World.spawn(location: Location): T {
     return spawn(location, T::class.java)
