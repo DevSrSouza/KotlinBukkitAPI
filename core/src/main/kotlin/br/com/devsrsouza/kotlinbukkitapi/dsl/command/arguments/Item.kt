@@ -6,7 +6,6 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.ChatColor
 import org.bukkit.Material
-import org.bukkit.command.CommandSender
 import org.bukkit.material.MaterialData
 
 // MATERIAL
@@ -28,18 +27,7 @@ fun Executor<*>.material(
         index: Int,
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
         notFound: BaseComponent = MATERIAL_NOT_FOUND
-): Material = materialOrNull(index, argMissing) ?: exception(notFound)
-
-inline fun <T : CommandSender> Executor<T>.argumentMaterial(
-        argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
-        notFound: BaseComponent = MATERIAL_NOT_FOUND,
-        index: Int = 0,
-        block: Executor<T>.(Material) -> Unit
-) {
-    val material = material(index, argMissing, notFound)
-
-    argumentExecutorBuilder(index + 1, material.name).block(material)
-}
+): Material = materialOrNull(index, argMissing) ?: fail(notFound)
 
 fun TabCompleter.material(
         index: Int
@@ -61,7 +49,7 @@ fun Executor<*>.materialDataOrNull(
     val sliced = this.split(":")
     sliced.getOrNull(1)?.run {
         (toMaterial(sliced[0]))
-                ?.asMaterialData(toIntOrNull()?.toByte() ?: exception(dataFormat))
+                ?.asMaterialData(toIntOrNull()?.toByte() ?: fail(dataFormat))
     } ?: materialOrNull(index, argMissing)?.asMaterialData()
 }
 
@@ -70,16 +58,4 @@ fun Executor<*>.materialData(
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
         notFound: BaseComponent = MATERIAL_NOT_FOUND,
         dataFormat: BaseComponent = DATA_FORMAT
-): MaterialData = materialDataOrNull(index, argMissing, dataFormat) ?: exception(notFound)
-
-inline fun <T : CommandSender> Executor<T>.argumentMaterialData(
-        argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,
-        notFound: BaseComponent = MATERIAL_NOT_FOUND,
-        dataFormat: BaseComponent = DATA_FORMAT,
-        index: Int = 0,
-        block: Executor<T>.(MaterialData) -> Unit
-) {
-    val material = materialData(index, argMissing, notFound, dataFormat)
-
-    argumentExecutorBuilder(index + 1, "${material.itemType.name}:${material.data}").block(material)
-}
+): MaterialData = materialDataOrNull(index, argMissing, dataFormat) ?: fail(notFound)

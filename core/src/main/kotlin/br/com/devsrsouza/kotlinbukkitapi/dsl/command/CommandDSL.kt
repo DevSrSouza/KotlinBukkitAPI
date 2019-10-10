@@ -1,12 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command
 
-import br.com.devsrsouza.kotlinbukkitapi.extensions.allPermission
-import br.com.devsrsouza.kotlinbukkitapi.extensions.anyPermission
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.command.*
-import br.com.devsrsouza.kotlinbukkitapi.extensions.hasPermissionOrStar
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
-import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
@@ -16,33 +12,7 @@ import kotlin.reflect.full.isSubclassOf
 typealias ExecutorBlock = Executor<CommandSender>.() -> Unit
 typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
 typealias TabCompleterBlock = TabCompleter.() -> List<String>
-typealias CommandMaker = CommandDSL.() -> Unit
-
-class CommandException(
-        val senderMessage: BaseComponent? = null,
-        val argMissing: Boolean = false,
-        val execute: () -> Unit = {}
-) : RuntimeException() {
-    constructor(senderMessage: String = "", argMissing: Boolean = false, execute: () -> Unit = {})
-            : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), argMissing, execute)
-    constructor(senderMessage: List<String> = listOf(), argMissing: Boolean = false, execute: () -> Unit = {})
-            : this(senderMessage.takeIf { it.isNotEmpty() }?.asText(), argMissing, execute)
-}
-
-inline fun Executor<*>.exception(
-        senderMessage: BaseComponent? = null,
-        noinline execute: () -> Unit = {}
-): Nothing = throw CommandException(senderMessage, execute = execute)
-
-inline fun Executor<*>.exception(
-        senderMessage: String = "",
-        noinline execute: () -> Unit = {}
-): Nothing = throw CommandException(senderMessage, execute = execute)
-
-inline fun Executor<*>.exception(
-        senderMessage: List<String> = listOf(),
-        noinline execute: () -> Unit = {}
-): Nothing = throw CommandException(senderMessage, execute = execute)
+typealias CommandBuilderBlock = CommandDSL.() -> Unit
 
 fun WithPlugin<*>.simpleCommand(
         name: String,
@@ -65,7 +35,6 @@ fun simpleCommand(
         description: String = "",
         block: ExecutorBlock
 ) = command(name, *aliases, plugin = plugin) {
-
     if (description.isNotBlank()) this.description = description
 
     executor(block)
@@ -74,91 +43,23 @@ fun simpleCommand(
 inline fun WithPlugin<*>.command(
         name: String,
         vararg aliases: String = arrayOf(),
-        block: CommandMaker
+        block: CommandBuilderBlock
 ) = plugin.command(name, *aliases, block = block)
 
 inline fun Plugin.command(
         name: String,
         vararg aliases: String = arrayOf(),
-        block: CommandMaker
+        block: CommandBuilderBlock
 ) = command(name, *aliases, plugin = this, block = block)
 
 inline fun command(
         name: String,
         vararg aliases: String = arrayOf(),
         plugin: Plugin,
-        block: CommandMaker
+        block: CommandBuilderBlock
 ) = CommandDSL(name, *aliases).apply(block).apply {
     register(plugin)
 }
-
-fun <T : CommandSender> Executor<T>.argumentExecutorBuilder(
-        posIndex: Int = 1,
-        label: String
-) = Executor(
-        sender,
-        this@argumentExecutorBuilder.label + " " + label,
-        runCatching { args.sliceArray(posIndex..args.size) }.getOrDefault((emptyArray())),
-        command
-)
-
-inline fun TabCompleter.argumentCompleteBuilder(
-        index: Int,
-        block: (String) -> List<String>
-): List<String> {
-    if(args.size == index+1) {
-        return block(args.getOrNull(index) ?: "")
-    }
-    return emptyList()
-}
-
-inline fun <T> Executor<*>.optional(block: () -> T): T? {
-    try {
-        return block()
-    }catch (exception: CommandException) {
-        if(exception.argMissing) return null
-        else throw exception
-    }
-}
-
-inline fun <reified T> Executor<*>.array(
-        startIndex: Int,
-        endIndex: Int,
-        usageIndexPerArgument: Int = 1,
-        block: (index: Int) -> T
-): Array<T> {
-    if (endIndex <= startIndex)
-        throw IllegalArgumentException("endIndex can't be lower or equals a startIndex.")
-    if(usageIndexPerArgument <= 0)
-        throw IllegalArgumentException("usageIndexPerArgument can't be lower than 1.")
-
-    val arguments = (endIndex - startIndex) / usageIndexPerArgument
-
-    return Array(arguments) {
-        block(startIndex + (it * usageIndexPerArgument))
-    }
-}
-
-inline fun <reified T> Executor<*>.permission(
-        permission: String, builder: () -> T
-): T = permission({ sender.hasPermission(permission) }, builder)
-
-inline fun <reified T> Executor<*>.permissionOrStar(
-        permission: String, builder: () -> T
-): T = permission({ sender.hasPermissionOrStar(permission) }, builder)
-
-inline fun <reified T> Executor<*>.anyPermission(
-        vararg permissions: String, builder: () -> T
-): T = permission({ sender.anyPermission(*permissions) }, builder)
-
-inline fun <reified T> Executor<*>.allPermission(
-        vararg permissions: String, builder: () -> T
-): T = permission({ sender.allPermission(*permissions) }, builder)
-
-inline fun <reified T> Executor<*>.permission(
-        permissionChecker: () -> Boolean,
-        builder: () -> T
-): T = if(permissionChecker()) builder() else exception(command.permissionMessage)
 
 class Executor<E : CommandSender>(
         val sender: E,
@@ -181,7 +82,9 @@ open class CommandDSL(
 
     var onlyInGameMessage = ""
 
-    init { this.aliases = aliases.toList() }
+    init {
+        this.aliases = aliases.toList()
+    }
 
     private var executor: ExecutorBlock? = executor
     private var tabCompleter: TabCompleterBlock? = null
@@ -190,7 +93,54 @@ open class CommandDSL(
 
     val subCommands: MutableList<CommandDSL> = mutableListOf()
 
-    override fun execute(sender: CommandSender, label: String, args: Array<out String>): Boolean {
+    fun TabCompleter.default() = defaultTabComplete(sender, alias, args)
+
+    open fun subCommandBuilder(name: String, vararg aliases: String = arrayOf()): CommandDSL {
+        return CommandDSL(name, *aliases).also {
+            it.permission = this.permission
+            it.permissionMessage = this.permissionMessage
+            it.onlyInGameMessage = this.onlyInGameMessage
+            it.usageMessage = this.usageMessage
+        }
+    }
+
+    inline fun command(
+            name: String,
+            vararg aliases: String = arrayOf(),
+            block: CommandBuilderBlock
+    ): CommandDSL {
+        return subCommandBuilder(name, *aliases).apply(block).also { subCommands.add(it) }
+    }
+
+    open fun executor(block: ExecutorBlock) {
+        executor = block
+    }
+
+    open fun executorPlayer(block: ExecutorPlayerBlock) {
+        genericExecutor(Player::class, block)
+    }
+
+    open fun tabComplete(block: TabCompleterBlock) {
+        tabCompleter = block
+    }
+
+    open fun <T : CommandSender> genericExecutor(clazz: KClass<T>, block: Executor<T>.() -> Unit) {
+        executors.put(clazz, block as Executor<CommandSender>.() -> Unit)
+    }
+
+    inline fun <reified T : CommandSender> genericExecutor(noinline block: Executor<T>.() -> Unit) {
+        genericExecutor(T::class, block)
+    }
+
+    private fun <T> MutableMap<KClass<out CommandSender>, T>.getByInstance(clazz: KClass<*>): T? {
+        return entries.find { clazz.isSubclassOf(it.key) }?.value
+    }
+
+    override fun execute(
+            sender: CommandSender,
+            label: String,
+            args: Array<out String>
+    ): Boolean {
         if (!permission.isNullOrBlank() && !sender.hasPermission(permission)) {
             sender.sendMessage(permissionMessage)
         } else {
@@ -220,7 +170,7 @@ open class CommandDSL(
                         executor?.invoke(Executor(sender, label, args, this))
                     }
                 }
-            } catch (ex: CommandException) {
+            } catch (ex: CommandFailException) {
                 ex.senderMessage?.also { sender.sendMessage(it) }
                 ex.execute()
             }
@@ -252,49 +202,6 @@ open class CommandDSL(
             } else return super.tabComplete(sender, alias, args)
         }
         return super.tabComplete(sender, alias, args)
-    }
-
-    fun TabCompleter.default() = defaultTabComplete(sender, alias, args)
-
-    open fun subCommandBuilder(name: String, vararg aliases: String = arrayOf()): CommandDSL {
-        return CommandDSL(name, *aliases).also {
-            it.permission = this.permission
-            it.permissionMessage = this.permissionMessage
-            it.onlyInGameMessage = this.onlyInGameMessage
-            it.usageMessage = this.usageMessage
-        }
-    }
-
-    inline fun command(
-            name: String,
-            vararg aliases: String = arrayOf(),
-            block: CommandMaker
-    ): CommandDSL {
-        return subCommandBuilder(name, *aliases).apply(block).also { subCommands.add(it) }
-    }
-
-    open fun executor(block: ExecutorBlock) {
-        executor = block
-    }
-
-    open fun executorPlayer(block: ExecutorPlayerBlock) {
-        genericExecutor(Player::class, block)
-    }
-
-    open fun tabComplete(block: TabCompleterBlock) {
-        tabCompleter = block
-    }
-
-    open fun <T : CommandSender> genericExecutor(clazz: KClass<T>, block: Executor<T>.() -> Unit) {
-        executors.put(clazz, block as Executor<CommandSender>.() -> Unit)
-    }
-
-    inline fun <reified T : CommandSender> genericExecutor(noinline block: Executor<T>.() -> Unit) {
-        genericExecutor(T::class, block)
-    }
-
-    private fun <T> MutableMap<KClass<out CommandSender>, T>.getByInstance(clazz: KClass<*>): T? {
-        return entries.find { clazz.isSubclassOf(it.key) }?.value
     }
 
 }

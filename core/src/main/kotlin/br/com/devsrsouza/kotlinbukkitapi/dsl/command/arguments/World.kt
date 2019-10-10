@@ -7,7 +7,6 @@ import org.bukkit.Bukkit
 import org.bukkit.ChatColor.*
 import org.bukkit.Location
 import org.bukkit.World
-import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 
 // WORLD
@@ -24,21 +23,7 @@ fun Executor<*>.world(
         index: Int,
         argMissing: BaseComponent = MISSING_WORLD_ARGUMENT,
         notFound: BaseComponent = WORLD_NOT_FOUND
-): World = worldOrNull(index, argMissing) ?: exception(notFound)
-
-inline fun <T : CommandSender> Executor<T>.argumentWorld(
-        argMissing: BaseComponent = MISSING_WORLD_ARGUMENT,
-        notFound: BaseComponent = WORLD_NOT_FOUND,
-        index: Int = 0,
-        block: Executor<T>.(World) -> Unit
-) {
-    val world = world(index, argMissing, notFound)
-
-    argumentExecutorBuilder(
-            index + 1,
-            world.name
-    ).block(world)
-}
+): World = worldOrNull(index, argMissing) ?: fail(notFound)
 
 fun TabCompleter.world(
         index: Int
@@ -68,22 +53,4 @@ fun Executor<*>.coordinate(
     fun double(index: Int) = double(index, argMissing, numberFormat)
 
     return Location(world, double(xIndex), double(yIndex), double(zIndex))
-}
-
-inline fun <T : CommandSender> Executor<T>.argumentCoordinate(
-        world: World,
-        argMissing: BaseComponent = MISSING_COORDINATE_ARGUMENT,
-        numberFormat: BaseComponent = COORDINATE_NUMBER_FORMAT,
-        startIndex: Int = 0,
-        block: Executor<T>.(Location) -> Unit
-) {
-    val location = coordinate(startIndex,
-            startIndex + 1,
-            startIndex + 2,
-            world, argMissing, numberFormat)
-
-    argumentExecutorBuilder(
-            startIndex + 3,
-            "${location.x} ${location.y} ${location.z}"
-    ).block(location)
 }

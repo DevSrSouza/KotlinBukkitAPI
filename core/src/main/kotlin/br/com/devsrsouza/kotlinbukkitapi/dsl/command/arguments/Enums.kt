@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.fail
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import br.com.devsrsouza.kotlinbukkitapi.utils.getIgnoreCase
 import net.md_5.bungee.api.chat.BaseComponent
@@ -26,4 +26,4 @@ inline fun <reified T : Enum<T>> Executor<*>.enum(
         argMissing: BaseComponent = MISSING_ENUM_PARAMETER,
         notFound: BaseComponent = ENUM_VALUE_NOT_FOUND,
         additionalNames: Map<String, T> = mapOf()
-): T = enumOrNull(index, argMissing, additionalNames) ?: exception(notFound)
+): T = enumOrNull(index, argMissing, additionalNames) ?: fail(notFound)

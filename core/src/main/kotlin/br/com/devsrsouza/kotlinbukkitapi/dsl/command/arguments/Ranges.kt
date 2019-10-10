@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.Executor
-import br.com.devsrsouza.kotlinbukkitapi.dsl.command.exception
+import br.com.devsrsouza.kotlinbukkitapi.dsl.command.fail
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.ChatColor
@@ -28,4 +28,4 @@ fun Executor<*>.intRange(
         rangeFormat: BaseComponent = INT_RANGE_FORMAT,
         separator: String = ".."
 ): IntRange = intRangeOrNull(index, argMissing, separator)
-        ?: exception(rangeFormat)
+        ?: fail(rangeFormat)
