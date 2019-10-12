@@ -16,6 +16,9 @@ val MATERIAL_MISSING_PARAMETER = "Missing item argument.".color(ChatColor.RED)
 private fun toMaterial(string: String) = string.toIntOrNull()?.let { Material.getMaterial(it) }
         ?: Material.getMaterial(string)
 
+/**
+ * Returns [Material] or null if the Material was not found.
+ */
 fun Executor<*>.materialOrNull(
         index: Int,
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER
@@ -41,6 +44,9 @@ fun TabCompleter.material(
 
 val DATA_FORMAT = "The item data need be in number.".color(ChatColor.RED)
 
+/**
+ * Returns [MaterialData] or null if the Material was not found.
+ */
 fun Executor<*>.materialDataOrNull(
         index: Int,
         argMissing: BaseComponent = MATERIAL_MISSING_PARAMETER,

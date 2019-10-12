@@ -14,6 +14,9 @@ import org.bukkit.entity.Player
 val MISSING_WORLD_ARGUMENT = "Missing a world argument.".color(RED)
 val WORLD_NOT_FOUND = "World typed not found.".color(RED)
 
+/**
+ * Returns [World] or null if was not found.
+ */
 fun Executor<*>.worldOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_WORLD_ARGUMENT

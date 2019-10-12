@@ -13,6 +13,9 @@ import java.util.*
 val PLAYER_MISSING_PARAMETER = "Missing player parameter!".color(ChatColor.RED)
 val PLAYER_NOT_ONLINE = "The player specified is not online.".color(ChatColor.RED)
 
+/**
+ * returns a [Player] or null if the player is not online.
+ */
 fun Executor<*>.playerOrNull(
         index: Int,
         argMissing: BaseComponent = PLAYER_MISSING_PARAMETER
@@ -47,6 +50,9 @@ fun Executor<*>.offlinePlayer(
 val GAMEMODE_MISSING_PARAMETER = "Missing GameMode argument.".color(ChatColor.RED)
 val GAMEMODE_NOT_FOUND = "The gamemode specified not found.".color(ChatColor.RED)
 
+/**
+ * returns a [GameMode] or null if was not found.
+ */
 fun Executor<*>.gameModeOrNull(
         index: Int,
         argMissing: BaseComponent = GAMEMODE_MISSING_PARAMETER

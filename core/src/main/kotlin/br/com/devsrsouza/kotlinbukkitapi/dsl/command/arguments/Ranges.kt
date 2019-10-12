@@ -10,6 +10,9 @@ import org.bukkit.ChatColor
 val MISSING_RANGE_PARAMETER = "Missing a range argument.".color(ChatColor.RED)
 val INT_RANGE_FORMAT = "The parameter needs a range of integer.".color(ChatColor.RED)
 
+/**
+ * Returns [IntRange] or null if was not able to parse to IntRange given the [separator].
+ */
 fun Executor<*>.intRangeOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_RANGE_PARAMETER,

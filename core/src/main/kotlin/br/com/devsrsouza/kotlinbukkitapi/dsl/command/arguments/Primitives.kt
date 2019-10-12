@@ -7,6 +7,7 @@ import br.com.devsrsouza.kotlinbukkitapi.utils.TRUE_CASES
 import br.com.devsrsouza.kotlinbukkitapi.utils.toBooleanOrNull
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.ChatColor
+import org.bukkit.Material
 
 // STRING
 
@@ -34,6 +35,9 @@ fun Executor<*>.text(
 val MISSING_BOOLEAN_PARAMETER = "Missing a true/false argument.".color(ChatColor.RED)
 val BOOLEAN_FORMAT = "The parameter needs only true or false.".color(ChatColor.RED)
 
+/**
+ * Returns [Boolean] or null if was not able to parse to Boolean.
+ */
 fun Executor<*>.booleanOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_BOOLEAN_PARAMETER,
@@ -62,6 +66,9 @@ val NUMBER_FORMAT = "The parameter needs only numbers.".color(ChatColor.RED)
 
 // INT
 
+/**
+ * Returns [Int] or null if was not able to parse to Int.
+ */
 fun Executor<*>.intOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER
@@ -75,6 +82,9 @@ fun Executor<*>.int(
 
 // DOUBLE
 
+/**
+ * Returns [Double] or null if was not able to parse to Double.
+ */
 fun Executor<*>.doubleOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_NUMBER_PARAMETER

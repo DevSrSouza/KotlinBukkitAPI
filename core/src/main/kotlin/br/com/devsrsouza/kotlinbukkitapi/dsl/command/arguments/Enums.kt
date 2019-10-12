@@ -11,6 +11,9 @@ import org.bukkit.ChatColor
 val MISSING_ENUM_PARAMETER = "Missing an enum argument.".color(ChatColor.RED)
 val ENUM_VALUE_NOT_FOUND = "The value name specified not found.".color(ChatColor.RED)
 
+/**
+ * Returns [T] or null if was not able to find in the [Enum].
+ */
 inline fun <reified T : Enum<T>> Executor<*>.enumOrNull(
         index: Int,
         argMissing: BaseComponent = MISSING_ENUM_PARAMETER,
