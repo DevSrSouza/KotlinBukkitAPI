@@ -8,11 +8,11 @@ import org.bukkit.projectiles.ProjectileSource
 import org.bukkit.util.Vector
 import kotlin.contracts.contract
 
-val Entity.isPlayer: Boolean
-    get() {
-        contract { returns(true) implies (this@isPlayer is Player) }
-        return type == EntityType.PLAYER
-    }
+fun Entity.isPlayer(): Boolean {
+    contract { returns(true) implies (this@isPlayer is Player) }
+
+    return type == EntityType.PLAYER
+}
 
 //  firework
 
