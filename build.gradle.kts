@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("java")
     id("maven-publish")
-    kotlin("jvm") version "1.3.31"
+    kotlin("jvm") version "1.3.61"
     id("com.github.johnrengelman.shadow") version "4.0.3"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
 }
@@ -43,8 +43,7 @@ subprojects {
         compileOnly(kotlin("stdlib"))
         compileOnly(kotlin("reflect"))
 
-        if (!project.path.startsWith(":server:bukkit"))
-            compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+        compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
 
         testRuntime(kotlin("stdlib"))
         testRuntime("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
@@ -142,6 +141,7 @@ tasks {
     }
     "shadowJar"(ShadowJar::class) {
         baseName = project.name
+        version += "-b${System.getenv("BUILD_NUMBER")}"
         classifier = null
     }
 }

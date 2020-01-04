@@ -1,5 +1,7 @@
 ![logo](logo.png)
 
+[![Build Status](http://jenkins.devsrsouza.com.br/buildStatus/icon?job=KotlinBukkitAPI)](http://jenkins.devsrsouza.com.br/job/KotlinBukkitAPI/)
+
 KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features Kotlin has to make your life more easier.
 
 * Need help? contact me on [Twitter](https://twitter.com/DevSrSouza)
@@ -30,37 +32,28 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 - [Examples and **documentation**](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
 - [Clone and building](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/Clone-and-build)
 
+# [Download](http://jenkins.devsrsouza.com.br/job/KotlinBukkitAPI/)
+
 # Setup for development
+
+First of all, you need to put KotlinBukkitAPI as a dependency on your **plugin.yml**
+```yaml
+depend: [KotlinBukkitAPI]
+```
 
 ### Gradle
 
 ```groovy
 repositories {
-  mavenLocal()
+  maven {
+    name = "KotlinBukkitAPI"
+    url = "http://nexus.devsrsouza.com.br/repository/maven-public/"
+  }
 }
 
 dependencies {
-  compileOnly 'br.com.devsrsouza.kotlinbukkitapi:core:0.1.0-SNAPSHOT' // core
+  compileOnly("br.com.devsrsouza.kotlinbukkitapi:core:0.1.0-SNAPSHOT") // core
 }
-```
-
-### Maven
-
-##### Core
-```xml
-<dependency>
-  <groupId>br.com.devsrsouza.kotlinbukkitapi</groupId>
-  <artifactId>core</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
-  <scope>provided</scope>
-</dependency>
-```
-
-# Getting Started
-
-First of all, you need to put KotlinBukkitAPI as a dependency on your **plugin.yml**
-```yaml
-depend: [KotlinBukkitAPI]
 ```
 
 # Examples
@@ -135,3 +128,5 @@ val myMenu = menu(+"&cWarps", 3, true) {
 // open to player
 myMenu.openToPlayer(player)
 ```
+
+You can find more examples in the [Documentation](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
