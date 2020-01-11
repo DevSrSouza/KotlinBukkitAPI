@@ -27,7 +27,7 @@ suspend fun Plugin.takeMaxPerTick(time: Millisecond) {
             unregisterCoroutineContextTakes(coroutineContext)
             withContext(BukkitDispatchers.SYNC) {
                 // wait next tick using BukkitScheduler
-                delay(1)
+                delay(20)
             }
         }
     }

@@ -48,7 +48,7 @@ suspend fun BukkitSchedulerController.takeMaxPerTick(time: Millisecond) {
         // checking if this exceeded the max time of execution
         if(takeValues.wasTimeExceeded()) {
             unregisterCoroutineContextTakes(context)
-            waitFor(0)
+            waitFor(1)
         }
     }
 }
