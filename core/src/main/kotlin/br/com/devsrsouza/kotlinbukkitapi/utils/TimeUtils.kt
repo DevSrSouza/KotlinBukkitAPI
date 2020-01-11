@@ -3,11 +3,11 @@ package br.com.devsrsouza.kotlinbukkitapi.utils.time
 fun now(): Long = System.currentTimeMillis()
 fun nowNano(): Long = System.nanoTime()
 
-val Number.millisecond: ConvertTime get() = Millisecond(this)
-val Number.tick: ConvertTime get() = Tick(this)
-val Number.second: ConvertTime get() = Second(this)
-val Number.minute: ConvertTime get() = Minute(this)
-val Number.hour: ConvertTime get() = Hour(this)
+val Number.millisecond: Millisecond get() = Millisecond(this)
+val Number.tick: Tick get() = Tick(this)
+val Number.second: Second get() = Second(this)
+val Number.minute: Minute get() = Minute(this)
+val Number.hour: Hour get() = Hour(this)
 
 interface ConvertTime {
     fun toMillisecond(): Long

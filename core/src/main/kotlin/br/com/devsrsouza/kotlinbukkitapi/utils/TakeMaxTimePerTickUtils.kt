@@ -1,14 +1,13 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
-import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
+import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.task
 import br.com.devsrsouza.kotlinbukkitapi.utils.time.Millisecond
-import com.okkero.skedule.BukkitSchedulerController
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 internal val coroutineContextTakes = ConcurrentHashMap<CoroutineContext, TakeValues>()
 internal data class TakeValues(val startTimeMilliseconds: Long, val takeTimeMillisecond: Long) {
@@ -25,9 +24,10 @@ suspend fun Plugin.takeMaxPerTick(time: Millisecond) {
         // checking if this exceeded the max time of execution
         if(takeValues.wasTimeExceeded()) {
             unregisterCoroutineContextTakes(coroutineContext)
-            withContext(BukkitDispatchers.SYNC) {
-                // wait next tick using BukkitScheduler
-                delay(20)
+            suspendCoroutine<Unit> { continuation ->
+                task(1) {
+                    continuation.resume(Unit)
+                }
             }
         }
     }
