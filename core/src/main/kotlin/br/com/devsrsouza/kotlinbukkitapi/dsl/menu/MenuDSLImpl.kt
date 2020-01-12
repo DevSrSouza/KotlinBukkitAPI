@@ -18,30 +18,30 @@ import org.bukkit.scheduler.BukkitTask
 inline fun WithPlugin<*>.menu(
         displayName: String,
         lines: Int,
-        cancel: Boolean = false,
+        cancelOnClick: Boolean = false,
         block: MenuDSL.() -> Unit
-) = plugin.menu(displayName, lines, cancel, block)
+): MenuDSL = plugin.menu(displayName, lines, cancelOnClick, block)
 
 inline fun Plugin.menu(
         displayName: String,
         lines: Int,
-        cancel: Boolean = false,
+        cancelOnClick: Boolean = false,
         block: MenuDSL.() -> Unit
-) = menu(displayName, lines, this, cancel, block)
+): MenuDSL = menu(displayName, lines, this, cancelOnClick, block)
 
 inline fun menu(
         displayName: String,
         lines: Int,
         plugin: Plugin,
-        cancel: Boolean = false,
+        cancelOnClick: Boolean = false,
         block: MenuDSL.() -> Unit
-) = MenuDSLImpl(plugin, displayName, lines, cancel).apply(block)
+): MenuDSL = MenuDSLImpl(plugin, displayName, lines, cancelOnClick).apply(block)
 
 class MenuDSLImpl(
         override val plugin: Plugin,
         override var title: String,
         override var lines: Int,
-        override var cancel: Boolean
+        override var cancelOnClick: Boolean
 ) : MenuDSL {
 
     private var task: BukkitTask? = null
@@ -61,7 +61,7 @@ class MenuDSLImpl(
 
     override val eventHandler = MenuEventHandlerDSL(this)
 
-    override var baseSlot: SlotDSL = SlotDSLImpl(null, cancel, SlotEventHandlerDSL())
+    override var baseSlot: SlotDSL = SlotDSLImpl(null, cancelOnClick, SlotEventHandlerDSL())
 
     override fun setSlot(slot: Int, slotObj: SlotDSL) {
         slots.put(slot, slotObj)

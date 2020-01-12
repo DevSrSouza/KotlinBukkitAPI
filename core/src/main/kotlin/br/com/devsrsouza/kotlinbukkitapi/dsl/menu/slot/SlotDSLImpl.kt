@@ -5,7 +5,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 
 fun MenuDSL.newSlot(item: ItemStack?, builder: SlotDSL.() -> Unit): SlotDSL {
-    return SlotDSLImpl(item, cancel).apply(builder)
+    return SlotDSLImpl(item, cancelOnClick).apply(builder)
 }
 
 class SlotDSLImpl(
