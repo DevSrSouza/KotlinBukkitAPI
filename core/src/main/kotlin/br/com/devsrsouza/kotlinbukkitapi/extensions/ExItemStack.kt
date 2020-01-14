@@ -28,6 +28,14 @@ inline fun <reified T : ItemMeta> ItemStack.meta(
     itemMeta = (itemMeta as? T)?.apply(block) ?: itemMeta
 }
 
+fun ItemStack.displayName(displayName: String): ItemStack = meta<ItemMeta> {
+    this.displayName = displayName
+}
+
+fun ItemStack.lore(lore: List<String>): ItemStack = meta<ItemMeta> {
+    this.lore = lore
+}
+
 inline fun Material.asItemStack(
         amount: Int = 1,
         data: Short = 0,
