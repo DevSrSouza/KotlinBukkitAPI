@@ -150,7 +150,7 @@ class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(), Onli
     }
 }
 
-class OnlinePlayerSet(override val plugin: Plugin) : LinkedHashSet<Player>(), OnlinePlayerCollection {
+class OnlinePlayerSet(override val plugin: Plugin) : TreeSet<Player>(), OnlinePlayerCollection {
     private val whenQuit: MutableMap<Player, WhenPlayerQuitCollectionCallback> = mutableMapOf()
 
     init { init() }
@@ -164,7 +164,7 @@ class OnlinePlayerSet(override val plugin: Plugin) : LinkedHashSet<Player>(), On
 
     override fun add(element: Player): Boolean {
         val empty = isEmpty()
-        val added = super<LinkedHashSet>.add(element)
+        val added = super<TreeSet>.add(element)
 
         if(added && empty) registerEvents(plugin)
 
@@ -214,7 +214,7 @@ interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> 
     }
 }
 
-class OnlinePlayerMap<V>(override val plugin: Plugin) : LinkedHashMap<Player, V>(), KListener<Plugin> {
+class OnlinePlayerMap<V>(override val plugin: Plugin) : TreeMap<Player, V>(), KListener<Plugin> {
     private val whenQuit: MutableMap<Player, WhenPlayerQuitMapCallback<V>> = mutableMapOf()
 
     init {
