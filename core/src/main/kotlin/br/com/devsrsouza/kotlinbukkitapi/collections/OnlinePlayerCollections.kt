@@ -5,13 +5,12 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.registerEvents
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.unregisterAllListeners
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
+import br.com.devsrsouza.kotlinbukkitapi.utils.PlayerComparator
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.Plugin
 import java.util.*
-import kotlin.collections.LinkedHashMap
-import kotlin.collections.LinkedHashSet
 
 typealias WhenPlayerQuitCollectionCallback = Player.() -> Unit
 typealias WhenPlayerQuitMapCallback<V> = Player.(V) -> Unit
@@ -150,7 +149,7 @@ class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(), Onli
     }
 }
 
-class OnlinePlayerSet(override val plugin: Plugin) : TreeSet<Player>(), OnlinePlayerCollection {
+class OnlinePlayerSet(override val plugin: Plugin) : TreeSet<Player>(PlayerComparator), OnlinePlayerCollection {
     private val whenQuit: MutableMap<Player, WhenPlayerQuitCollectionCallback> = mutableMapOf()
 
     init { init() }
@@ -214,7 +213,7 @@ interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> 
     }
 }
 
-class OnlinePlayerMap<V>(override val plugin: Plugin) : TreeMap<Player, V>(), KListener<Plugin> {
+class OnlinePlayerMap<V>(override val plugin: Plugin) : TreeMap<Player, V>(PlayerComparator), KListener<Plugin> {
     private val whenQuit: MutableMap<Player, WhenPlayerQuitMapCallback<V>> = mutableMapOf()
 
     init {

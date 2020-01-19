@@ -5,6 +5,7 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
 import br.com.devsrsouza.kotlinbukkitapi.utils.time.now
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
+import java.util.*
 
 typealias OnExpireMapCallback<K, V> = (K, V) -> Unit
 
@@ -75,7 +76,7 @@ interface ExpirationMap<K, V> : MutableMap<K, V>, WithPlugin<Plugin> {
 
 class ExpirationMapImpl<K, V>(
         override val plugin: Plugin,
-        val initialMap: MutableMap<K ,V> = mutableMapOf()
+        val initialMap: MutableMap<K ,V> = WeakHashMap()
 ) : ExpirationMap<K, V>, MutableMap<K, V> by initialMap {
 
     private val putTime: MutableMap<K, Long> = mutableMapOf()
