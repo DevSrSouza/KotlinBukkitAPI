@@ -3,6 +3,7 @@ package br.com.devsrsouza.kotlinbukkitapi.menu
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import java.util.*
 
 interface MenuPlayer {
     val menu: Menu<*>
@@ -11,7 +12,7 @@ interface MenuPlayer {
     fun putPlayerData(key: String, value: Any) {
         val map = menu.playerData[player]
         if (map != null) map[key] = value
-        else menu.playerData[player] = mutableMapOf(key to value)
+        else menu.playerData[player] = WeakHashMap<String, Any>().apply {put(key, value)}
     }
 
     fun getPlayerData(key: String) = menu.playerData.get(player)?.get(key)

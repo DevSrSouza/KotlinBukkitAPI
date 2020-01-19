@@ -6,6 +6,7 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.InventoryHolder
 import org.bukkit.plugin.Plugin
+import java.util.*
 
 interface Menu<T : Slot> : WithPlugin<Plugin>, InventoryHolder {
 
@@ -14,10 +15,10 @@ interface Menu<T : Slot> : WithPlugin<Plugin>, InventoryHolder {
     var cancelOnClick: Boolean
 
     val viewers: Map<Player, Inventory>
-    val slots: Map<Int, T>
+    val slots: TreeMap<Int, T>
 
-    val data: MutableMap<String, Any>
-    val playerData: MutableMap<Player, MutableMap<String, Any>>
+    val data: WeakHashMap<String, Any>
+    val playerData: WeakHashMap<Player, WeakHashMap<String, Any>>
 
     val eventHandler: MenuEventHandler
 
@@ -33,6 +34,12 @@ interface Menu<T : Slot> : WithPlugin<Plugin>, InventoryHolder {
     fun updateSlot(slot: Slot, vararg players: Player) = updateSlot(slot, players.toSet())
 
     fun openToPlayer(vararg players: Player)
+
+    fun clearData() {
+        data.clear()
+        for(slot in slotsWithBaseSlot())
+            slot.clearSlotData()
+    }
 
     fun clearPlayerData(player: Player) {
         playerData.remove(player)

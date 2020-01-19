@@ -14,18 +14,19 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
+import java.util.*
 
 inline fun WithPlugin<*>.menu(
         displayName: String,
         lines: Int,
-        cancelOnClick: Boolean = false,
+        cancelOnClick: Boolean = true,
         block: MenuDSL.() -> Unit
 ): MenuDSL = plugin.menu(displayName, lines, cancelOnClick, block)
 
 inline fun Plugin.menu(
         displayName: String,
         lines: Int,
-        cancelOnClick: Boolean = false,
+        cancelOnClick: Boolean = true,
         block: MenuDSL.() -> Unit
 ): MenuDSL = menu(displayName, lines, this, cancelOnClick, block)
 
@@ -33,7 +34,7 @@ inline fun menu(
         displayName: String,
         lines: Int,
         plugin: Plugin,
-        cancelOnClick: Boolean = false,
+        cancelOnClick: Boolean = true,
         block: MenuDSL.() -> Unit
 ): MenuDSL = MenuDSLImpl(plugin, displayName, lines, cancelOnClick).apply(block)
 
@@ -53,11 +54,11 @@ class MenuDSLImpl(
                 setNewTask()
         }
 
-    override val viewers: MutableMap<Player, Inventory> = mutableMapOf()
-    override val slots: MutableMap<Int, SlotDSL> = mutableMapOf()
+    override val viewers: MutableMap<Player, Inventory> = WeakHashMap()
+    override val slots: TreeMap<Int, SlotDSL> = TreeMap()
 
-    override val data = mutableMapOf<String, Any>()
-    override val playerData = mutableMapOf<Player, MutableMap<String, Any>>()
+    override val data = WeakHashMap<String, Any>()
+    override val playerData = WeakHashMap<Player, WeakHashMap<String, Any>>()
 
     override val eventHandler = MenuEventHandlerDSL(this)
 

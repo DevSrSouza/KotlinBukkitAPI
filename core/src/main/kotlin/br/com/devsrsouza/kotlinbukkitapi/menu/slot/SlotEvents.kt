@@ -7,6 +7,7 @@ import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
+import java.util.*
 
 val MenuPlayerSlot.rawSlotPos get() = slotPos - 1
 
@@ -16,7 +17,7 @@ interface MenuPlayerSlot : MenuPlayer {
 
     fun putPlayerSlotData(key: String, value: Any) {
         slot.playerSlotData.getOrPut(player) {
-            mutableMapOf()
+            WeakHashMap()
         }[key] = value
     }
 
