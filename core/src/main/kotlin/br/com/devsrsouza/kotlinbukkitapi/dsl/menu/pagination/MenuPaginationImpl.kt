@@ -1,0 +1,229 @@
+package br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination
+
+import br.com.devsrsouza.kotlinbukkitapi.collections.ObservableList
+import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.MenuDSL
+import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination.slot.PaginationSlotDSL
+import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination.slot.PaginationSlotDSLImpl
+import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.slot
+import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.slot.SlotDSL
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerInventory
+import br.com.devsrsouza.kotlinbukkitapi.menu.calculateSlot
+import org.bukkit.entity.Player
+import java.util.*
+
+internal const val PAGINATION_OPEN_PAGE_KEY = "PAGINATION:open_page"
+
+class MenuPaginationImpl<T>(
+        override val menu: MenuDSL,
+        override val items: ObservableList<T>,
+        override val nextPageSlot: SlotDSL,
+        override val previousPageSlot: SlotDSL,
+        override val startLine: Int = 1,
+        override val endLine: Int = menu.lines - 1,
+        override val startSlot: Int = 1,
+        override val endSlot: Int = 9,
+        override val orientation: Orientation = Orientation.HORIZONTAL,
+        override val itemsAdapterOnOpen: ItemsAdapter<T>? = null,
+        override val itemsAdapterOnUpdate: ItemsAdapter<T>? = null
+) : MenuPagination<T> {
+    override val paginationEventHandler = PaginationEventHandler()
+
+    override val paginationSlots = TreeMap<Int, PaginationSlotDSL<T>>()
+    internal val currentPlayerPage = WeakHashMap<Player, Int>()
+
+    // should be null when is not mapped (for not allocate a new list everytime)
+    internal val currentPlayerItems = WeakHashMap<Player, List<T>>()
+
+    internal val itemSlotData = WeakHashMap<T, WeakHashMap<String, Any>>()
+    internal val itemPlayerSlotData = WeakHashMap<T, WeakHashMap<Player, WeakHashMap<String, Any>>>()
+
+    init {
+        // setup next page button click
+        nextPageSlot.onClick {
+            if(hasNextPage(player))
+                nextPage(this)
+        }
+
+        // setup previous page button click
+        previousPageSlot.onClick {
+            if(hasPreviousPage(player))
+                previousPage(this)
+        }
+
+        menu.preOpen {
+            // adapting items for player
+            val items = itemsAdapterOnOpen?.let { it(getPlayerItems(player)) }
+            if(items != null)
+                currentPlayerItems[player] = items
+
+            // set the menu page if player informed in [MenuDSL.setPlayerOpenPage]
+            val openPage = menu.playerData.get(player)?.get(PAGINATION_OPEN_PAGE_KEY) as? Int?
+            if(openPage != null) {
+                // check if openPage is valid or cancel and trigger a event
+                if(isPageAvailable(player, openPage)) {
+                    currentPlayerPage[player] = openPage
+                } else {
+                    canceled = true
+                    paginationEventHandler.pageAvailable(this)
+                }
+            }
+        }
+
+        // cleaning player data on menu close
+        menu.onClose {
+            currentPlayerPage.remove(player)
+            currentPlayerItems.remove(player)
+
+            for (value in itemPlayerSlotData.values) {
+                value.remove(player)
+            }
+        }
+
+        // setup pagination slots
+        for(line in startLine..endLine) {
+            for(slotPos in startSlot..endSlot) {
+                val menuSlot = calculateSlot(line, slotPos)
+                val slotRoot = menu.slot(menuSlot, null)
+
+                val paginationSlot = PaginationSlotDSLImpl(
+                        this,
+                        slotRoot
+                )
+
+                slotRoot.apply {
+                    fun getCurrentItemForPlayer(player: Player): T? {
+                        return getCurrentItemForPlayer(
+                                menuSlot,
+                                getPlayerCurrentPage(player),
+                                player
+                        )
+                    }
+
+                    onRender {
+                        paginationSlot.paginationEventHandler.handleRender(
+                                getCurrentItemForPlayer(player),
+                                this
+                        )
+                    }
+                    onUpdate {
+                        paginationSlot.paginationEventHandler.handleUpdate(
+                                getCurrentItemForPlayer(player),
+                                this
+                        )
+                    }
+                    onClick {
+                        paginationSlot.paginationEventHandler.handleInteract(
+                                getCurrentItemForPlayer(player),
+                                this
+                        )
+                    }
+                }
+
+                paginationSlots.put(menuSlot, paginationSlot)
+            }
+        }
+    }
+
+    override fun hasPreviousPage(player: Player): Boolean {
+        return isPageAvailable(player, getPlayerCurrentPage(player) -1)
+    }
+    override fun hasNextPage(player: Player): Boolean {
+        return isPageAvailable(player, getPlayerCurrentPage(player) +1)
+    }
+
+    override fun getPlayerCurrentPage(player: Player) = currentPlayerPage.getOrDefault(player, 1)
+
+    /**
+     * Update current item list calling itemsUpdateFilter
+     */
+    override fun updateItemsToPlayer(menuPlayer: MenuPlayerInventory) {
+        val player = menuPlayer.player
+
+        // checking if adapter is not null, other wise, ignore
+        if(itemsAdapterOnUpdate != null) {
+            val items = itemsAdapterOnUpdate.let { menuPlayer.it(getPlayerItems(player)) }
+
+            currentPlayerItems[player] = items
+
+            // calling update slot to the PaginationSlotDSL
+            forEachSlot { slotPos, pageSlot ->
+                val currentPage = getPlayerCurrentPage(player)
+
+                val item: T? = getCurrentItemForPlayer(slotPos, currentPage, player)
+
+                pageSlot.updateSlot(item, item, slotPos, menuPlayer)
+            }
+        }
+    }
+
+    internal fun getCurrentItemForPlayer(slotPos: Int, page: Int, player: Player): T? {
+        val items = getPlayerItems(player)
+
+        val slotItemIndex = pageStartIndex(page) + slotPos
+
+        return items.getOrNull(slotItemIndex-1)
+    }
+
+    internal fun nextPage(menuPlayerInventory: MenuPlayerInventory) {
+        val nextPage = getPlayerCurrentPage(menuPlayerInventory.player) +1
+
+        changePage(menuPlayerInventory, nextPage)
+    }
+
+    internal fun previousPage(menuPlayerInventory: MenuPlayerInventory) {
+        val previousPage = getPlayerCurrentPage(menuPlayerInventory.player) -1
+
+        changePage(menuPlayerInventory, previousPage)
+    }
+
+    private fun changePage(menuPlayerInventory: MenuPlayerInventory, nextPage: Int) {
+        forEachSlot { slotPos, pageSlot ->
+            val player = menuPlayerInventory.player
+
+            val currentPage = getPlayerCurrentPage(player)
+
+            val actualItem: T? = getCurrentItemForPlayer(slotPos, currentPage, player)
+
+            currentPlayerPage[player] = nextPage
+
+            val nextItem: T? = getCurrentItemForPlayer(slotPos, nextPage, player)
+
+            pageSlot.updateSlot(actualItem, nextItem, slotPos, menuPlayerInventory, true)
+
+            paginationEventHandler.pageChange(menuPlayerInventory)
+        }
+    }
+
+    private inline fun forEachSlot(
+            block: (slotPos: Int, pageSlot: PaginationSlotDSLImpl<T>) -> Unit
+    ) {
+        for (line in startLine..endLine) {
+            for (slot in startSlot..endSlot) {
+                val slotPos = calculateSlot(line, slot)
+                val pageSlot = menu.slots[slotPos] as? PaginationSlotDSLImpl<T>
+                        ?: continue
+
+                block(slotPos, pageSlot)
+            }
+        }
+    }
+
+    private fun pageStartIndex(page: Int) = ((page - 1) * maxSlotPerPage())
+
+    private fun getPlayerItems(player: Player) = currentPlayerItems[player] ?: items
+
+    private fun maxSlotPerPage() = (endLine - startLine) * (endSlot - startSlot)
+
+    private fun isPageAvailable(player: Player, page: Int): Boolean {
+        val itemsCount = getPlayerItems(player).size
+
+        val maxPerPage = maxSlotPerPage()
+
+        var pages = (itemsCount / maxPerPage).toInt()
+        val mod = page % maxPerPage
+
+        if(mod > 0) pages+1
+
+        return pages >= page || pages <= page
+    }
+}
