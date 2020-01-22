@@ -1,6 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils.player
 
-import br.com.devsrsouza.kotlinbukkitapi.controllers.PlayerController
+import br.com.devsrsouza.kotlinbukkitapi.controllers.providePlayerController
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import kotlin.coroutines.resume
@@ -17,7 +17,7 @@ fun Player.chatInput(
         whenQuitWithoutInput: PlayerQuitFunction = {},
         callback: ChatInputCallBack
 ) {
-    PlayerController.inputCallbacks.put(
+    providePlayerController().inputCallbacks.put(
             player,
             ChatInput(plugin, sync, callback, whenQuitWithoutInput)
     ) { it.playerQuit(this) }
@@ -34,7 +34,7 @@ fun Player.whenQuit(
         plugin: Plugin,
         callback: PlayerQuitFunction
 ) {
-    PlayerController.functionsQuit.put(this, PlayerCallback(plugin, callback)) {
+    providePlayerController().functionsQuit.put(this, PlayerCallback(plugin, callback)) {
         it.callback.invoke(player)
     }
 }
@@ -43,7 +43,7 @@ fun Player.whenMove(
         plugin: Plugin,
         callback: PlayerMoveFunction
 ) {
-    PlayerController.functionsMove.put(this, PlayerCallback(plugin, callback))
+    providePlayerController().functionsMove.put(this, PlayerCallback(plugin, callback))
 }
 
 class ChatInput(

@@ -3,18 +3,23 @@ package br.com.devsrsouza.kotlinbukkitapi.controllers
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
+import br.com.devsrsouza.kotlinbukkitapi.provideKotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.utils.KClassComparator
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 import java.util.*
 import kotlin.reflect.KClass
 
-object ProviderController : KListener<KotlinBukkitAPI> {
-    override val plugin: KotlinBukkitAPI get() = KotlinBukkitAPI.INSTANCE
+internal fun provideProviderController() = provideKotlinBukkitAPI().providerController
+
+internal class ProviderController(
+        override val plugin: KotlinBukkitAPI
+) : KListener<KotlinBukkitAPI>, KBAPIController {
 
     private val providerTree = TreeMap<String, TreeMap<KClass<*>, Any>>()
 
     fun register(plugin: Plugin, any: Any): Boolean {
-        return providerTree.getOrPut(plugin.name, { TreeMap() })
+        return providerTree.getOrPut(plugin.name, { TreeMap(KClassComparator) })
                 .putIfAbsent(any::class, any) == null
     }
 
@@ -26,7 +31,7 @@ object ProviderController : KListener<KotlinBukkitAPI> {
         return providerTree.get(plugin.name)?.get(kclass) as T
     }
 
-    init {
+    override fun onEnable() {
         event<PluginDisableEvent> {
             providerTree.remove(plugin.name)
         }

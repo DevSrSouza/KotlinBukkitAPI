@@ -1,6 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.command
 
-import br.com.devsrsouza.kotlinbukkitapi.controllers.CommandController
+import br.com.devsrsouza.kotlinbukkitapi.controllers.provideCommandController
 import org.bukkit.Bukkit
 import org.bukkit.command.Command
 import org.bukkit.command.SimpleCommandMap
@@ -23,9 +23,9 @@ private val knownCommandsField: Field by lazy {
 fun Command.register(plugin: Plugin) {
     serverCommands.register(plugin.name, this)
 
-    val cmds = CommandController.commands.get(plugin.name) ?: mutableListOf()
+    val cmds = provideCommandController().commands.get(plugin.name) ?: mutableListOf()
     cmds.add(this)
-    CommandController.commands.put(plugin.name, cmds)
+    provideCommandController().commands.put(plugin.name, cmds)
 }
 
 fun Command.unregister() {
@@ -41,7 +41,7 @@ fun Command.unregister() {
             knownCommands.remove(str)
         }
 
-        CommandController.commands.values.forEach {
+        provideCommandController().commands.values.forEach {
             it.removeIf { this === it }
         }
     } catch (e: Exception) {

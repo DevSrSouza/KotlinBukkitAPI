@@ -2,6 +2,8 @@ package br.com.devsrsouza.kotlinbukkitapi.utils
 
 import br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle.PlayerLifecycleController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle.PluginLifecycleController
+import br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle.providePlayerLifecycleController
+import br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle.providePluginLifecycleController
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
@@ -29,11 +31,11 @@ interface PluginLifecycle<T : Plugin> : WithPlugin<T> {
 }
 
 fun registerLifecycle(lifecycle: PluginLifecycle<*>) {
-    PluginLifecycleController.registerLifecycle(lifecycle)
+    providePluginLifecycleController().registerLifecycle(lifecycle)
 }
 
 fun  unregisterLifecycle(lifecycle: PluginLifecycle<*>) {
-    PluginLifecycleController.unregisterLifecycle(lifecycle)
+    providePluginLifecycleController().unregisterLifecycle(lifecycle)
 }
 
 fun reloadLifecycle(lifecycle: PluginLifecycle<*>) {
@@ -41,7 +43,7 @@ fun reloadLifecycle(lifecycle: PluginLifecycle<*>) {
 }
 
 fun Plugin.reloadLifecycles() {
-    PluginLifecycleController.reloadLifecycles(this)
+    providePluginLifecycleController().reloadLifecycles(this)
 }
 
 typealias PlayerLifecycleApplyTest = (Player) -> Boolean
@@ -80,7 +82,7 @@ fun <T : PlayerLifecycle<P>, P : Plugin> P.registerPlayerLifecycle(
         factory: PlayerLifecycleFactory<T, P> = DefaultPlayerLifecycleFactory(playerLifecycle),
         applyTo: PlayerLifecycleApplyTest = { true }
 ) {
-    PlayerLifecycleController.registerPlayerLifecycle(
+    providePlayerLifecycleController().registerPlayerLifecycle(
             this,
             playerLifecycle as KClass<PlayerLifecycle<Plugin>>,
             factory as PlayerLifecycleFactory<PlayerLifecycle<Plugin>, Plugin>,

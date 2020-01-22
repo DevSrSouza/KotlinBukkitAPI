@@ -1,6 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions.bungeecord
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.controllers.provideBungeeCordController
+import br.com.devsrsouza.kotlinbukkitapi.provideKotlinBukkitAPI
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import com.google.common.io.ByteStreams
@@ -10,39 +12,7 @@ import java.nio.charset.Charset
 
 val Player.bungeecord get() = BungeeCord(this)
 
-fun Player.sendBungeeCord(message: ByteArray) = BungeeCordController.sendBungeeCord(this, message)
-
-private object BungeeCordController : PluginMessageListener {
-
-    private val queue = mutableListOf<BungeeCordRequest>()
-
-    init {
-        Bukkit.getServer().messenger.registerOutgoingPluginChannel(KotlinBukkitAPI.INSTANCE, "BungeeCord")
-        Bukkit.getServer().messenger.registerIncomingPluginChannel(KotlinBukkitAPI.INSTANCE, "BungeeCord", this)
-    }
-
-    override fun onPluginMessageReceived(channel: String, player: Player, message: ByteArray) {
-        if (channel != "BungeeCord") return
-
-        val buffer = ByteBuffer.wrap(message)
-        val subChannel = buffer.readUTF()
-        val request = queue.firstOrNull { it.subChannel == subChannel }
-        if(request?.responseCallback != null) {
-            val infoBuffer = buffer.slice()
-            val info = ByteArray(infoBuffer.remaining())
-            infoBuffer.get(info)
-            request.responseCallback.invoke(info)
-            queue.remove(request)
-        }
-    }
-
-    fun sendBungeeCord(player: Player, message: ByteArray)
-            = player.sendPluginMessage(KotlinBukkitAPI.INSTANCE, "BungeeCord", message)
-
-    fun addToQueue(request: BungeeCordRequest) = queue.add(request)
-
-    private fun ByteBuffer.readUTF() = String(ByteArray(short.toInt()).apply { get(this) }, Charset.forName("UTF-8"))
-}
+fun Player.sendBungeeCord(message: ByteArray) = provideBungeeCordController().sendBungeeCord(this, message)
 
 typealias ResponseCallback = (message: ByteArray) -> Unit
 
@@ -57,7 +27,7 @@ class BungeeCordRequest(val player: Player,
 
         player.sendBungeeCord(out.toByteArray())
 
-        if(responseCallback != null) BungeeCordController.addToQueue(this)
+        if(responseCallback != null) provideBungeeCordController().addToQueue(this)
     }
 }
 

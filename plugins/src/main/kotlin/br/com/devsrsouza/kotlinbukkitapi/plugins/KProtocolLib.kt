@@ -12,7 +12,7 @@ import org.bukkit.plugin.Plugin
 // packet adapter DSL
 
 inline fun packetAdapter(
-        plugin: Plugin = KotlinBukkitAPI.INSTANCE,
+        plugin: Plugin,
         priority: ListenerPriority = ListenerPriority.NORMAL,
         block: PacketAdapterDSL.() -> Unit
 ) = PacketAdapterDSL(plugin, priority).apply(block).also {

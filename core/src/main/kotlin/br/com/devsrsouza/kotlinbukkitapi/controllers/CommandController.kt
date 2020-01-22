@@ -4,16 +4,19 @@ import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.extensions.command.unregister
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
+import br.com.devsrsouza.kotlinbukkitapi.provideKotlinBukkitAPI
 import org.bukkit.command.Command
 import org.bukkit.event.server.PluginDisableEvent
-import org.bukkit.plugin.Plugin
 
-internal object CommandController : KListener<KotlinBukkitAPI> {
-    override val plugin: KotlinBukkitAPI get() = KotlinBukkitAPI.INSTANCE
+internal fun provideCommandController() = provideKotlinBukkitAPI().commandController
+
+internal class CommandController(
+        override val plugin: KotlinBukkitAPI
+) : KListener<KotlinBukkitAPI>, KBAPIController {
 
     val commands = hashMapOf<String, MutableList<Command>>()
 
-    init {
+    override fun onEnable() {
         event<PluginDisableEvent> {
             commands.remove(plugin.name)?.forEach {
                 it.unregister()

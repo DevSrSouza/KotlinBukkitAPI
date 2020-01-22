@@ -1,33 +1,44 @@
 package br.com.devsrsouza.kotlinbukkitapi
 
+import br.com.devsrsouza.kotlinbukkitapi.controllers.*
+import br.com.devsrsouza.kotlinbukkitapi.controllers.BungeeCordController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.CommandController
-import br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle.PluginLifecycleController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.MenuController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.PlayerController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.ProviderController
+import br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle.PluginLifecycleController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle.PlayerLifecycleController
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.registerEvents
+import org.bukkit.Bukkit
+import org.bukkit.event.Listener
 import org.bukkit.plugin.java.JavaPlugin
 
+internal fun provideKotlinBukkitAPI(): KotlinBukkitAPI {
+    return Bukkit.getServer().pluginManager.getPlugin("KotlinBukkitAPI") as KotlinBukkitAPI?
+            ?: throw IllegalAccessException("The plugin KotlinBukkitAPI is not loaded yet")
+}
+
 class KotlinBukkitAPI : JavaPlugin() {
+    internal val commandController = CommandController(this)
+    internal val menuController = MenuController(this)
+    internal val playerController = PlayerController(this)
+    internal val pluginLifecycleController = PluginLifecycleController(this)
+    internal val playerLifecycleController = PlayerLifecycleController(this)
+    internal val providerController = ProviderController(this)
+    internal val bungeeCordController = BungeeCordController(this)
 
-    companion object {
-        @JvmStatic lateinit var INSTANCE: KotlinBukkitAPI
-            private set
-    }
-
-    override fun onLoad() {
-        INSTANCE = this
-    }
+    private val controllers = listOf<KBAPIController>(
+            commandController, menuController, playerController,
+            pluginLifecycleController, playerLifecycleController,
+            providerController, bungeeCordController
+    )
 
     override fun onEnable() {
-        registerEvents(
-                CommandController,
-                MenuController,
-                PlayerController,
-                PluginLifecycleController,
-                PlayerLifecycleController,
-                ProviderController
-        )
+        for (controller in controllers) {
+            controller.onEnable()
+
+            if(controller is Listener)
+                registerEvents(controller)
+        }
     }
 }

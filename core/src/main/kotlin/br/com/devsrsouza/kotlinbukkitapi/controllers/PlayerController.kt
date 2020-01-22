@@ -6,21 +6,26 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.displaced
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
 import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.scheduler
+import br.com.devsrsouza.kotlinbukkitapi.provideKotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.utils.player.ChatInput
 import br.com.devsrsouza.kotlinbukkitapi.utils.player.PlayerCallback
+import br.com.devsrsouza.kotlinbukkitapi.utils.provider
 import org.bukkit.event.player.AsyncPlayerChatEvent
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 
-internal object PlayerController : KListener<KotlinBukkitAPI> {
-    override val plugin: KotlinBukkitAPI get() = KotlinBukkitAPI.INSTANCE
+internal fun providePlayerController() = provideKotlinBukkitAPI().playerController
 
-    internal val inputCallbacks = plugin.onlinePlayerMapOf<ChatInput>()
-    internal val functionsMove = plugin.onlinePlayerMapOf<PlayerCallback<Boolean>>()
-    internal val functionsQuit = plugin.onlinePlayerMapOf<PlayerCallback<Unit>>()
+internal class PlayerController(
+        override val plugin: KotlinBukkitAPI
+) : KListener<KotlinBukkitAPI>, KBAPIController {
 
-    init {
+    internal val inputCallbacks by lazy { plugin.onlinePlayerMapOf<ChatInput>() }
+    internal val functionsMove by lazy { plugin.onlinePlayerMapOf<PlayerCallback<Boolean>>() }
+    internal val functionsQuit by lazy { plugin.onlinePlayerMapOf<PlayerCallback<Unit>>() }
+
+    override fun onEnable() {
         event<AsyncPlayerChatEvent>(ignoreCancelled = true) {
             if (message.isNotBlank()) {
                 val input = inputCallbacks.remove(player)

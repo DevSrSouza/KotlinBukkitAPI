@@ -1,14 +1,13 @@
 package br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
-import br.com.devsrsouza.kotlinbukkitapi.collections.OnlinePlayerMap
-import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
+import br.com.devsrsouza.kotlinbukkitapi.controllers.KBAPIController
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
+import br.com.devsrsouza.kotlinbukkitapi.provideKotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.utils.PlayerLifecycle
 import br.com.devsrsouza.kotlinbukkitapi.utils.PlayerLifecycleApplyTest
 import br.com.devsrsouza.kotlinbukkitapi.utils.PlayerLifecycleFactory
-import br.com.devsrsouza.kotlinbukkitapi.utils.castOrNull
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.player.PlayerJoinEvent
@@ -17,12 +16,12 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.full.isSubclassOf
-import kotlin.reflect.full.valueParameters
 
-internal object PlayerLifecycleController : KListener<KotlinBukkitAPI> {
-    override val plugin: KotlinBukkitAPI get() = KotlinBukkitAPI.INSTANCE
+internal fun providePlayerLifecycleController() = provideKotlinBukkitAPI().playerLifecycleController
+
+internal class PlayerLifecycleController(
+        override val plugin: KotlinBukkitAPI
+) : KListener<KotlinBukkitAPI>, KBAPIController {
 
     internal data class PlayerLifecycleRegistry(
             val clazz: KClass<PlayerLifecycle<Plugin>>,
@@ -34,7 +33,7 @@ internal object PlayerLifecycleController : KListener<KotlinBukkitAPI> {
 
     private val playerLifecyclesRegisters = hashMapOf<Plugin, MutableSet<PlayerLifecycleRegistry>>()
 
-    init {
+    override fun onEnable() {
         event<PluginDisableEvent> {
             playerLifecycles.remove(plugin.name)?.clear()
             playerLifecyclesRegisters.remove(plugin)
@@ -56,7 +55,7 @@ internal object PlayerLifecycleController : KListener<KotlinBukkitAPI> {
         for (map in playerLifecycles.values) {
             map.remove(player)?.forEach {
                 it.onQuit()
-                PluginLifecycleController.unregisterLifecycle(it)
+                this.plugin.pluginLifecycleController.unregisterLifecycle(it)
             }
         }
     }
@@ -74,7 +73,7 @@ internal object PlayerLifecycleController : KListener<KotlinBukkitAPI> {
                 mutableSetOf()
             }.add(it)
 
-            PluginLifecycleController.registerLifecycle(it) // important
+            this.plugin.pluginLifecycleController.registerLifecycle(it) // important
         } else null
     }
 

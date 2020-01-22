@@ -11,8 +11,13 @@ import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.event.server.PluginDisableEvent
 
-internal object MenuController : KListener<KotlinBukkitAPI> {
-    override val plugin: KotlinBukkitAPI get() = KotlinBukkitAPI.INSTANCE
+internal class MenuController(
+        override val plugin: KotlinBukkitAPI
+) : KListener<KotlinBukkitAPI>, KBAPIController {
+
+    override fun onEnable() {
+        // do nothing
+    }
 
     @EventHandler
     fun pluginDisableEvent(event: PluginDisableEvent) {
