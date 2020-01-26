@@ -28,7 +28,6 @@ subprojects {
 
     repositories {
         jcenter()
-        mavenLocal()
         maven {
             name = "spigot"
             url = uri("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
@@ -36,6 +35,10 @@ subprojects {
         maven {
             name = "sonatype"
             url = uri("https://oss.sonatype.org/content/repositories/snapshots/")
+        }
+        maven {
+            name = "devsrsouza"
+            url = uri("http://nexus.devsrsouza.com.br/repository/maven-public/")
         }
     }
 
