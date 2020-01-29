@@ -9,7 +9,7 @@ fun <K, V> observableMapOf(mutableMap: MutableMap<K, V>) = ObservableMap(mutable
 
 class ObservableList<T>(
         private val list: MutableList<T>
-) : MutableList<T> by list, ObservableHolder {
+) : MutableList<T> by list, ObservableCollection<T> {
 
     override val listeners = mutableListOf<ObservableListener>()
 
@@ -105,7 +105,7 @@ class ObservableMutableListIterator<T>(
 
 class ObservableSet<T>(
         private val set: MutableSet<T>
-) : MutableSet<T> by set, ObservableHolder {
+) : MutableSet<T> by set, ObservableCollection<T> {
 
     override val listeners = mutableListOf<ObservableListener>()
 
@@ -214,6 +214,8 @@ class ObservableMap<K, V>(
         }
     }
 }
+
+interface ObservableCollection<T> : MutableCollection<T>, ObservableHolder
 
 interface ObservableHolder {
     val listeners: MutableList<ObservableListener>

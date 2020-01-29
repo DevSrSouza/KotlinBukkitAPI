@@ -1,6 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination
 
-import br.com.devsrsouza.kotlinbukkitapi.collections.ObservableList
+import br.com.devsrsouza.kotlinbukkitapi.collections.ObservableCollection
 import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.MenuDSL
 import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination.slot.PaginationSlotDSL
 import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination.slot.PaginationSlotDSLImpl
@@ -13,9 +13,11 @@ import java.util.*
 
 internal const val PAGINATION_OPEN_PAGE_KEY = "PAGINATION:open_page"
 
+typealias ItemsProvider<T> = () -> ObservableCollection<T>
+
 class MenuPaginationImpl<T>(
         override val menu: MenuDSL,
-        override val items: ObservableList<T>,
+        override val itemsProvider: ItemsProvider<T>,
         override val nextPageSlot: SlotDSL,
         override val previousPageSlot: SlotDSL,
         override val startLine: Int = 1,
@@ -52,7 +54,7 @@ class MenuPaginationImpl<T>(
 
         menu.preOpen {
             // adapting items for player
-            val items = itemsAdapterOnOpen?.let { it(getPlayerItems(player)) }
+            val items = itemsAdapterOnOpen?.let { it(getPlayerItems(player).toList()) }
             if(items != null)
                 currentPlayerItems[player] = items
 
@@ -141,7 +143,7 @@ class MenuPaginationImpl<T>(
 
         // checking if adapter is not null, other wise, ignore
         if(itemsAdapterOnUpdate != null) {
-            val items = itemsAdapterOnUpdate.let { menuPlayer.it(items) }
+            val items = itemsAdapterOnUpdate.let { menuPlayer.it(itemsProvider().toList()) }
 
             currentPlayerItems[player] = items
 
@@ -179,7 +181,7 @@ class MenuPaginationImpl<T>(
 
         val slotItemIndex = pageStartIndex(page) + (slotPos - startLineSlotsUsage - currentUsageStartSlots - currentEndSlotUsage)
 
-        return items.getOrNull(slotItemIndex-1)
+        return items.asSequence().elementAtOrNull(slotItemIndex-1)
     }
 
     internal fun nextPage(menuPlayerInventory: MenuPlayerInventory) {
@@ -228,7 +230,7 @@ class MenuPaginationImpl<T>(
 
     private fun pageStartIndex(page: Int) = ((page - 1) * maxSlotPerPage())
 
-    private fun getPlayerItems(player: Player) = currentPlayerItems[player] ?: items
+    private fun getPlayerItems(player: Player) = currentPlayerItems[player] ?: itemsProvider()
 
     private fun maxSlotPerPage() = (endLine - startLine +1) * (endSlot - startSlot +1)
 

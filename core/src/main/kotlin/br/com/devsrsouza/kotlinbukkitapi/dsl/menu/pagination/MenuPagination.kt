@@ -1,5 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination
 
+import br.com.devsrsouza.kotlinbukkitapi.collections.ObservableCollection
 import br.com.devsrsouza.kotlinbukkitapi.collections.ObservableList
 import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.MenuDSL
 import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.pagination.slot.PaginationSlotDSL
@@ -7,6 +8,7 @@ import br.com.devsrsouza.kotlinbukkitapi.dsl.menu.slot.SlotDSL
 import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayer
 import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerInventory
 import org.bukkit.entity.Player
+import java.lang.IllegalArgumentException
 import java.util.*
 
 typealias ItemsAdapter<T> = MenuPlayer.(List<T>) -> List<T>
@@ -27,13 +29,71 @@ fun MenuDSL.setPlayerOpenPage(player: Player, page: Int) {
             WeakHashMap<String, Any>().apply { put(PAGINATION_OPEN_PAGE_KEY, page) }
     )
 }
+inline fun <T> MenuDSL.pagination(
+        itemsProvider: ObservableCollection<T>,
+        nextPageSlot: SlotDSL,
+        previousPageSlot: SlotDSL,
+        startLine: Int = 1,
+        endLine: Int = lines-1,
+        startSlot: Int = 1,
+        endSlot: Int = 9,
+        orientation: Orientation = Orientation.HORIZONTAL,
+        noinline itemsAdapterOnOpen: ItemsAdapter<T>? = null,
+        noinline itemsAdapterOnUpdate: ItemsAdapter<T>? = null,
+        builder: MenuPaginationImpl<T>.() -> Unit
+): MenuPaginationImpl<T> {
+    return pagination(
+            { itemsProvider },
+            nextPageSlot,
+            previousPageSlot,
+            startLine,
+            endLine,
+            startSlot,
+            endSlot,
+            orientation,
+            itemsAdapterOnOpen,
+            itemsAdapterOnUpdate,
+            builder
+    )
+}
+
+inline fun <T> MenuDSL.pagination(
+        noinline itemsProvider: ItemsProvider<T>,
+        nextPageSlot: SlotDSL,
+        previousPageSlot: SlotDSL,
+        startLine: Int = 1,
+        endLine: Int = lines-1,
+        startSlot: Int = 1,
+        endSlot: Int = 9,
+        orientation: Orientation = Orientation.HORIZONTAL,
+        noinline itemsAdapterOnOpen: ItemsAdapter<T>? = null,
+        noinline itemsAdapterOnUpdate: ItemsAdapter<T>? = null,
+        builder: MenuPaginationImpl<T>.() -> Unit
+): MenuPaginationImpl<T> {
+    if(startSlot > endSlot) throw IllegalArgumentException()
+    if(startLine > endLine) throw IllegalArgumentException()
+
+    return MenuPaginationImpl(
+            this,
+            itemsProvider,
+            nextPageSlot,
+            previousPageSlot,
+            startLine,
+            endLine,
+            startSlot,
+            endSlot,
+            orientation,
+            itemsAdapterOnOpen,
+            itemsAdapterOnUpdate
+    ).apply(builder)
+}
 
 interface MenuPagination<T> {
     val menu: MenuDSL
     val paginationSlots: TreeMap<Int, PaginationSlotDSL<T>>
     val paginationEventHandler: PaginationEventHandler
 
-    val items: ObservableList<T>
+    val itemsProvider: ItemsProvider<T>
 
     val nextPageSlot: SlotDSL
     val previousPageSlot: SlotDSL
