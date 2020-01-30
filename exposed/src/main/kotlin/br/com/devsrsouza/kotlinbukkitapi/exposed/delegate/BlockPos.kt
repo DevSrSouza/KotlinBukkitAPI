@@ -14,7 +14,7 @@ fun Entity<*>.blockPos(
         zColumn: Column<Int>
 ) = BlockPosMultiColumnExposedDelegate(xColumn, yColumn, zColumn)
 
-fun Entity<*>.blockPos(
+fun Entity<*>.nullableBlockPos(
         xColumn: Column<Int?>,
         yColumn: Column<Int?>,
         zColumn: Column<Int?>

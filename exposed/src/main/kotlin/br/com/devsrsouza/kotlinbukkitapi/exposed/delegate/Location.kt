@@ -18,7 +18,7 @@ fun Entity<*>.location(
         pitchColumn: Column<Float>
 ) = LocationMultiColumnExposedDelegate(worldColumn, xColumn, yColumn, zColumn, yawColumn, pitchColumn)
 
-fun Entity<*>.location(
+fun Entity<*>.nullableLocation(
         worldColumn: Column<String?>,
         xColumn: Column<Double?>,
         yColumn: Column<Double?>,

@@ -16,7 +16,7 @@ fun Entity<*>.block(
         zColumn: Column<Int>
 ) = BlockMultiColumnExposedDelegate(worldColumn, xColumn, yColumn, zColumn)
 
-fun Entity<*>.block(
+fun Entity<*>.nullableBlock(
         worldColumn: Column<String?>,
         xColumn: Column<Int?>,
         yColumn: Column<Int?>,

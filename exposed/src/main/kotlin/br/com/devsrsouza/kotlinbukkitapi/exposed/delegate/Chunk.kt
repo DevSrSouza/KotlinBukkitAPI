@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.Column
 import kotlin.reflect.KProperty
 
 fun Entity<*>.chunk(column: Column<String>) = ChunkExposedDelegate(column)
-fun Entity<*>.chunk(column: Column<String?>) = ChunkExposedDelegateNullable(column)
+fun Entity<*>.nullableChunk(column: Column<String?>) = ChunkExposedDelegateNullable(column)
 
 fun Entity<*>.chunk(
         worldColumn: Column<String>,

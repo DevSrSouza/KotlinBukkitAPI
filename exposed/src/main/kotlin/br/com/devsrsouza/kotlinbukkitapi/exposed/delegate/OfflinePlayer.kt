@@ -8,7 +8,7 @@ import java.util.*
 import kotlin.reflect.KProperty
 
 fun Entity<*>.offlinePlayer(column: Column<UUID>) = OfflinePlayerExposedDelegate(column)
-fun Entity<*>.offlinePlayer(column: Column<UUID?>) = OfflinePlayerExposedDelegateNullable(column)
+fun Entity<*>.nullableOfflinePlayer(column: Column<UUID?>) = OfflinePlayerExposedDelegateNullable(column)
 
 class OfflinePlayerExposedDelegate(
         val column: Column<UUID>

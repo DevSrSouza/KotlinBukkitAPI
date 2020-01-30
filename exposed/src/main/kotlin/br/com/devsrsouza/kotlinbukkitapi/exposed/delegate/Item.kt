@@ -16,7 +16,7 @@ import kotlin.reflect.KProperty
  * to upgrade your server and this keep the same, I can't guarantee that.
  */
 fun Entity<*>.itemStack(column: Column<Blob>) = ItemStackExposedDelegate(column)
-fun Entity<*>.itemStack(column: Column<Blob?>) = ItemStackExposedDelegateNullable(column)
+fun Entity<*>.nullableItemStack(column: Column<Blob?>) = ItemStackExposedDelegateNullable(column)
 
 class ItemStackExposedDelegate(
         val column: Column<Blob>

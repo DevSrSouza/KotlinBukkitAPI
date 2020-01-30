@@ -7,7 +7,7 @@ import org.jetbrains.exposed.sql.Column
 import kotlin.reflect.KProperty
 
 fun Entity<*>.world(column: Column<String>) = WorldExposedDelegate(column)
-fun Entity<*>.world(column: Column<String?>) = WorldExposedDelegateNullable(column)
+fun Entity<*>.nullableWorld(column: Column<String?>) = WorldExposedDelegateNullable(column)
 
 class WorldExposedDelegate(
         val column: Column<String>

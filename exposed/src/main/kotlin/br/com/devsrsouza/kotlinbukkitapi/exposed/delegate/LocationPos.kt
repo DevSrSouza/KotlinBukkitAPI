@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.Column
 import kotlin.reflect.KProperty
 
 fun Entity<*>.locationPos(column: Column<String>) = LocationPosExposedDelegate(column)
-fun Entity<*>.locationPos(column: Column<String?>) = LocationPosExposedDelegateNullable(column)
+fun Entity<*>.nullableLocationPos(column: Column<String?>) = LocationPosExposedDelegateNullable(column)
 
 fun Entity<*>.locationPos(
         xColumn: Column<Double>,

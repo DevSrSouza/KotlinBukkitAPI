@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.Column
 import kotlin.reflect.KProperty
 
 fun Entity<*>.chunkPos(column: Column<String>) = ChunkPosExposedDelegate(column)
-fun Entity<*>.chunkPos(column: Column<String?>) = ChunkPosExposedDelegateNullable(column)
+fun Entity<*>.nullableChunkPos(column: Column<String?>) = ChunkPosExposedDelegateNullable(column)
 
 fun Entity<*>.chunkPos(
         xColumn: Column<Int>,
