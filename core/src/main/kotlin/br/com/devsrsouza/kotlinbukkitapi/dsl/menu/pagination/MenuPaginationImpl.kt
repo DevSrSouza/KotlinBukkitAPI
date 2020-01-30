@@ -20,6 +20,7 @@ class MenuPaginationImpl<T>(
         override val itemsProvider: ItemsProvider<T>,
         override val nextPageSlot: SlotDSL,
         override val previousPageSlot: SlotDSL,
+        override val autoUpdateSwitchPageSlot: Boolean,
         override val startLine: Int = 1,
         override val endLine: Int = menu.lines - 1,
         override val startSlot: Int = 1,
@@ -78,6 +79,14 @@ class MenuPaginationImpl<T>(
 
             for (value in itemPlayerSlotData.values) {
                 value.remove(player)
+            }
+        }
+
+        // if enabled, update next and previous slots when page change
+        if(autoUpdateSwitchPageSlot) {
+            onPageChange {
+                menu.updateSlot(nextPageSlot, player)
+                menu.updateSlot(previousPageSlot, player)
             }
         }
 

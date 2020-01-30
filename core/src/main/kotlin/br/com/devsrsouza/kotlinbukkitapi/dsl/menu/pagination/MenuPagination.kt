@@ -33,6 +33,7 @@ inline fun <T> MenuDSL.pagination(
         itemsProvider: ObservableCollection<T>,
         nextPageSlot: SlotDSL,
         previousPageSlot: SlotDSL,
+        autoUpdateSwitchPageSlot: Boolean = true,
         startLine: Int = 1,
         endLine: Int = lines-1,
         startSlot: Int = 1,
@@ -46,6 +47,7 @@ inline fun <T> MenuDSL.pagination(
             { itemsProvider },
             nextPageSlot,
             previousPageSlot,
+            autoUpdateSwitchPageSlot,
             startLine,
             endLine,
             startSlot,
@@ -61,6 +63,7 @@ inline fun <T> MenuDSL.pagination(
         noinline itemsProvider: ItemsProvider<T>,
         nextPageSlot: SlotDSL,
         previousPageSlot: SlotDSL,
+        autoUpdateSwitchPageSlot: Boolean = true,
         startLine: Int = 1,
         endLine: Int = lines-1,
         startSlot: Int = 1,
@@ -78,6 +81,7 @@ inline fun <T> MenuDSL.pagination(
             itemsProvider,
             nextPageSlot,
             previousPageSlot,
+            autoUpdateSwitchPageSlot,
             startLine,
             endLine,
             startSlot,
@@ -97,6 +101,8 @@ interface MenuPagination<T> {
 
     val nextPageSlot: SlotDSL
     val previousPageSlot: SlotDSL
+
+    val autoUpdateSwitchPageSlot: Boolean
 
     val startLine: Int
     val endLine: Int
