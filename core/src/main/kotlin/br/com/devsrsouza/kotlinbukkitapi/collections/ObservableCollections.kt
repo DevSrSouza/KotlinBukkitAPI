@@ -3,9 +3,13 @@ package br.com.devsrsouza.kotlinbukkitapi.collections
 typealias ObservableListener = (ObservableAction) -> Unit
 enum class ObservableAction { ADD, SET, REPLACE, REMOVE, CLEAR }
 
-fun <T> observableListOf(mutableList: MutableList<T>) = ObservableList(mutableList)
-fun <T> observableSetOf(mutableSet: MutableSet<T>) = ObservableSet(mutableSet)
-fun <K, V> observableMapOf(mutableMap: MutableMap<K, V>) = ObservableMap(mutableMap)
+fun <T> observableListOf(mutableList: MutableList<T>) = mutableList.asObservable()
+fun <T> observableSetOf(mutableSet: MutableSet<T>) = mutableSet.asObservable()
+fun <K, V> observableMapOf(mutableMap: MutableMap<K, V>) = mutableMap.asObservable()
+
+fun <T> MutableList<T>.asObservable() = ObservableList(this)
+fun <T> MutableSet<T>.asObservable() = ObservableSet(this)
+fun <K, V> MutableMap<K, V>.asObservable() = ObservableMap(this)
 
 class ObservableList<T>(
         private val list: MutableList<T>
