@@ -76,6 +76,8 @@ subprojects {
             baseName = "KotlinBukkitAPI-${project.name}"
             classifier = null
             version = null
+
+            relocate("org.bstats", "br.com.devsrsouza.kotlinbukkitapi.bstats")
         }
     }
 
