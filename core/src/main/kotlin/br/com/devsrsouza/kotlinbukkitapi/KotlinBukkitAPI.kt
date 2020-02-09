@@ -6,8 +6,6 @@ import br.com.devsrsouza.kotlinbukkitapi.controllers.CommandController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.MenuController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.PlayerController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.ProviderController
-import br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle.PluginLifecycleController
-import br.com.devsrsouza.kotlinbukkitapi.controllers.lifecycle.PlayerLifecycleController
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.registerEvents
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
@@ -25,8 +23,6 @@ class KotlinBukkitAPI : JavaPlugin() {
     internal val commandController = CommandController(this)
     internal val menuController = MenuController(this)
     internal val playerController = PlayerController(this)
-    internal val pluginLifecycleController = PluginLifecycleController(this)
-    internal val playerLifecycleController = PlayerLifecycleController(this)
     internal val providerController = ProviderController(this)
     internal val bungeeCordController = BungeeCordController(this)
 
@@ -34,7 +30,6 @@ class KotlinBukkitAPI : JavaPlugin() {
 
     private val controllers = listOf<KBAPIController>(
             commandController, menuController, playerController,
-            pluginLifecycleController, playerLifecycleController,
             providerController, bungeeCordController
     )
 

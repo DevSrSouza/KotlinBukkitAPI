@@ -24,7 +24,8 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 ## Modules
 | Module | Description |
 | --- | --- |
-| Core | The heart of the project containing the important API |
+| Core | The heart of the project containing the important API and extensions |
+| Architecture | Help you with the Architecture of your plugin providing KotlinPlugin base and Lifecycle Listener |
 | Plugins | Extensions for others plugins like Vault, PlaceholderAPI and others |
 | Exposed(0.20.1) | Extensions for SQL framework [Exposed](https://github.com/JetBrains/Exposed/) |
 
