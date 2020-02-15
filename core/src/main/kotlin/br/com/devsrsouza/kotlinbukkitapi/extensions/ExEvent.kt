@@ -42,7 +42,7 @@ fun Listener.registerEvents(plugin: Plugin)
 fun Event.callEvent() = Bukkit.getServer().pluginManager.callEvent(this)
 
 val PlayerMoveEvent.displaced: Boolean
-    get() = this.from.x != this.to.x || this.from.y != this.to.y || this.from.z != this.to.z
+    get() = this.from.x != this.to?.x || this.from.y != this.to?.y || this.from.z != this.to?.z
 
 interface KListener<T : Plugin> : Listener, WithPlugin<T>
 inline class InlineKListener(override val plugin: Plugin) : KListener<Plugin>

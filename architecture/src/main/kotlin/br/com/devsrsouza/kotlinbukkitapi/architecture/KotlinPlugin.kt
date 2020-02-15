@@ -56,6 +56,8 @@ open class KotlinPlugin : JavaPlugin() {
             loadOnEnable: Boolean = false,
             saveOnDisable: Boolean = false
     ): KotlinBukkitConfig<T> {
+        dataFolder.mkdir()
+
         val configFile = File(dataFolder, file)
 
         if(!configFile.exists()) configFile.createNewFile()
