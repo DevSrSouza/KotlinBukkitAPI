@@ -27,6 +27,7 @@ fun <K> Map<K, String>.translateColorValues(code: Char = '&') = mapValues { it.v
 operator fun String.unaryPlus() = translateColor()
 operator fun String.unaryMinus() = replace('§', '&')
 operator fun ChatColor.plus(text: String) = toString() + text
+operator fun ChatColor.plus(other: ChatColor) = toString() + other.toString()
 
 fun translateColor(default: String, colorChar: Char = '&') = TranslateChatColorDelegate(default, colorChar)
 
