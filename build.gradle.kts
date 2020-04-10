@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("java")
     id("maven-publish")
-    kotlin("jvm") version "1.3.61"
+    kotlin("jvm") version "1.3.71"
     id("com.github.johnrengelman.shadow") version "4.0.3"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
 }
