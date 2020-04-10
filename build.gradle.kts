@@ -43,7 +43,7 @@ subprojects {
     }
 
     dependencies {
-        compileOnly(kotlin("stdlib"))
+        compileOnly(kotlin("stdlib-jdk8"))
         compileOnly(kotlin("reflect"))
 
         compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
@@ -130,7 +130,7 @@ repositories {
 }
 
 dependencies {
-    compile(kotlin("stdlib"))
+    compile(kotlin("stdlib-jdk8"))
     compile(kotlin("reflect"))
 
     subprojects.forEach {
