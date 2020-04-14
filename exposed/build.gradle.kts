@@ -1,6 +1,6 @@
 repositories {}
 
-val exposed_version = "0.20.1"
+val exposed_version = "0.21.1"
 
 dependencies {
     compileOnly(project(":core", configuration = "shadow"))

@@ -11,6 +11,8 @@ import java.net.URLClassLoader
 import java.sql.SQLException
 import kotlin.reflect.KClass
 
+private const val KEY_FILE = "{file}"
+
 sealed class DatabaseType(
         val name: String,
         val jdbc: String,
@@ -30,6 +32,8 @@ sealed class DatabaseType(
 
     abstract fun dataSource(): HikariDataSource
 
+    abstract fun config(): HikariConfig
+
     abstract class FileDatabaseType(
             name: String,
             jdbc: String,
@@ -41,15 +45,19 @@ sealed class DatabaseType(
             val needFileCreation: Boolean
     ) : DatabaseType(name, jdbc, driverClass, driverLink) {
 
+        private val realFile = File(dataFolder, "$file.$databaseExtension")
+
         override fun dataSource(): HikariDataSource {
-            val file = File(dataFolder, "$file.$databaseExtension")
-            if(needFileCreation && !file.exists()) file.createNewFile()
+            if(needFileCreation && !realFile.exists()) realFile.createNewFile()
 
             loadDependency()
 
-            return HikariDataSource(HikariConfig().apply {
-                jdbcUrl = jdbc
-            })
+            return HikariDataSource(config())
+        }
+
+        override fun config(): HikariConfig = HikariConfig().apply {
+            driverClassName = driverClass
+            jdbcUrl = jdbc.replace(KEY_FILE, realFile.path)
         }
     }
 
@@ -67,11 +75,14 @@ sealed class DatabaseType(
         override fun dataSource(): HikariDataSource {
             loadDependency()
 
-            return HikariDataSource(HikariConfig().apply {
-                jdbcUrl = jdbc
-                username = this@RemoteDatabaseType.username
-                password = this@RemoteDatabaseType.password
-            })
+            return HikariDataSource(config())
+        }
+
+        override fun config(): HikariConfig = HikariConfig().apply {
+            driverClassName = driverClass
+            jdbcUrl = jdbc
+            username = this@RemoteDatabaseType.username
+            password = this@RemoteDatabaseType.password
         }
     }
 
@@ -80,7 +91,7 @@ sealed class DatabaseType(
             file: String
     ) : FileDatabaseType(
             "H2",
-            "jdbc:h2:file:$file.h2.db",
+            "jdbc:h2:file:./$KEY_FILE",
             "org.h2.Driver",
             "https://repo1.maven.org/maven2/com/h2database/h2/1.4.199/h2-1.4.199.jar",
             dataFolder,
@@ -94,14 +105,21 @@ sealed class DatabaseType(
             file: String
     ) : FileDatabaseType(
             "SQLite",
-            "jdbc:sqlite:$file.sqlite.db",
+            "jdbc:sqlite:./$KEY_FILE",
             "org.sqlite.JDBC",
             "https://bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.23.1.jar",
             dataFolder,
             file,
             "sqlite.db",
             true
-    )
+    ) {
+        // https://github.com/brettwooldridge/HikariCP/issues/393#issuecomment-135580191
+        override fun config(): HikariConfig {
+            return super.config().apply {
+                connectionTestQuery = "SELECT 1"
+            }
+        }
+    }
 
     class MySQL(
             hostname: String,
@@ -166,6 +184,7 @@ sealed class DatabaseType(
                 }
                 try {
                     loadDriver()
+                    Class.forName(driverClass)
                 }catch (e: Exception) {
                     jarFile.delete()
                     throw SQLException("Cant load the driver dependencies of $name")
@@ -200,11 +219,12 @@ sealed class DatabaseType(
         val output = FileOutputStream(jarFile)
 
         val buffer = ByteArray(4096)
-        var n = 0
-        do {
-            n = input.read(buffer)
+        var n = input.read(buffer)
+        while (-1 != n) {
             output.write(buffer, 0, n)
-        } while (-1 != n)
+
+            n = input.read(buffer)
+        }
 
         input.close()
         output.close()
