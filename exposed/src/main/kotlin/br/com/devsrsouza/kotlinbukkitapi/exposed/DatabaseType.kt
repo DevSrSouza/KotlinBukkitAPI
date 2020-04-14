@@ -82,7 +82,7 @@ sealed class DatabaseType(
             "H2",
             "jdbc:h2:file:$file.h2.db",
             "org.h2.Driver",
-            "http://repo.apache.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.4.0.jre8/mssql-jdbc-6.4.0.jre8.jar",
+            "https://repo1.maven.org/maven2/com/h2database/h2/1.4.199/h2-1.4.199.jar",
             dataFolder,
             file,
             "h2.db",
@@ -113,7 +113,7 @@ sealed class DatabaseType(
             "MySQL",
             "jdbc:mysql://$hostname:$port/$database",
             "com.mysql.jdbc.Driver",
-            "http://repo.apache.maven.org/maven2/mysql/mysql-connector-java/8.0.11/mysql-connector-java-8.0.11.jar",
+            "https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.11/mysql-connector-java-8.0.11.jar",
             hostname, port, database,
             username, password
     )
@@ -143,7 +143,7 @@ sealed class DatabaseType(
             "SQLServer",
             "jdbc:sqlserver://$hostname:$port;databaseName=$database",
             "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-            "http://repo.apache.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.4.0.jre8/mssql-jdbc-6.4.0.jre8.jar",
+            "https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.4.0.jre8/mssql-jdbc-6.4.0.jre8.jar",
             hostname, port, database,
             username, password
     )
