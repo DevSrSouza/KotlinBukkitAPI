@@ -28,7 +28,7 @@ object KotlinSerializer {
             //val obj = prop.get(instance)
             val (obj, type) = adapter(instance, prop, prop.returnType, prop.get(instance))
 
-            put(instanceFromType(obj, type, adapter) ?: continue@loop /* TODO: Warn Log? */)
+            put(instanceFromType(obj, type, adapter))
         }
 
         return map
@@ -38,7 +38,7 @@ object KotlinSerializer {
             obj: Any,
             type: KType,
             adapter: PropertySaveAdapter
-    ): Any? {
+    ): Any {
         when {
             type.isPrimitive -> return obj
             type.isList && type.isFirstGenericPrimitive -> return obj
@@ -53,9 +53,11 @@ object KotlinSerializer {
             }
             type.isMap && type.isFirstGenericString && type.isSecondGenericPrimitive -> return obj
             type.isMap && type.isFirstGenericString && type.isSecondGenericEnum -> {
-                val enumName = obj as String
+                val mapWithEnum = obj as Map<String, Enum<*>>
 
-                return getEnumValueByName(type.secondGenericType!!.kclass as KClass<Enum<*>>, enumName)!!
+                return mapWithEnum.map {
+                    it.key to it.value.name
+                }
             }
             type.isMap && type.isFirstGenericString && type.isSecondGenericExactlyAny -> {
                 // adapter support ONLY!!!!
@@ -126,9 +128,17 @@ object KotlinSerializer {
                     set(list.values.map { mapToInstance(type, it as Map<String, Any>, adapter) })
                 }
                 type.isMap && type.isFirstGenericString && type.isSecondGenericPrimitive -> set(obj)
-                type.isMap && type.isFirstGenericString && type.isSecondGenericEnum -> set(obj.cast<Enum<*>>().name)
+                type.isMap && type.isFirstGenericString && type.isSecondGenericEnum -> {
+                    val type = type.secondGenericType?.kclass?.cast<KClass<Enum<*>>>() ?: continue@loop
+                    val map = obj as Map<String, String>
+
+                    set(
+                        map.mapValues { getEnumValueByName(type, it.value) }
+                            .filterNot { it.value == null }
+                    )
+                }
                 type.isMap && type.isFirstGenericString -> {
-                    val type = type.firstGenericType?.kclass ?: continue@loop
+                    val type = type.secondGenericType?.kclass ?: continue@loop
                     val map = obj as Map<String, Any>
 
                     set(map.mapValues { mapToInstance(type, it as Map<String, Any>, adapter) })
