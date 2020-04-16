@@ -55,9 +55,7 @@ object KotlinSerializer {
             type.isMap && type.isFirstGenericString && type.isSecondGenericEnum -> {
                 val mapWithEnum = obj as Map<String, Enum<*>>
 
-                return mapWithEnum.map {
-                    it.key to it.value.name
-                }
+                return mapWithEnum.mapValues { it.value.name }
             }
             type.isMap && type.isFirstGenericString && type.isSecondGenericExactlyAny -> {
                 // adapter support ONLY!!!!
@@ -71,7 +69,7 @@ object KotlinSerializer {
                         value,
                         kclass.createType(kclass.typeParameters.map { KTypeProjection.invariant(Any::class.createType()) }),
                         adapter
-                    ) ?: continue // TODO: Warn log?
+                    )
 
                     newMap[key] = instance
                 }
