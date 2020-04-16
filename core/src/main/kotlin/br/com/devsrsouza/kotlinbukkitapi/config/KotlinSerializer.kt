@@ -1,5 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.config
 
+import br.com.devsrsouza.kotlinbukkitapi.utils.cast
 import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.KTypeProjection
@@ -9,7 +10,10 @@ import kotlin.reflect.jvm.isAccessible
 
 object KotlinSerializer {
 
-    fun instanceToMap(instance: Any, adapter: PropertySaveAdapter): Map<String, Any> {
+    fun instanceToMap(
+            instance: Any,
+            adapter: PropertySaveAdapter
+    ): Map<String, Any> {
         val map = mutableMapOf<String, Any>()
 
         val clazz = instance::class
@@ -24,13 +28,17 @@ object KotlinSerializer {
             //val obj = prop.get(instance)
             val (obj, type) = adapter(instance, prop, prop.returnType, prop.get(instance))
 
-            put(instanceFromType(obj, type, adapter))
+            put(instanceFromType(obj, type, adapter) ?: continue@loop /* TODO: Warn Log? */)
         }
 
         return map
     }
 
-    private fun instanceFromType(obj: Any, type: KType, adapter: PropertySaveAdapter): Any {
+    private fun instanceFromType(
+            obj: Any,
+            type: KType,
+            adapter: PropertySaveAdapter
+    ): Any? {
         when {
             type.isPrimitive -> return obj
             type.isList && type.isFirstGenericPrimitive -> return obj
@@ -44,6 +52,11 @@ object KotlinSerializer {
                 return map
             }
             type.isMap && type.isFirstGenericString && type.isSecondGenericPrimitive -> return obj
+            type.isMap && type.isFirstGenericString && type.isSecondGenericEnum -> {
+                val enumName = obj as String
+
+                return getEnumValueByName(type.secondGenericType!!.kclass as KClass<Enum<*>>, enumName)!!
+            }
             type.isMap && type.isFirstGenericString && type.isSecondGenericExactlyAny -> {
                 // adapter support ONLY!!!!
 
@@ -52,11 +65,13 @@ object KotlinSerializer {
                 val newMap = mutableMapOf<String, Any>()
                 for ((key, value) in map) {
                     val kclass = value::class
-                    newMap[key] = instanceFromType(
-                            value,
-                            kclass.createType(kclass.typeParameters.map { KTypeProjection.invariant(Any::class.createType()) }),
-                            adapter
-                    )
+                    val instance = instanceFromType(
+                        value,
+                        kclass.createType(kclass.typeParameters.map { KTypeProjection.invariant(Any::class.createType()) }),
+                        adapter
+                    ) ?: continue // TODO: Warn log?
+
+                    newMap[key] = instance
                 }
 
                 return newMap
@@ -76,7 +91,11 @@ object KotlinSerializer {
         }
     }
 
-    fun <T : Any> mapToInstance(type: KClass<T>, map: Map<String, Any>, adapter: PropertyLoadAdapter): T {
+    fun <T : Any> mapToInstance(
+            type: KClass<T>,
+            map: Map<String, Any>,
+            adapter: PropertyLoadAdapter
+    ): T {
         val instance = type.objectInstance ?: type.createInstance()
 
         val properties = publicMutablePropertiesFrom(type)
@@ -107,6 +126,7 @@ object KotlinSerializer {
                     set(list.values.map { mapToInstance(type, it as Map<String, Any>, adapter) })
                 }
                 type.isMap && type.isFirstGenericString && type.isSecondGenericPrimitive -> set(obj)
+                type.isMap && type.isFirstGenericString && type.isSecondGenericEnum -> set(obj.cast<Enum<*>>().name)
                 type.isMap && type.isFirstGenericString -> {
                     val type = type.firstGenericType?.kclass ?: continue@loop
                     val map = obj as Map<String, Any>

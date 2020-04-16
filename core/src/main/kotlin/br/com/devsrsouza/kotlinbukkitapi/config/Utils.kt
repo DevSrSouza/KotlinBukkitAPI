@@ -9,7 +9,7 @@ fun publicMutablePropertiesFrom(clazz: KClass<*>) = clazz.memberProperties
         .filterNot { it.isLateinit }
         .filterNot { it.returnType.isMarkedNullable } // TODO usar nullable
 
-inline fun <reified T> KMutableProperty1<Any, Any>.getDelegateFromType(instance: Any): T? {
+inline fun <reified T> KProperty1<Any, Any>.getDelegateFromType(instance: Any): T? {
     return getDelegate(instance) as? T
 }
 
@@ -35,6 +35,7 @@ val KType.isFirstGenericString: Boolean get() = firstGenericType?.kclass == Stri
 val KType.isFirstGenericPrimitive: Boolean get() = firstGenericType?.type?.isPrimitive == true
 val KType.isFirstGenericExactlyAny: Boolean get() = firstGenericType?.type?.isExactlyAny == true
 val KType.isSecondGenericPrimitive: Boolean get() = secondGenericType?.type?.isPrimitive == true
+val KType.isSecondGenericEnum: Boolean get() = secondGenericType?.type?.isEnum == true
 val KType.isSecondGenericExactlyAny: Boolean get() = secondGenericType?.type?.isExactlyAny == true
 
 fun fixNumberType(type: KType, any: Number): Number {

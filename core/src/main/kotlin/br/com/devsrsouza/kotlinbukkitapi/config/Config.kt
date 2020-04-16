@@ -1,6 +1,9 @@
 package br.com.devsrsouza.kotlinbukkitapi.config
 
 import br.com.devsrsouza.json4bukkit.JsonConfiguration
+import br.com.devsrsouza.kotlinbukkitapi.extensions.putAll
+import br.com.devsrsouza.kotlinbukkitapi.extensions.putAllIfAbsent
+import br.com.devsrsouza.kotlinbukkitapi.extensions.toMap
 import org.bukkit.configuration.Configuration
 import org.bukkit.configuration.ConfigurationSection
 import org.bukkit.configuration.file.FileConfiguration
@@ -47,7 +50,7 @@ fun <T : Any> ConfigurationSection.saveMissingFrom(
 ): Int {
     val serialized = KotlinSerializer.instanceToMap(instance, adapter)
 
-    return putIfMissing(serialized)
+    return putAllIfAbsent(serialized)
 }
 
 /**
@@ -59,35 +62,4 @@ fun <T : Any> ConfigurationSection.loadFrom(
 ) {
     val map = toMap()
     KotlinSerializer.mapToInstance(type, map, adapter)
-}
-
-fun ConfigurationSection.putAll(map: Map<String, Any>) {
-    for ((key, value) in map) {
-        if(value is Map<*, *>) {
-            (getConfigurationSection(key) ?: createSection(key)).putAll(value as Map<String, Any>)
-        } else set(key, value)
-    }
-}
-
-fun ConfigurationSection.putIfMissing(map: Map<String, Any>): Int {
-    var missing = 0
-    for ((key, value) in map) {
-        if(value is Map<*, *>) {
-            missing += (getConfigurationSection(key) ?: createSection(key)).putIfMissing(value as Map<String, Any>)
-        } else if(!contains(key)) {
-            set(key, value)
-            missing++
-        }
-    }
-    return missing
-}
-
-fun ConfigurationSection.toMap(): Map<String, Any> {
-    return getValues(false).apply {
-        forEach { k, v ->
-            if (v is ConfigurationSection) {
-                set(k, v.toMap())
-            }
-        }
-    }
 }
