@@ -15,7 +15,7 @@ private val serverCommands: SimpleCommandMap by lazy {
 }
 
 private val knownCommandsField: Field by lazy {
-    serverCommands.javaClass.getDeclaredField("knownCommands").apply {
+    SimpleCommandMap::class.java.getDeclaredField("knownCommands").apply {
         isAccessible = true
     }
 }

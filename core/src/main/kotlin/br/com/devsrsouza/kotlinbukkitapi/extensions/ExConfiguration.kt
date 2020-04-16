@@ -5,6 +5,7 @@ import org.bukkit.configuration.ConfigurationSection
 fun ConfigurationSection.putAll(map: Map<String, Any>) {
     for ((key, value) in map) {
         if(value is Map<*, *>) {
+            set(key, null)
             (getConfigurationSection(key) ?: createSection(key)).putAll(value as Map<String, Any>)
         } else set(key, value)
     }
