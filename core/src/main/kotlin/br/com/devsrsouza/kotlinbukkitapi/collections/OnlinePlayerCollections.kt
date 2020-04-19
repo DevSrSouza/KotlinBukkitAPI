@@ -11,6 +11,8 @@ import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.Plugin
 import java.util.*
+import kotlin.collections.HashMap
+import kotlin.collections.HashSet
 
 typealias WhenPlayerQuitCollectionCallback = Player.() -> Unit
 typealias WhenPlayerQuitMapCallback<V> = Player.(V) -> Unit
@@ -90,8 +92,6 @@ fun <V> WithPlugin<*>.onlinePlayerMapOf(vararg triple: Triple<Player, V, WhenPla
 class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(), OnlinePlayerCollection {
     private val whenQuit: MutableList<Pair<Player, WhenPlayerQuitCollectionCallback>> = LinkedList()
 
-    init { init() }
-
     override fun add(player: Player, whenPlayerQuitCallback: Player.() -> Unit): Boolean {
         if(super<OnlinePlayerCollection>.add(player, whenPlayerQuitCallback)) {
             whenQuit.add(player to whenPlayerQuitCallback)
@@ -119,62 +119,58 @@ class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(), Onli
 
     override fun removeFirst(): Player {
         return super.removeFirst().also {
-            if (isEmpty()) unregisterAllListeners()
+            checkRegistration()
         }
     }
 
     override fun removeLastOccurrence(p0: Any?): Boolean {
         return super.removeLastOccurrence(p0).also {
-            if (isEmpty()) unregisterAllListeners()
+            if(it) checkRegistration()
         }
     }
 
     override fun removeAt(p0: Int): Player {
         return super.removeAt(p0).also {
-            if (isEmpty()) unregisterAllListeners()
+            checkRegistration()
         }
     }
 
     override fun remove(element: Player): Boolean {
         if(super.remove(element)) {
-            if (isEmpty()) unregisterAllListeners()
+            checkRegistration()
             return true
         } else return false
     }
 
     override fun removeLast(): Player {
         return super.removeLast().also {
-            if (isEmpty()) unregisterAllListeners()
+            checkRegistration()
         }
     }
 }
 
-class OnlinePlayerSet(override val plugin: Plugin) : TreeSet<Player>(PlayerComparator), OnlinePlayerCollection {
+class OnlinePlayerSet(override val plugin: Plugin) : HashSet<Player>(), OnlinePlayerCollection {
     private val whenQuit: MutableMap<Player, WhenPlayerQuitCollectionCallback> = mutableMapOf()
-
-    init { init() }
 
     override fun add(player: Player, whenPlayerQuitCallback: Player.() -> Unit): Boolean {
         if(super<OnlinePlayerCollection>.add(player, whenPlayerQuitCallback)) {
             whenQuit.put(player, whenPlayerQuitCallback)
+
+            checkRegistration()
             return true
         } else return false
     }
 
     override fun add(element: Player): Boolean {
-        val empty = isEmpty()
-        val added = super<TreeSet>.add(element)
-
-        if(added && empty) registerEvents(plugin)
-
-        return added
+        return super<HashSet>.add(element).also {
+            if(it) checkRegistration()
+        }
     }
 
     override fun remove(element: Player): Boolean {
-        if(super.remove(element)) {
-            if (isEmpty()) unregisterAllListeners()
-            return true
-        } else return false
+        return super.remove(element).also {
+            if(it) checkRegistration()
+        }
     }
 
     override fun quit(player: Player): Boolean {
@@ -189,21 +185,25 @@ class OnlinePlayerSet(override val plugin: Plugin) : TreeSet<Player>(PlayerCompa
 
 interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> {
 
-    fun init() {
-        event<PlayerQuitEvent> { quit(player) }
-        event<PlayerKickEvent> { quit(player) }
+    fun checkRegistration() {
+        if(size == 1) {
+            event<PlayerQuitEvent> { quit(player) }
+            event<PlayerKickEvent> { quit(player) }
+        } else if(size == 0) {
+            unregisterAllListeners()
+        }
     }
 
     fun add(player: Player, whenPlayerQuit: Player.() -> Unit): Boolean {
-        if (isEmpty()) registerEvents(plugin)
-        return add(player)
+        return add(player).also {
+            if(it) checkRegistration()
+        }
     }
 
     fun quit(player: Player): Boolean {
-        if (remove(player)) {
-            if (isEmpty()) unregisterAllListeners()
-            return true
-        } else return false
+        return remove(player).also {
+            if(it) checkRegistration()
+        }
     }
 
     fun clearQuiting() {
@@ -213,18 +213,14 @@ interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> 
     }
 }
 
-class OnlinePlayerMap<V>(override val plugin: Plugin) : TreeMap<Player, V>(PlayerComparator), KListener<Plugin> {
-    private val whenQuit: MutableMap<Player, WhenPlayerQuitMapCallback<V>> = mutableMapOf()
-
-    init {
-        event<PlayerQuitEvent> { quit(player) }
-        event<PlayerKickEvent> { quit(player) }
-    }
+class OnlinePlayerMap<V>(override val plugin: Plugin) : HashMap<Player, V>(), KListener<Plugin> {
+    private val whenQuit: HashMap<Player, WhenPlayerQuitMapCallback<V>> = hashMapOf()
 
     fun put(key: Player, value: V, whenPlayerQuit: Player.(V) -> Unit): V? {
         whenQuit.put(key, whenPlayerQuit)
-        if(isEmpty()) registerEvents(plugin)
-        return put(key, value)
+        return put(key, value).also {
+            checkRegistration()
+        }
     }
 
     fun quit(player: Player) {
@@ -232,25 +228,34 @@ class OnlinePlayerMap<V>(override val plugin: Plugin) : TreeMap<Player, V>(Playe
             whenQuit.remove(player)?.also { block ->
                 block.invoke(player, it)
             }
-            if(isEmpty()) unregisterAllListeners()
+            checkRegistration()
         }
     }
 
     override fun remove(key: Player): V? {
         return super.remove(key).also {
-            if(isEmpty()) unregisterAllListeners()
+            checkRegistration()
         }
     }
 
     override fun remove(key: Player, value: V): Boolean {
         return super.remove(key, value).also {
-            if(isEmpty()) unregisterAllListeners()
+            checkRegistration()
         }
     }
 
     fun clearQuiting() {
         keys.toMutableList().forEach {
             quit(it)
+        }
+    }
+
+    private fun checkRegistration() {
+        if(size == 1) {
+            event<PlayerQuitEvent> { quit(player) }
+            event<PlayerKickEvent> { quit(player) }
+        } else if(size == 0) {
+            unregisterAllListeners()
         }
     }
 }
