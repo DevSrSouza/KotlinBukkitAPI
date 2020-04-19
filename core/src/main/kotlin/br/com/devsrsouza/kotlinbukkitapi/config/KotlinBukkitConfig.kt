@@ -15,6 +15,9 @@ class KotlinBukkitConfig<T : Any>(
     private val bukkitConfig = BukkitConfig(file, type)
 
     fun load() {
+        file.parentFile.mkdir()
+        if(!file.exists()) file.createNewFile()
+
         if(bukkitConfig.saveMissingFrom(model) > 0)
             save()
 

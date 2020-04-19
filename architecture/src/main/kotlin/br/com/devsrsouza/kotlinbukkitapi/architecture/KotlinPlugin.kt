@@ -6,9 +6,13 @@ import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.getOrInsertConfi
 import br.com.devsrsouza.kotlinbukkitapi.config.ConfigurationType
 import br.com.devsrsouza.kotlinbukkitapi.config.KotlinBukkitConfig
 import br.com.devsrsouza.kotlinbukkitapi.config.KotlinConfigEvent
+import br.com.devsrsouza.kotlinbukkitapi.serialization.SerializationConfig
+import com.charleskorn.kaml.Yaml
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.StringFormat
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
-import java.util.*
+import java.util.concurrent.ConcurrentSkipListSet
 
 open class KotlinPlugin : JavaPlugin() {
 
@@ -56,11 +60,7 @@ open class KotlinPlugin : JavaPlugin() {
             loadOnEnable: Boolean = false,
             saveOnDisable: Boolean = false
     ): KotlinBukkitConfig<T> {
-        dataFolder.mkdir()
-
         val configFile = File(dataFolder, file)
-
-        if(!configFile.exists()) configFile.createNewFile()
 
         return KotlinBukkitConfig(model, configFile, type, eventObservable = {
             if (it == KotlinConfigEvent.RELOAD)
@@ -70,10 +70,46 @@ open class KotlinPlugin : JavaPlugin() {
         }
     }
 
+    /**
+     * Loads the file with the given [serializer].
+     *
+     * If the file not exist, one will be created with the [defaultModel] serialize into it.
+     *
+     * @param file: The file name in your [dataFolder] (like config.yml).
+     * @param loadOnEnable: If true, loads your configuration just when the server enable,
+     * otherwise, load at the call of this function. This could be usage if your configuration
+     * uses a parser that Parser a Location or a World that is not loaded yet.
+     * @param saveOnDisable: If true, saves the current [SerializationConfig.model] to the configuration file.
+     */
+    fun <T : Any> config(
+        file: String,
+        defaultModel: T,
+        serializer: KSerializer<T>,
+        type: StringFormat = Yaml.default,
+        loadOnEnable: Boolean = false,
+        saveOnDisable: Boolean = false
+    ): SerializationConfig<T> {
+        val configFile = File(dataFolder, file)
+
+        return SerializationConfig(
+            defaultModel,
+            configFile,
+            serializer,
+            type,
+            eventObservable = {
+                if (it == KotlinConfigEvent.RELOAD)
+                    someConfigReloaded()
+            }
+        ).also {
+            registerConfiguration(it as SerializationConfig<Any>, loadOnEnable, saveOnDisable)
+        }
+    }
+
     // implementation stuff, ignore...
 
-    internal val lifecycleListeners = TreeSet<Lifecycle>()
+    internal val lifecycleListeners = ConcurrentSkipListSet<Lifecycle>()
     internal val configurations = mutableListOf<KotlinBukkitConfig<Any>>()
+    internal val serializationConfigurations = mutableListOf<SerializationConfig<Any>>()
 
     final override fun onLoad() {
         onPluginLoad()
@@ -105,6 +141,9 @@ open class KotlinPlugin : JavaPlugin() {
         for (config in configurations)
             config.reload()
 
+        for (config in serializationConfigurations)
+            config.reload()
+
         someConfigReloaded()
     }
 
@@ -132,6 +171,26 @@ open class KotlinPlugin : JavaPlugin() {
         if(saveOnDisable) {
             val configLifecycle = getOrInsertConfigLifecycle()
             configLifecycle.onDisableSaveConfigurations.add(config)
+        }
+    }
+
+    private fun registerConfiguration(
+        config: SerializationConfig<Any>,
+        loadOnEnable: Boolean,
+        saveOnDisable: Boolean
+    ) {
+        serializationConfigurations.add(config)
+
+        if(loadOnEnable) {
+            val configLifecycle = getOrInsertConfigLifecycle()
+            configLifecycle.onEnableLoadSerializationConfigurations.add(config)
+        } else {
+            config.load()
+        }
+
+        if(saveOnDisable) {
+            val configLifecycle = getOrInsertConfigLifecycle()
+            configLifecycle.onDisableSaveSerializationConfigurations.add(config)
         }
     }
 
