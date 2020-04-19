@@ -5,7 +5,6 @@ import org.bukkit.Bukkit
 import org.bukkit.event.*
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.plugin.Plugin
-import kotlin.reflect.full.safeCast
 
 inline fun <reified T : Event> KListener<*>.event(
         priority: EventPriority = EventPriority.NORMAL,
@@ -24,7 +23,7 @@ inline fun <reified T : Event> Listener.event(
             this,
             priority,
             { _, event ->
-                T::class.safeCast(event)?.block()
+                (event as? T)?.block()
             },
             plugin,
             ignoreCancelled
