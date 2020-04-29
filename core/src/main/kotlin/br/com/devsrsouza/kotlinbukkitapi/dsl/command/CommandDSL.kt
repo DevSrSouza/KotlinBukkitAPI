@@ -1,16 +1,20 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command
 
+import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.command.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
+import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.KClass
 import kotlin.reflect.full.isSubclassOf
 
-typealias ExecutorBlock = Executor<CommandSender>.() -> Unit
-typealias ExecutorPlayerBlock = Executor<Player>.() -> Unit
+typealias ExecutorBlock<T> = suspend Executor<T>.() -> Unit
 typealias TabCompleterBlock = TabCompleter.() -> List<String>
 typealias CommandBuilderBlock = CommandDSL.() -> Unit
 
@@ -18,14 +22,14 @@ fun WithPlugin<*>.simpleCommand(
         name: String,
         vararg aliases: String = arrayOf(),
         description: String = "",
-        block: ExecutorBlock
+        block: ExecutorBlock<CommandSender>
 ) = plugin.simpleCommand(name, *aliases, description = description, block = block)
 
 fun Plugin.simpleCommand(
         name: String,
         vararg aliases: String = arrayOf(),
         description: String = "",
-        block: ExecutorBlock
+        block: ExecutorBlock<CommandSender>
 ) = simpleCommand(name, *aliases, plugin = this, description = description, block = block)
 
 fun simpleCommand(
@@ -33,7 +37,7 @@ fun simpleCommand(
         vararg aliases: String = arrayOf(),
         plugin: Plugin,
         description: String = "",
-        block: ExecutorBlock
+        block: ExecutorBlock<CommandSender>
 ) = command(name, *aliases, plugin = plugin) {
     if (description.isNotBlank()) this.description = description
 
@@ -57,7 +61,7 @@ inline fun command(
         vararg aliases: String = arrayOf(),
         plugin: Plugin,
         block: CommandBuilderBlock
-) = CommandDSL(name, *aliases).apply(block).apply {
+) = CommandDSL(plugin, name, *aliases).apply(block).apply {
     register(plugin)
 }
 
@@ -65,7 +69,8 @@ class Executor<E : CommandSender>(
         val sender: E,
         val label: String,
         val args: Array<out String>,
-        val command: CommandDSL
+        val command: CommandDSL,
+        val scope: CoroutineScope
 )
 
 class TabCompleter(
@@ -75,28 +80,33 @@ class TabCompleter(
 )
 
 open class CommandDSL(
-        name: String,
-        vararg aliases: String = arrayOf(),
-        executor: ExecutorBlock? = null
+    private val plugin: Plugin,
+    name: String,
+    vararg aliases: String = arrayOf(),
+    executor: ExecutorBlock<CommandSender>? = null,
+    private val job: Job = Job(),
+    private val coroutineScope: CoroutineScope = CoroutineScope(job + plugin.BukkitDispatchers.SYNC)
 ) : org.bukkit.command.Command(name.trim()) {
 
     var onlyInGameMessage = ""
+    var cancelOnPlayerDisconnect = true
 
     init {
         this.aliases = aliases.toList()
     }
 
-    private var executor: ExecutorBlock? = executor
+    private val jobsFromPlayers by lazy { plugin.onlinePlayerMapOf<Job>() }
+    private var executor: ExecutorBlock<CommandSender>? = executor
     private var tabCompleter: TabCompleterBlock? = null
 
-    private val executors: MutableMap<KClass<out CommandSender>, Executor<CommandSender>.() -> Unit> = mutableMapOf()
+    private val executors: MutableMap<KClass<out CommandSender>, ExecutorBlock<CommandSender>> = mutableMapOf()
 
     val subCommands: MutableList<CommandDSL> = mutableListOf()
 
     fun TabCompleter.default() = defaultTabComplete(sender, alias, args)
 
     open fun subCommandBuilder(name: String, vararg aliases: String = arrayOf()): CommandDSL {
-        return CommandDSL(name, *aliases).also {
+        return CommandDSL(plugin, name, *aliases, job = job, coroutineScope = coroutineScope).also {
             it.permission = this.permission
             it.permissionMessage = this.permissionMessage
             it.onlyInGameMessage = this.onlyInGameMessage
@@ -112,11 +122,11 @@ open class CommandDSL(
         return subCommandBuilder(name, *aliases).apply(block).also { subCommands.add(it) }
     }
 
-    open fun executor(block: ExecutorBlock) {
+    open fun executor(block: ExecutorBlock<CommandSender>) {
         executor = block
     }
 
-    open fun executorPlayer(block: ExecutorPlayerBlock) {
+    open fun executorPlayer(block: ExecutorBlock<Player>) {
         genericExecutor(Player::class, block)
     }
 
@@ -124,11 +134,11 @@ open class CommandDSL(
         tabCompleter = block
     }
 
-    open fun <T : CommandSender> genericExecutor(clazz: KClass<T>, block: Executor<T>.() -> Unit) {
-        executors.put(clazz, block as Executor<CommandSender>.() -> Unit)
+    open fun <T : CommandSender> genericExecutor(clazz: KClass<T>, block: ExecutorBlock<T>) {
+        executors.put(clazz, block as ExecutorBlock<CommandSender>)
     }
 
-    inline fun <reified T : CommandSender> genericExecutor(noinline block: Executor<T>.() -> Unit) {
+    inline fun <reified T : CommandSender> genericExecutor(noinline block: ExecutorBlock<T>) {
         genericExecutor(T::class, block)
     }
 
@@ -159,15 +169,23 @@ open class CommandDSL(
             try {
                 val genericExecutor = executors.getByInstance(sender::class)
                 if (genericExecutor != null) {
-                    genericExecutor.invoke(Executor(sender, label, args, this))
+                    coroutineScope.launch {
+                        genericExecutor.invoke(Executor(sender, label, args, this@CommandDSL, coroutineScope))
+                    }
                 } else {
                     val hasPlayer = executors.getByInstance(Player::class)
                     if (hasPlayer != null) {
-                        if (executor != null) {
-                            executor?.invoke(Executor(sender, label, args, this))
+                        if (sender is Player) {
+                            val playerJob = Job() // store and cancel when player
+                            if(cancelOnPlayerDisconnect) jobsFromPlayers.put(sender, playerJob, { if(it.isActive) it.cancel() })
+                            coroutineScope.launch(playerJob) {
+                                hasPlayer.invoke(Executor(sender, label, args, this@CommandDSL, coroutineScope))
+                            }
                         } else sender.sendMessage(onlyInGameMessage)
                     } else {
-                        executor?.invoke(Executor(sender, label, args, this))
+                        coroutineScope.launch {
+                            executor?.invoke(Executor(sender, label, args, this@CommandDSL, coroutineScope))
+                        }
                     }
                 }
             } catch (ex: CommandFailException) {
