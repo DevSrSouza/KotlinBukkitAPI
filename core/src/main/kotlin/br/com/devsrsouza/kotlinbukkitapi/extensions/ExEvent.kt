@@ -5,28 +5,47 @@ import org.bukkit.Bukkit
 import org.bukkit.event.*
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.plugin.Plugin
+import kotlin.reflect.KClass
 
 inline fun <reified T : Event> KListener<*>.event(
         priority: EventPriority = EventPriority.NORMAL,
         ignoreCancelled: Boolean = true,
-        crossinline block: T.() -> Unit
+        noinline block: T.() -> Unit
 ) = event(plugin, priority, ignoreCancelled, block)
+
+fun <T : Event> KListener<*>.event(
+    type: KClass<T>,
+    priority: EventPriority = EventPriority.NORMAL,
+    ignoreCancelled: Boolean = true,
+    block: T.() -> Unit
+) = event(plugin, type, priority, ignoreCancelled, block)
 
 inline fun <reified T : Event> Listener.event(
         plugin: Plugin,
         priority: EventPriority = EventPriority.NORMAL,
         ignoreCancelled: Boolean = true,
-        crossinline block: T.() -> Unit
+        noinline block: T.() -> Unit
+) {
+    event<T>(plugin, T::class, priority, ignoreCancelled, block)
+}
+
+fun <T : Event> Listener.event(
+    plugin: Plugin,
+    type: KClass<T>,
+    priority: EventPriority = EventPriority.NORMAL,
+    ignoreCancelled: Boolean = true,
+    block: T.() -> Unit
 ) {
     Bukkit.getServer().pluginManager.registerEvent(
-            T::class.java,
-            this,
-            priority,
-            { _, event ->
+        type.java,
+        this,
+        priority,
+        { _, event ->
+            if(type.isInstance(event))
                 (event as? T)?.block()
-            },
-            plugin,
-            ignoreCancelled
+        },
+        plugin,
+        ignoreCancelled
     )
 }
 
