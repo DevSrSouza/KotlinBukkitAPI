@@ -9,21 +9,21 @@ import kotlin.reflect.KClass
 
 inline fun <reified T : Event> KListener<*>.event(
         priority: EventPriority = EventPriority.NORMAL,
-        ignoreCancelled: Boolean = true,
+        ignoreCancelled: Boolean = false,
         noinline block: T.() -> Unit
 ) = event(plugin, priority, ignoreCancelled, block)
 
 fun <T : Event> KListener<*>.event(
     type: KClass<T>,
     priority: EventPriority = EventPriority.NORMAL,
-    ignoreCancelled: Boolean = true,
+    ignoreCancelled: Boolean = false,
     block: T.() -> Unit
 ) = event(plugin, type, priority, ignoreCancelled, block)
 
 inline fun <reified T : Event> Listener.event(
         plugin: Plugin,
         priority: EventPriority = EventPriority.NORMAL,
-        ignoreCancelled: Boolean = true,
+        ignoreCancelled: Boolean = false,
         noinline block: T.() -> Unit
 ) {
     event<T>(plugin, T::class, priority, ignoreCancelled, block)
@@ -33,7 +33,7 @@ fun <T : Event> Listener.event(
     plugin: Plugin,
     type: KClass<T>,
     priority: EventPriority = EventPriority.NORMAL,
-    ignoreCancelled: Boolean = true,
+    ignoreCancelled: Boolean = false,
     block: T.() -> Unit
 ) {
     Bukkit.getServer().pluginManager.registerEvent(
