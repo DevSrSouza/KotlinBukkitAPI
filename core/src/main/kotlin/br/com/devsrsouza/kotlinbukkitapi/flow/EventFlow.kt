@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import org.bukkit.entity.Player
 import org.bukkit.event.Event
 import org.bukkit.event.EventPriority
+import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerEvent
 import org.bukkit.event.player.PlayerKickEvent
 import org.bukkit.event.player.PlayerQuitEvent
@@ -21,28 +22,34 @@ import kotlin.reflect.KClass
 suspend inline fun <reified T : Event> WithPlugin<*>.eventFlow(
     assign: Player? = null,
     priority: EventPriority = EventPriority.NORMAL,
-    ignoreCancelled: Boolean = false
-): Flow<T> = plugin.eventFlow<T>(assign, priority, ignoreCancelled)
+    ignoreCancelled: Boolean = false,
+    channel: Channel<T> = Channel<T>(Channel.CONFLATED),
+    listener: Listener = plugin.events {},
+    assignListener: Listener = plugin.events {}
+): Flow<T> = plugin.eventFlow<T>(assign, priority, ignoreCancelled, channel, listener, assignListener)
 
 suspend inline fun <reified T : Event> Plugin.eventFlow(
     assign: Player? = null,
     priority: EventPriority = EventPriority.NORMAL,
-    ignoreCancelled: Boolean = false
-): Flow<T> = eventFlow(T::class, this, assign, priority, ignoreCancelled)
+    ignoreCancelled: Boolean = false,
+    channel: Channel<T> = Channel<T>(Channel.CONFLATED),
+    listener: Listener = events {},
+    assignListener: Listener = events {}
+): Flow<T> = eventFlow(T::class, this, assign, priority, ignoreCancelled, channel, listener, assignListener)
 
 suspend fun <T : Event> eventFlow(
     type: KClass<T>,
     plugin: Plugin,
     assign: Player? = null,
     priority: EventPriority = EventPriority.NORMAL,
-    ignoreCancelled: Boolean = false
+    ignoreCancelled: Boolean = false,
+    channel: Channel<T> = Channel<T>(Channel.CONFLATED),
+    listener: Listener = plugin.events {},
+    assignListener: Listener = plugin.events {}
 ): Flow<T> {
-    val channel = Channel<T>(Channel.CONFLATED)
-
-    val listener = plugin.events {}
 
     val flow = channel.consumeAsFlow().onStart {
-        listener.event(type, priority, ignoreCancelled) {
+        listener.event(plugin, type, priority, ignoreCancelled) {
             GlobalScope.launch {
                 if (!channel.isClosedForSend && !channel.isClosedForReceive)
                     channel.send(this@event)
@@ -50,15 +57,15 @@ suspend fun <T : Event> eventFlow(
         }
     }
 
-    val assignListener: KListener<*>? = if (assign != null)
-        plugin.events {
+    val assignListener: Listener? = if (assign != null)
+        assignListener.apply {
             fun PlayerEvent.closeChannel() {
                 if (!channel.isClosedForSend && player.name == assign.name)
                     channel.close()
             }
 
-            event<PlayerQuitEvent> { closeChannel() }
-            event<PlayerKickEvent> { closeChannel() }
+            event<PlayerQuitEvent>(plugin) { closeChannel() }
+            event<PlayerKickEvent>(plugin) { closeChannel() }
         }
     else null
 
