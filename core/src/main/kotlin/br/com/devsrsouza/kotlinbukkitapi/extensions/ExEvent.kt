@@ -57,6 +57,8 @@ fun Listener.unregisterAllListeners() = HandlerList.unregisterAll(this)
 fun Listener.registerEvents(plugin: Plugin)
         = plugin.server.pluginManager.registerEvents(this, plugin)
 
+fun Listener.unregisterListener() = HandlerList.unregisterAll(this)
+
 fun Event.callEvent() = Bukkit.getServer().pluginManager.callEvent(this)
 
 val PlayerMoveEvent.displaced: Boolean
