@@ -166,31 +166,32 @@ open class CommandDSL(
                     return true
                 }
             }
-            try {
-                val genericExecutor = executors.getByInstance(sender::class)
-                if (genericExecutor != null) {
-                    coroutineScope.launch {
+            val genericExecutor = executors.getByInstance(sender::class)
+            if (genericExecutor != null) {
+                coroutineScope.launch {
+                    treatFail(sender) {
                         genericExecutor.invoke(Executor(sender, label, args, this@CommandDSL, coroutineScope))
                     }
-                } else {
-                    val hasPlayer = executors.getByInstance(Player::class)
-                    if (hasPlayer != null) {
-                        if (sender is Player) {
-                            val playerJob = Job() // store and cancel when player
-                            if(cancelOnPlayerDisconnect) jobsFromPlayers.put(sender, playerJob, { if(it.isActive) it.cancel() })
-                            coroutineScope.launch(playerJob) {
+                }
+            } else {
+                val hasPlayer = executors.getByInstance(Player::class)
+                if (hasPlayer != null) {
+                    if (sender is Player) {
+                        val playerJob = Job() // store and cancel when player
+                        if (cancelOnPlayerDisconnect) jobsFromPlayers.put(sender, playerJob, { if (it.isActive) it.cancel() })
+                        coroutineScope.launch(playerJob) {
+                            treatFail(sender) {
                                 hasPlayer.invoke(Executor(sender, label, args, this@CommandDSL, coroutineScope))
                             }
-                        } else sender.sendMessage(onlyInGameMessage)
-                    } else {
-                        coroutineScope.launch {
+                        }
+                    } else sender.sendMessage(onlyInGameMessage)
+                } else {
+                    coroutineScope.launch {
+                        treatFail(sender) {
                             executor?.invoke(Executor(sender, label, args, this@CommandDSL, coroutineScope))
                         }
                     }
                 }
-            } catch (ex: CommandFailException) {
-                ex.senderMessage?.also { sender.sendMessage(it) }
-                ex.execute()
             }
         }
         return true
@@ -220,6 +221,15 @@ open class CommandDSL(
             } else return super.tabComplete(sender, alias, args)
         }
         return super.tabComplete(sender, alias, args)
+    }
+
+    private suspend fun treatFail(sender: CommandSender, block: suspend () -> Unit) {
+        try {
+            block()
+        } catch (ex: CommandFailException) {
+            ex.senderMessage?.also { sender.sendMessage(it) }
+            ex.execute()
+        }
     }
 
 }
