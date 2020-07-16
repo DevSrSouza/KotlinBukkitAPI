@@ -7,7 +7,7 @@ import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
  */
 data class Lifecycle(
         val priority: Int,
-        val listener: LifecycleListener<KotlinPlugin>
+        val listener: PluginLifecycleListener
 ) : Comparable<Lifecycle> {
 
     override fun compareTo(
