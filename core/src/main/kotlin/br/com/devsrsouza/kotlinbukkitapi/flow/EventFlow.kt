@@ -19,7 +19,7 @@ import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.KClass
 
-suspend inline fun <reified T : Event> WithPlugin<*>.eventFlow(
+inline fun <reified T : Event> WithPlugin<*>.eventFlow(
     assign: Player? = null,
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false,
@@ -28,7 +28,7 @@ suspend inline fun <reified T : Event> WithPlugin<*>.eventFlow(
     assignListener: Listener = plugin.events {}
 ): Flow<T> = plugin.eventFlow<T>(assign, priority, ignoreCancelled, channel, listener, assignListener)
 
-suspend inline fun <reified T : Event> Plugin.eventFlow(
+inline fun <reified T : Event> Plugin.eventFlow(
     assign: Player? = null,
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false,
@@ -37,7 +37,7 @@ suspend inline fun <reified T : Event> Plugin.eventFlow(
     assignListener: Listener = events {}
 ): Flow<T> = eventFlow(T::class, this, assign, priority, ignoreCancelled, channel, listener, assignListener)
 
-suspend fun <T : Event> eventFlow(
+fun <T : Event> eventFlow(
     type: KClass<T>,
     plugin: Plugin,
     assign: Player? = null,
