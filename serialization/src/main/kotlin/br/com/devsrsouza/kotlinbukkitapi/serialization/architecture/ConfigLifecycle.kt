@@ -1,20 +1,18 @@
-package br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle
+package br.com.devsrsouza.kotlinbukkitapi.serialization.architecture
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
-import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.impl.ConfigDelegate
-import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.impl.getOrInsertConfigLifecycle
-import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.impl.registerConfiguration
+import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
 import br.com.devsrsouza.kotlinbukkitapi.serialization.KotlinConfigEvent
 import br.com.devsrsouza.kotlinbukkitapi.serialization.SerializationConfig
+import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl.ConfigDelegate
+import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl.getOrInsertConfigLifecycle
+import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl.registerConfiguration
 import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.StringFormat
 import kotlinx.serialization.serializer
 import java.io.File
-import java.lang.IllegalArgumentException
-import kotlin.properties.ReadOnlyProperty
-import kotlin.reflect.KProperty
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -22,6 +20,8 @@ import kotlin.reflect.typeOf
  * Loads the file with the given [serializer].
  *
  * If the file not exist, one will be created with the [defaultModel] serialize into it.
+ *
+ * If [KotlinPlugin.reloadConfig] get called will reload the Config.
  *
  * @param file: The file name in your [dataFolder] (like config.yml).
  * @param loadOnEnable: If true, loads your configuration just when the server enable,

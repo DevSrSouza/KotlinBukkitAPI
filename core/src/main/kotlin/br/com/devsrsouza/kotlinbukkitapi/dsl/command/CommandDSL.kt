@@ -12,7 +12,6 @@ import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.KClass
-import kotlin.reflect.full.isSubclassOf
 
 typealias ExecutorBlock<T> = suspend Executor<T>.() -> Unit
 typealias TabCompleterBlock = TabCompleter.() -> List<String>
@@ -143,7 +142,7 @@ open class CommandDSL(
     }
 
     private fun <T> MutableMap<KClass<out CommandSender>, T>.getByInstance(clazz: KClass<*>): T? {
-        return entries.find { clazz.isSubclassOf(it.key) }?.value
+        return entries.find { it.key::class.isInstance(clazz) }?.value
     }
 
     override fun execute(

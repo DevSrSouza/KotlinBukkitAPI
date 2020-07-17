@@ -17,7 +17,6 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 | Name | Version |
 | --- | --- |
 | Kotlin STD | 1.3.71 |
-| Kotlin Reflect | 1.3.71 |
 | [Kotlinx-coroutines](https://github.com/Kotlin/kotlinx.coroutines/) | 1.3.5 |
 | [Skedule](https://github.com/okkero/Skedule) | 1.2.6 |
 
@@ -28,9 +27,10 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 | Architecture | Help you with the Architecture of your plugin providing KotlinPlugin base and Lifecycle Listener |
 | Plugins | Extensions for others plugins like Vault, PlaceholderAPI and others |
 | Exposed(0.21.1) | Extensions for SQL framework [Exposed](https://github.com/JetBrains/Exposed/) |
-| Exposed(0.20.0) | Extensions for [Kotlinx.serialization]() |
+| Kotlinx.Serialization(0.20.0) | Extensions for [Kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) |
 
 # Links
+- [Starter project using KotlinBukkitAPI](https://github.com/KotlinMinecraft/KBAPI-StarterProject/)
 - [Examples and **documentation**](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
 - [Clone and building](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/Clone-and-build)
 

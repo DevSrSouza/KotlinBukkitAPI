@@ -1,19 +1,22 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization
 
-import br.com.devsrsouza.kotlinbukkitapi.config.KotlinConfigEvent
-import br.com.devsrsouza.kotlinbukkitapi.config.KotlinConfigEventObservable
 import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.StringFormat
 import java.io.File
 
+typealias KotlinConfigEventObservable = (KotlinConfigEvent) -> Unit
+
+enum class KotlinConfigEvent { SAVE, RELOAD }
+
 class SerializationConfig<T : Any>(
-    var model: T,
+    val defaultModel: T,
     val file: File,
     val serializer: KSerializer<T>,
     val stringFormat: StringFormat = Yaml.default,
     val eventObservable: KotlinConfigEventObservable? = null
 ) {
+    lateinit var config: T private set
 
     fun load() {
         createFileIfNotExist()
@@ -25,7 +28,7 @@ class SerializationConfig<T : Any>(
      * Save the current values of [model] in the configuration file.
      */
     fun save(): SerializationConfig<T> = apply {
-        saveToFile()
+        saveToFile(config)
 
         eventObservable?.invoke(KotlinConfigEvent.SAVE)
     }
@@ -40,13 +43,13 @@ class SerializationConfig<T : Any>(
     }
 
     private fun loadFromFile() {
-        model = stringFormat.parse(serializer, file.readText())
+        config = stringFormat.parse(serializer, file.readText())
     }
 
-    private fun stringifyModel() = stringFormat.stringify(serializer, model)
+    private fun stringifyModel(value: T) = stringFormat.stringify(serializer, value)
 
-    private fun saveToFile() {
-        val content = stringifyModel()
+    private fun saveToFile(value: T) {
+        val content = stringifyModel(value)
         file.writeText(content)
     }
 
@@ -55,7 +58,7 @@ class SerializationConfig<T : Any>(
             file.parentFile.mkdirs()
             file.createNewFile()
 
-            saveToFile()
+            saveToFile(defaultModel)
         }
     }
 }

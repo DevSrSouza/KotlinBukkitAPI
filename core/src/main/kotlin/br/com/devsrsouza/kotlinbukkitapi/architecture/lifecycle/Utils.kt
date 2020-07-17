@@ -2,7 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 
-internal inline fun <reified T : LifecycleListener<KotlinPlugin>> KotlinPlugin.getOrInsertGenericLifecycle(
+inline fun <reified T : LifecycleListener<KotlinPlugin>> KotlinPlugin.getOrInsertGenericLifecycle(
         priority: Int,
         factory: () -> T
 ): T {

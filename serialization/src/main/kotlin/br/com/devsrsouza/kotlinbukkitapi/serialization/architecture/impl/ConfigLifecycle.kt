@@ -1,10 +1,10 @@
-package br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.impl
+package br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
-import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.getConfig
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.getOrInsertGenericLifecycle
 import br.com.devsrsouza.kotlinbukkitapi.serialization.SerializationConfig
+import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.getConfig
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 import kotlin.reflect.KType
@@ -33,6 +33,11 @@ internal class ConfigLifecycle(
     override fun onPluginDisable() {
         for (config in onDisableSaveSerializationConfigurations)
             config.save()
+    }
+
+    override fun onConfigReload() {
+        for (config in serializationConfigurations.values)
+            config.reload()
     }
 }
 

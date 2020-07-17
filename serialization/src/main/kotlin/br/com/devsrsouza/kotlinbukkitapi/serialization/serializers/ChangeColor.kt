@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.serialization
+package br.com.devsrsouza.kotlinbukkitapi.serialization.serializers
 
 import kotlinx.serialization.*
 import net.md_5.bungee.api.ChatColor

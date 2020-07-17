@@ -1,7 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.architecture
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.*
-import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.impl.getOrInsertConfigLifecycle
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.concurrent.ConcurrentSkipListSet
 
@@ -31,7 +30,7 @@ open class KotlinPlugin : JavaPlugin() {
             priority: Int = 1,
             listener: PluginLifecycleListener
     ) {
-        lifecycleListeners.add(
+        _lifecycleListeners.add(
             Lifecycle(
                 priority,
                 listener
@@ -40,20 +39,21 @@ open class KotlinPlugin : JavaPlugin() {
     }
 
     // implementation stuff, ignore...
-    internal val lifecycleListeners = ConcurrentSkipListSet<Lifecycle>()
+    private val _lifecycleListeners = ConcurrentSkipListSet<Lifecycle>()
+    val lifecycleListeners: Set<Lifecycle> = _lifecycleListeners
 
 
     final override fun onLoad() {
         onPluginLoad()
 
-        for(lifecycle in lifecycleListeners)
+        for(lifecycle in _lifecycleListeners)
             lifecycle.listener(LifecycleEvent.LOAD)
     }
 
     final override fun onEnable() {
         onPluginEnable()
 
-        for(lifecycle in lifecycleListeners)
+        for(lifecycle in _lifecycleListeners)
             lifecycle.listener(LifecycleEvent.ENABLE)
     }
 
@@ -61,7 +61,7 @@ open class KotlinPlugin : JavaPlugin() {
         onPluginDisable()
 
         // reversing lifecycles for execute first the low priority ones
-        val reversedLifecyle = lifecycleListeners.descendingSet()
+        val reversedLifecyle = _lifecycleListeners.descendingSet()
 
         for(lifecycle in reversedLifecyle)
             lifecycle.listener(LifecycleEvent.DISABLE)
@@ -70,16 +70,13 @@ open class KotlinPlugin : JavaPlugin() {
     final override fun reloadConfig() {
         super.reloadConfig()
 
-        for (config in getOrInsertConfigLifecycle().serializationConfigurations.values)
-            config.reload()
-
         someConfigReloaded()
     }
 
-    internal fun someConfigReloaded() {
+    fun someConfigReloaded() {
         onConfigReload()
 
-        for(lifecycle in lifecycleListeners)
+        for(lifecycle in _lifecycleListeners)
             lifecycle.listener(LifecycleEvent.CONFIG_RELOAD)
     }
 
