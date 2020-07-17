@@ -14,6 +14,7 @@ repositories {
     maven("WorldEdit", "http://maven.sk89q.com/repo/")
     maven("ViaVersion", "https://repo.viaversion.com/")
     maven("perfectdreams", "https://repo.perfectdreams.net/")
+    maven("inventivetalent", "https://repo.inventivetalent.org/content/groups/public/")
 }
 
 (rootProject.ext["softPlugins"] as MutableList<String>).addAll(
