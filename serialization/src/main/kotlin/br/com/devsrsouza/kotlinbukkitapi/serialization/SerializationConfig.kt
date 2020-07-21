@@ -13,7 +13,8 @@ class SerializationConfig<T : Any>(
     val defaultModel: T,
     val file: File,
     val serializer: KSerializer<T>,
-    val stringFormat: StringFormat = Yaml.default,
+    val stringFormat: StringFormat,
+    val alwaysRestoreDefaults: Boolean,
     val eventObservable: KotlinConfigEventObservable? = null
 ) {
     lateinit var config: T private set
@@ -44,6 +45,9 @@ class SerializationConfig<T : Any>(
 
     private fun loadFromFile() {
         config = stringFormat.parse(serializer, file.readText())
+
+        if(alwaysRestoreDefaults)
+            saveToFile(config)
     }
 
     private fun stringifyModel(value: T) = stringFormat.stringify(serializer, value)

@@ -37,6 +37,11 @@ inline fun <reified T : Event> Plugin.eventFlow(
     assignListener: Listener = events {}
 ): Flow<T> = eventFlow(T::class, this, assign, priority, ignoreCancelled, channel, listener, assignListener)
 
+/**
+ * Create a Event Flow that receives the specified Event [type].
+ *
+ * [assign] is use for auto cancel the Flow when the Player disconnects.
+ */
 fun <T : Event> eventFlow(
     type: KClass<T>,
     plugin: Plugin,

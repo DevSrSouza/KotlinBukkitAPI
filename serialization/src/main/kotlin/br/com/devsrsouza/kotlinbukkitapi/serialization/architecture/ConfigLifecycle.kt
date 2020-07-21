@@ -35,7 +35,8 @@ fun <T : Any> KotlinPlugin.config(
         serializer: KSerializer<T>,
         type: StringFormat = Yaml.default,
         loadOnEnable: Boolean = false,
-        saveOnDisable: Boolean = false
+        saveOnDisable: Boolean = false,
+        alwaysRestoreDefaults: Boolean = true
 ): SerializationConfig<T> {
     val configFile = File(dataFolder, file)
 
@@ -44,6 +45,7 @@ fun <T : Any> KotlinPlugin.config(
             configFile,
             serializer,
             type,
+            alwaysRestoreDefaults,
             eventObservable = {
                 if (it == KotlinConfigEvent.RELOAD)
                     someConfigReloaded()
