@@ -24,8 +24,14 @@ fun String.translateColor(code: Char = '&') = ChatColor.translateAlternateColorC
 fun Collection<String>.translateColor(code: Char = '&') = map { it.translateColor(code) }
 fun <V> Map<String, V>.translateColorKeys(code: Char = '&') = mapKeys { it.key.translateColor(code) }
 fun <K> Map<K, String>.translateColorValues(code: Char = '&') = mapValues { it.value.translateColor(code) }
+
+fun String.reverseTranslateColor(code: Char = '&') = replace('§', code)
+fun Collection<String>.reverseTranslateColor(code: Char = '&') = map { it.reverseTranslateColor(code) }
+fun <V> Map<String, V>.reverseTranslateColorKeys(code: Char = '&') = mapKeys { it.key.reverseTranslateColor(code) }
+fun <K> Map<K, String>.reverseTranslateColorValues(code: Char = '&') = mapValues { it.value.reverseTranslateColor(code) }
+
 operator fun String.unaryPlus() = translateColor()
-operator fun String.unaryMinus() = replace('§', '&')
+operator fun String.unaryMinus() = reverseTranslateColor()
 operator fun ChatColor.plus(text: String) = toString() + text
 operator fun ChatColor.plus(other: ChatColor) = toString() + other.toString()
 

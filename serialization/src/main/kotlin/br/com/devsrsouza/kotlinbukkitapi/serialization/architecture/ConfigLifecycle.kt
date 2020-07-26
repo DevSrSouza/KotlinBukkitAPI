@@ -2,6 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.serialization.architecture
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
+import br.com.devsrsouza.kotlinbukkitapi.serialization.BukkitSerialModule
 import br.com.devsrsouza.kotlinbukkitapi.serialization.KotlinConfigEvent
 import br.com.devsrsouza.kotlinbukkitapi.serialization.SerializationConfig
 import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl.ConfigDelegate
@@ -23,6 +24,14 @@ import kotlin.reflect.typeOf
  *
  * If [KotlinPlugin.reloadConfig] get called will reload the Config.
  *
+ * KotlinBukkitAPI provide Kotlinx.Serialization Contextual Serializers for a couple Bukkit objects,
+ * this is provided by the BukkitSerialModule(), if do you have a custom SerialModule you should add
+ * the BukkitSerialModule by `yourSerialModule + BukkitSerialModule()`. The provided Bukkit types are:
+ * Block, Chunk, Location, Material, MaterialData, World.
+ *
+ * Custom annotations:
+ * - `@ChangeColor` in a String property translate the color codes from the Configuration, saves in `&` and loads in ``.
+ *
  * @param file: The file name in your [dataFolder] (like config.yml).
  * @param loadOnEnable: If true, loads your configuration just when the server enable,
  * otherwise, load at the call of this function. This could be usage if your configuration
@@ -33,7 +42,7 @@ fun <T : Any> KotlinPlugin.config(
         file: String,
         defaultModel: T,
         serializer: KSerializer<T>,
-        type: StringFormat = Yaml.default,
+        type: StringFormat = Yaml(BukkitSerialModule()),
         loadOnEnable: Boolean = false,
         saveOnDisable: Boolean = false,
         alwaysRestoreDefaults: Boolean = true

@@ -1,6 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization
 
-import com.charleskorn.kaml.Yaml
+import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.bukkit.BukkitSerializationDecodeInterceptor
+import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.bukkit.BukkitSerializationEncodeInterceptor
+import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.impl.StringFormatInterceptor
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.StringFormat
 import java.io.File
@@ -9,15 +11,28 @@ typealias KotlinConfigEventObservable = (KotlinConfigEvent) -> Unit
 
 enum class KotlinConfigEvent { SAVE, RELOAD }
 
+/**
+ * A helper class to work with Kotlinx.serialization for Bukkit plugins config.
+ *
+ * Additional features: Using a interceptor we are able to add new annotations to the Kotlinx.serialization.
+ *
+ * `@ChangeColor` in a String property translate the color codes from the Configuration, saves in `&` and loads in ``.
+ */
 class SerializationConfig<T : Any>(
     val defaultModel: T,
     val file: File,
     val serializer: KSerializer<T>,
-    val stringFormat: StringFormat,
+    stringFormat: StringFormat,
     val alwaysRestoreDefaults: Boolean,
     val eventObservable: KotlinConfigEventObservable? = null
 ) {
     lateinit var config: T private set
+
+    val stringFormat = StringFormatInterceptor(
+            stringFormat,
+            BukkitSerializationEncodeInterceptor,
+            BukkitSerializationDecodeInterceptor
+    )
 
     fun load() {
         createFileIfNotExist()

@@ -8,7 +8,7 @@ import org.bukkit.material.MaterialData
 @Serializer(forClass = MaterialData::class)
 object MaterialDataSerializer : KSerializer<MaterialData> {
     override val descriptor: SerialDescriptor = SerialDescriptor(
-        "MaterialData", PrimitiveKind.STRING
+        "org.bukkit.material.MaterialData", PrimitiveKind.STRING
     )
 
     override fun deserialize(decoder: Decoder): MaterialData {
