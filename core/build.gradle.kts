@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-    compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
+    compile("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8")
 
     compile("com.okkero.skedule:skedule:1.2.6")
 
