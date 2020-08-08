@@ -152,7 +152,7 @@ class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(), Onli
 class OnlinePlayerSet(override val plugin: Plugin) : HashSet<Player>(), OnlinePlayerCollection {
     private val whenQuit: MutableMap<Player, WhenPlayerQuitCollectionCallback> = mutableMapOf()
 
-    override fun add(player: Player, whenPlayerQuitCallback: Player.() -> Unit): Boolean {
+    override fun add(player: Player, whenPlayerQuitCallback: WhenPlayerQuitCollectionCallback): Boolean {
         if(super<OnlinePlayerCollection>.add(player, whenPlayerQuitCallback)) {
             whenQuit.put(player, whenPlayerQuitCallback)
 
@@ -194,18 +194,27 @@ interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> 
         }
     }
 
-    fun add(player: Player, whenPlayerQuit: Player.() -> Unit): Boolean {
+    /**
+     * Adds a new Player to the collection with a callback for when the player quits the server.
+     */
+    fun add(player: Player, whenPlayerQuit: WhenPlayerQuitCollectionCallback): Boolean {
         return add(player).also {
             if(it) checkRegistration()
         }
     }
 
+    /**
+     * Removes the player from the collection, calling the [WhenPlayerQuitCollectionCallback] provided.
+     */
     fun quit(player: Player): Boolean {
         return remove(player).also {
             if(it) checkRegistration()
         }
     }
 
+    /**
+     * Clear the collection calling all [WhenPlayerQuitCollectionCallback] from the Players.
+     */
     fun clearQuiting() {
         toMutableList().forEach {
             quit(it)
@@ -216,19 +225,34 @@ interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> 
 class OnlinePlayerMap<V>(override val plugin: Plugin) : HashMap<Player, V>(), KListener<Plugin> {
     private val whenQuit: HashMap<Player, WhenPlayerQuitMapCallback<V>> = hashMapOf()
 
-    fun put(key: Player, value: V, whenPlayerQuit: Player.(V) -> Unit): V? {
+    /**
+     * Puts a Player to the map with a [value] and a callback for when the player quits the server.
+     */
+    fun put(key: Player, value: V, whenPlayerQuit: WhenPlayerQuitMapCallback<V>): V? {
         whenQuit.put(key, whenPlayerQuit)
         return put(key, value).also {
             checkRegistration()
         }
     }
 
+    /**
+     * Removes the player from the map, calling the [WhenPlayerQuitMapCallback] provided.
+     */
     fun quit(player: Player) {
         remove(player)?.also {
             whenQuit.remove(player)?.also { block ->
                 block.invoke(player, it)
             }
             checkRegistration()
+        }
+    }
+
+    /**
+     * Clear the map calling all [WhenPlayerQuitMapCallback] from the Players.
+     */
+    fun clearQuiting() {
+        keys.toMutableList().forEach {
+            quit(it)
         }
     }
 
@@ -241,12 +265,6 @@ class OnlinePlayerMap<V>(override val plugin: Plugin) : HashMap<Player, V>(), KL
     override fun remove(key: Player, value: V): Boolean {
         return super.remove(key, value).also {
             checkRegistration()
-        }
-    }
-
-    fun clearQuiting() {
-        keys.toMutableList().forEach {
-            quit(it)
         }
     }
 

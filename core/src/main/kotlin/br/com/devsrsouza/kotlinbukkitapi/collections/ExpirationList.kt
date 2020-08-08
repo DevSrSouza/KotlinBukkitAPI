@@ -80,6 +80,7 @@ interface ExpirationList<E> : MutableIterable<E> {
     /**
      * Add the element to the list with an expiration time.
      *
+     * [expireTime] in seconds
      * callback [onExpire] is called when the element expires.
      */
     fun add(element: E, expireTime: Int, onExpire: OnExpireCallback<E>? = null)
@@ -87,6 +88,7 @@ interface ExpirationList<E> : MutableIterable<E> {
     /**
      * Add the element in the start of list with an expiration time.
      *
+     * [expireTime] in seconds
      * callback [onExpire] is called when the element expires.
      */
     fun addFirst(element: E, expireTime: Int, onExpire: OnExpireCallback<E>? = null)

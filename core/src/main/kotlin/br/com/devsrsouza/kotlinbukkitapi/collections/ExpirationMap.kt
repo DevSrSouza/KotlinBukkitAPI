@@ -50,6 +50,7 @@ interface ExpirationMap<K, V> : MutableMap<K, V>, WithPlugin<Plugin> {
      * Set expiration time to the key and returns `true` if the key is found
      * or false if the key is not contained in the map.
      *
+     * [time] in seconds.
      * [callback] is called when the key expires.
      */
     fun expire(key: K, time: Long, callback: OnExpireMapCallback<K, V>): Boolean
@@ -66,6 +67,7 @@ interface ExpirationMap<K, V> : MutableMap<K, V>, WithPlugin<Plugin> {
      * Associates the specified [value] with the specified [key] in the map
      * with an expiration time.
      *
+     * [time] in seconds.
      * [callback] is called when the key expires.
      *
      * @return the previous value associated with the key, or `null` if the key was not present in the map.
