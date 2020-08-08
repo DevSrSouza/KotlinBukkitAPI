@@ -1,10 +1,8 @@
-package br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle
+package br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.extensions
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
-import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.impl.CoroutineLifecycle
-import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.impl.getOrInsertCoroutineLifecycle
-import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
-import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
+import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
+import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.extensions.impl.getOrInsertCoroutineLifecycle
 import kotlinx.coroutines.*
 import org.bukkit.entity.Player
 

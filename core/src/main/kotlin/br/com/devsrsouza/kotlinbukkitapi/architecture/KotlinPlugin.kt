@@ -25,6 +25,8 @@ open class KotlinPlugin : JavaPlugin() {
 
     /**
      * Register a lifecycle listener with the given [priority].
+     *
+     * **Priority Order**: High priority loads first and disable lastly
      */
     fun registerKotlinPluginLifecycle(
             priority: Int = 1,

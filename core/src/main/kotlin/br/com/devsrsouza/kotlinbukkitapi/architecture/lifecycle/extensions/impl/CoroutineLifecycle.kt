@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.impl
+package br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.extensions.impl
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
