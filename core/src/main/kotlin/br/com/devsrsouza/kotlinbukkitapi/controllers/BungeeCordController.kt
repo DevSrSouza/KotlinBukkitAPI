@@ -1,8 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.controllers
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
-import br.com.devsrsouza.kotlinbukkitapi.extensions.bungeecord.BungeeCordRequest
 import br.com.devsrsouza.kotlinbukkitapi.provideKotlinBukkitAPI
+import br.com.devsrsouza.kotlinbukkitapi.utils.BungeeCordRequest
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.plugin.messaging.PluginMessageListener
