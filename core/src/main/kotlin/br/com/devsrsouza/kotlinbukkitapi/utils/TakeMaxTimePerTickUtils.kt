@@ -1,5 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.task
 import br.com.devsrsouza.kotlinbukkitapi.utils.time.Millisecond
 import org.bukkit.plugin.Plugin
@@ -13,6 +14,10 @@ internal val coroutineContextTakes = ConcurrentHashMap<CoroutineContext, TakeVal
 internal data class TakeValues(val startTimeMilliseconds: Long, val takeTimeMillisecond: Long) {
     fun wasTimeExceeded() = System.currentTimeMillis() - startTimeMilliseconds - takeTimeMillisecond >= 0
 }
+
+suspend fun WithPlugin<*>.takeMaxPerTick(
+        time: Millisecond
+) = plugin.takeMaxPerTick(time)
 
 suspend fun Plugin.takeMaxPerTick(time: Millisecond) {
     val takeValues = getTakeValuesOrNull(coroutineContext)
