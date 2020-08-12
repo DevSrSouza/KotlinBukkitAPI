@@ -11,6 +11,7 @@ import org.bukkit.entity.Player
 import java.lang.IllegalArgumentException
 import java.util.*
 
+typealias ItemsProvider<T> = () -> ObservableCollection<T>
 typealias ItemsAdapter<T> = MenuPlayer.(List<T>) -> List<T>
 
 enum class Orientation { HORIZONTAL, VERTICAL }

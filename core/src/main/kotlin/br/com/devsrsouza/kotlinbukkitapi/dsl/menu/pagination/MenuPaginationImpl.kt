@@ -13,8 +13,6 @@ import java.util.*
 
 internal const val PAGINATION_OPEN_PAGE_KEY = "PAGINATION:open_page"
 
-typealias ItemsProvider<T> = () -> ObservableCollection<T>
-
 class MenuPaginationImpl<T>(
         override val menu: MenuDSL,
         override val itemsProvider: ItemsProvider<T>,
