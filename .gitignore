@@ -32,3 +32,5 @@ out/
 
 # Linux temp files
 *~
+
+jcenter.properties

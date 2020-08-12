@@ -1,5 +1,3 @@
-repositories {}
-
 val exposed_version = "0.21.1"
 
 dependencies {

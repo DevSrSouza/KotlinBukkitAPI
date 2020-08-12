@@ -1,8 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command
 
-import br.com.devsrsouza.kotlinbukkitapi.extensions.allPermission
-import br.com.devsrsouza.kotlinbukkitapi.extensions.anyPermission
-import br.com.devsrsouza.kotlinbukkitapi.extensions.hasPermissionOrStar
+import br.com.devsrsouza.kotlinbukkitapi.extensions.permission.allPermission
+import br.com.devsrsouza.kotlinbukkitapi.extensions.permission.anyPermission
+import br.com.devsrsouza.kotlinbukkitapi.extensions.permission.hasPermissionOrStar
 
 inline fun <reified T> Executor<*>.permission(
         permission: String, builder: () -> T
