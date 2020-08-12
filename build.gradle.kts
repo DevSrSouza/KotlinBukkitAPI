@@ -136,10 +136,10 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
+    api(kotlin("stdlib-jdk8"))
 
     subprojects.forEach {
-        implementation(project(it.path, configuration = "shadow"))
+        api(project(it.path, configuration = "shadow"))
     }
 }
 
