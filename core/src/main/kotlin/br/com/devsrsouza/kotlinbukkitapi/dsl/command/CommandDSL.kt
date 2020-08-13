@@ -84,6 +84,7 @@ open class CommandDSL(
         name: String,
         vararg aliases: String = arrayOf(),
         executor: ExecutorBlock<CommandSender>? = null,
+        var errorHandler: ErrorHandler = defaultErrorHandler,
         private val job: Job = SupervisorJob(),
         private val coroutineScope: CoroutineScope = CoroutineScope(job + plugin.BukkitDispatchers.SYNC)
 ) : org.bukkit.command.Command(name.trim()) {
@@ -105,8 +106,19 @@ open class CommandDSL(
 
     fun TabCompleter.default() = defaultTabComplete(sender, alias, args)
 
+    fun errorHandler(handler: ErrorHandler) {
+        errorHandler = handler
+    }
+
     open fun subCommandBuilder(name: String, vararg aliases: String = arrayOf()): CommandDSL {
-        return CommandDSL(plugin, name, *aliases, job = job, coroutineScope = coroutineScope).also {
+        return CommandDSL(
+                plugin = plugin,
+                name = name,
+                aliases = *aliases,
+                errorHandler = errorHandler,
+                job = job,
+                coroutineScope = coroutineScope
+        ).also {
             it.permission = this.permission
             it.permissionMessage = this.permissionMessage
             it.onlyInGameMessage = this.onlyInGameMessage
@@ -169,26 +181,29 @@ open class CommandDSL(
             val genericExecutor = executors.getByInstance(sender::class)
             if (genericExecutor != null) {
                 coroutineScope.launch {
-                    treatFail(sender) {
-                        genericExecutor.invoke(Executor(sender, label, args, this@CommandDSL, coroutineScope))
+                    val executorModel = Executor(sender, label, args, this@CommandDSL, coroutineScope)
+                    treatFail(executorModel) {
+                        genericExecutor.invoke(executorModel)
                     }
                 }
             } else {
-                val hasPlayer = executors.getByInstance(Player::class)
-                if (hasPlayer != null) {
+                val playerExecutor = executors.getByInstance(Player::class)
+                if (playerExecutor != null) {
                     if (sender is Player) {
                         val playerJob = Job() // store and cancel when player
                         if (cancelOnPlayerDisconnect) jobsFromPlayers.put(sender, playerJob, { if (it.isActive) it.cancel() })
                         coroutineScope.launch(playerJob) {
-                            treatFail(sender) {
-                                hasPlayer.invoke(Executor(sender, label, args, this@CommandDSL, coroutineScope))
+                            val executorModel = Executor(sender, label, args, this@CommandDSL, coroutineScope)
+                            treatFail(executorModel) {
+                                playerExecutor.invoke(executorModel as Executor<CommandSender>)
                             }
                         }
                     } else sender.sendMessage(onlyInGameMessage)
                 } else {
                     coroutineScope.launch {
-                        treatFail(sender) {
-                            executor?.invoke(Executor(sender, label, args, this@CommandDSL, coroutineScope))
+                        val executorModel = Executor(sender, label, args, this@CommandDSL, coroutineScope)
+                        treatFail(executorModel) {
+                            executor?.invoke(executorModel)
                         }
                     }
                 }
@@ -223,12 +238,14 @@ open class CommandDSL(
         return super.tabComplete(sender, alias, args)
     }
 
-    private suspend fun treatFail(sender: CommandSender, block: suspend () -> Unit) {
+    private suspend fun treatFail(executor: Executor<*>, block: suspend () -> Unit) {
         try {
             block()
         } catch (ex: CommandFailException) {
-            ex.senderMessage?.also { sender.sendMessage(it) }
+            ex.senderMessage?.also { executor.sender.sendMessage(it) }
             ex.execute()
+        } catch (ex: Throwable) {
+            executor.errorHandler(ex)
         }
     }
 
