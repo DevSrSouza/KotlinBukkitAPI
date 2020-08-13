@@ -11,6 +11,8 @@ const val SEND_SUB_COMMANDS_DESCRIPTION_PLACEHOLDER = "{description}"
 
 val SEND_SUB_COMMANDS_DEFAULT_FORMAT = "${ChatColor.BLUE}/$SEND_SUB_COMMANDS_LABEL_PLACEHOLDER ${ChatColor.YELLOW}$SEND_SUB_COMMANDS_NAME_PLACEHOLDER ${ChatColor.BLUE}-> ${ChatColor.GRAY}$SEND_SUB_COMMANDS_DESCRIPTION_PLACEHOLDER"
 
+val Executor<Player>.player: Player get() = sender
+
 fun Executor<*>.sendSubCommandsList(
     format: String = SEND_SUB_COMMANDS_DEFAULT_FORMAT,
     needCommandPermission: Boolean = true

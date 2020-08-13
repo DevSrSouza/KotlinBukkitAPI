@@ -6,13 +6,9 @@ inline fun <reified T : LifecycleListener<KotlinPlugin>> KotlinPlugin.getOrInser
         priority: Int,
         factory: () -> T
 ): T {
-    val lifecycle = lifecycleListeners.find {
-        T::class.isInstance(it.listener)
-    }
-
-    return if(lifecycle != null) {
-        lifecycle.listener as T
-    } else {
-        lifecycle(priority) { factory() }
-    }
+    return lifecycleListeners
+            .map { it.listener }
+            .filterIsInstance<T>()
+            .firstOrNull()
+            ?: lifecycle(priority) { factory() }
 }

@@ -7,6 +7,7 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
@@ -79,12 +80,12 @@ class TabCompleter(
 )
 
 open class CommandDSL(
-    private val plugin: Plugin,
-    name: String,
-    vararg aliases: String = arrayOf(),
-    executor: ExecutorBlock<CommandSender>? = null,
-    private val job: Job = Job(),
-    private val coroutineScope: CoroutineScope = CoroutineScope(job + plugin.BukkitDispatchers.SYNC)
+        private val plugin: Plugin,
+        name: String,
+        vararg aliases: String = arrayOf(),
+        executor: ExecutorBlock<CommandSender>? = null,
+        private val job: Job = SupervisorJob(),
+        private val coroutineScope: CoroutineScope = CoroutineScope(job + plugin.BukkitDispatchers.SYNC)
 ) : org.bukkit.command.Command(name.trim()) {
 
     var onlyInGameMessage = ""

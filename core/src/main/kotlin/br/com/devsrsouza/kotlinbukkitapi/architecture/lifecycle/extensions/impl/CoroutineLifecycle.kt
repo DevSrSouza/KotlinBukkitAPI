@@ -7,6 +7,7 @@ import br.com.devsrsouza.kotlinbukkitapi.collections.onlinePlayerMapOf
 import br.com.devsrsouza.kotlinbukkitapi.extensions.skedule.BukkitDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import org.bukkit.entity.Player
 
 internal fun KotlinPlugin.getOrInsertCoroutineLifecycle(): CoroutineLifecycle {
@@ -27,7 +28,7 @@ internal class CoroutineLifecycle(
         fun cancelJobs() = job.cancel()
     }
 
-    private val job = Job()
+    private val job = SupervisorJob()
     val pluginCoroutineScope = CoroutineScope(BukkitDispatchers.SYNC + job)
 
     private val playersCoroutineScope by lazy {
@@ -53,7 +54,7 @@ internal class CoroutineLifecycle(
     }
 
     private fun newPlayerCoroutineScope(): PlayerCoroutineScope {
-        val job = Job()
+        val job = SupervisorJob()
         return PlayerCoroutineScope(
                 job,
                 CoroutineScope(BukkitDispatchers.SYNC + job)
