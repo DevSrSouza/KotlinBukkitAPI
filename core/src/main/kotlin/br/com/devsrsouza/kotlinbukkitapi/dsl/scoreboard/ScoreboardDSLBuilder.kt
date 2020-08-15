@@ -43,6 +43,9 @@ inline fun scoreboard(
 val linesBounds = 1..16
 
 interface ScoreboardDSL {
+
+    val players: Map<Player, Objective>
+
     /**
      * Show/set the built scoreboard to a [player]
      */
@@ -64,12 +67,18 @@ interface ScoreboardDSL {
      * Update all lines to all players with the scoreboard set (see [show])
      */
     fun updateLines()
+
+    /**
+     * Remove all scoreboard of the players and cancel all internal tasks
+     */
+    fun dispose()
 }
 
 class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : ScoreboardDSL {
 
     private val lines = mutableMapOf<Int, ScoreboardLine>()
-    private val players = plugin.onlinePlayerMapOf<Objective>()
+    private val _players = plugin.onlinePlayerMapOf<Objective>()
+    override val players: Map<Player, Objective> = _players
 
     private var titleController: ScoreboardTitle? = null
 
@@ -80,7 +89,7 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
         set(value) {
             field = value;
             taskTitle?.cancel(); taskTitle = null
-            if (value > 0 && players.isNotEmpty())
+            if (value > 0 && _players.isNotEmpty())
                 taskTitle = scheduler { updateTitle() }.runTaskTimer(plugin, 0, value)
         }
 
@@ -88,9 +97,18 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
         set(value) {
             field = value;
             taskLine?.cancel(); taskLine = null
-            if (value > 0 && players.isNotEmpty())
+            if (value > 0 && _players.isNotEmpty())
                 taskLine = scheduler { updateLines() }.runTaskTimer(plugin, 0, value)
         }
+
+    override fun dispose() {
+        taskTitle?.cancel()
+        taskLine?.cancel()
+
+        for (objective in players.values) {
+            objective.unregister()
+        }
+    }
 
     fun line(line: Int, scoreboardLine: ScoreboardLine) {
         if (line in linesBounds)
@@ -156,7 +174,7 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
     override fun show(player: Player) {
         val max = lines.keys.max()
         if (max != null) {
-            if (players.get(player)?.scoreboard != null) return
+            if (_players.get(player)?.scoreboard != null) return
             val sb = Bukkit.getScoreboardManager().newScoreboard
 
             val objective = sb.getObjective(DisplaySlot.SIDEBAR)
@@ -174,8 +192,8 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
             }
 
             player.scoreboard = sb
-            players.put(player, objective) {
-                if (players.isEmpty()) {
+            _players.put(player, objective) {
+                if (_players.isEmpty()) {
                     taskTitle?.cancel(); taskTitle = null
                     taskLine?.cancel(); taskLine = null
                 }
@@ -190,14 +208,14 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
 
     private fun entryByLine(line: Int) = ChatColor.values()[line].toString()
 
-    private inline fun lineBuild(objective: Objective, line: Int, lineTextTranformer: (ScoreboardLine) -> String) {
+    private inline fun lineBuild(objective: Objective, line: Int, lineTextTransformer: (ScoreboardLine) -> String) {
         val sb = objective.scoreboard
         val sbLine = lines[line] ?: ScoreboardLine(this, "")
 
         val lineEntry = entryByLine(line)
-        val realScoreLine = +(line - 17)
+        val realScoreLine = 17 - line
 
-        val text = lineTextTranformer(sbLine)
+        val text = lineTextTransformer(sbLine)
 
         val team = sb.getTeam("line_$line") ?: sb.registerNewTeam("line_$line")
 
@@ -232,7 +250,7 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
     }
 
     override fun updateTitle() {
-        for ((player, objective) in players) {
+        for ((player, objective) in _players) {
             val titleUpdate = TitleUpdate(player, title).also { titleController?.updateEvent?.invoke(it) }
             objective.displayName = titleUpdate.newTitle
         }
@@ -240,7 +258,7 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
 
     override fun updateLine(line: Int): Boolean {
         if (lines[line] == null) return false
-        for ((player, objective) in players) {
+        for ((player, objective) in _players) {
             lineBuild(objective, line) { sbLine ->
                 if (sbLine.updateEvent != null) {
                     LineUpdate(player, sbLine.text).also { sbLine.updateEvent?.invoke(it) }.newText
