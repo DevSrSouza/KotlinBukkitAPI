@@ -4,7 +4,7 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.text.translateColor
 import br.com.devsrsouza.kotlinbukkitapi.serialization.ChangeColor
 import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.ClearSerializationDecodeInterceptor
 import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.SerializationDecodeInterceptor
-import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
 
 object BukkitSerializationDecodeInterceptor : SerializationDecodeInterceptor by ClearSerializationDecodeInterceptor() {
 

@@ -1,6 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor
 
-import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
 
 class ClearSerializationEncodeInterceptor : SerializationEncodeInterceptor {
     override fun encodeBoolean(descriptor: SerialDescriptor, index: Int, value: Boolean): Boolean = value

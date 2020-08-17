@@ -7,6 +7,7 @@ import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.impl.encoder.
 import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.StringFormat
+import kotlinx.serialization.decodeFromString
 
 class StringFormatInterceptor(
         private val delegate: StringFormat,
@@ -14,11 +15,11 @@ class StringFormatInterceptor(
         private val decodeInterceptor: SerializationDecodeInterceptor
 ) : StringFormat by delegate {
 
-    override fun <T> parse(deserializer: DeserializationStrategy<T>, raw: String): T {
-        return delegate.parse(DeserializationStrategyInterceptor(decodeInterceptor, deserializer), raw)
+    override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, raw: String): T {
+        return delegate.decodeFromString(DeserializationStrategyInterceptor(decodeInterceptor, deserializer), raw)
     }
 
-    override fun <T> stringify(serializer: SerializationStrategy<T>, value: T): String {
-        return delegate.stringify(SerializationStrategyInterceptor(encodeInterceptor, serializer), value)
+    override fun <T> encodeToString(serializer: SerializationStrategy<T>, value: T): String {
+        return delegate.encodeToString(SerializationStrategyInterceptor(encodeInterceptor, serializer), value)
     }
 }

@@ -2,12 +2,17 @@ package br.com.devsrsouza.kotlinbukkitapi.serialization.serializers
 
 import br.com.devsrsouza.kotlinbukkitapi.extensions.item.asMaterialData
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import org.bukkit.Material
 import org.bukkit.material.MaterialData
 
 @Serializer(forClass = MaterialData::class)
 object MaterialDataSerializer : KSerializer<MaterialData> {
-    override val descriptor: SerialDescriptor = SerialDescriptor(
+    override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
         "org.bukkit.material.MaterialData", PrimitiveKind.STRING
     )
 

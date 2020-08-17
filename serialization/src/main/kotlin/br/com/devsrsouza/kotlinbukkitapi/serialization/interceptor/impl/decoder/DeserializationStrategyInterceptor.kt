@@ -1,8 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.impl.decoder
 
 import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.SerializationDecodeInterceptor
-import kotlinx.serialization.Decoder
 import kotlinx.serialization.DeserializationStrategy
+import kotlinx.serialization.encoding.Decoder
 
 class DeserializationStrategyInterceptor<T>(
         val interceptor: SerializationDecodeInterceptor,

@@ -59,13 +59,13 @@ class SerializationConfig<T : Any>(
     }
 
     private fun loadFromFile() {
-        config = stringFormat.parse(serializer, file.readText())
+        config = stringFormat.decodeFromString(serializer, file.readText())
 
         if(alwaysRestoreDefaults)
             saveToFile(config)
     }
 
-    private fun stringifyModel(value: T) = stringFormat.stringify(serializer, value)
+    private fun stringifyModel(value: T) = stringFormat.encodeToString(serializer, value)
 
     private fun saveToFile(value: T) {
         val content = stringifyModel(value)

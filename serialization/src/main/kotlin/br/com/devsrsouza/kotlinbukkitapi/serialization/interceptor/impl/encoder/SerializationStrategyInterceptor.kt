@@ -1,8 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.impl.encoder
 
 import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.SerializationEncodeInterceptor
-import kotlinx.serialization.Encoder
 import kotlinx.serialization.SerializationStrategy
+import kotlinx.serialization.encoding.Encoder
 
 class SerializationStrategyInterceptor<T>(
         val interceptor: SerializationEncodeInterceptor,

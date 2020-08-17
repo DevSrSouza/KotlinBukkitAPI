@@ -4,7 +4,7 @@ import org.gradle.api.tasks.bundling.Jar
 plugins {
     id("java")
     id("maven-publish")
-    kotlin("jvm") version "1.3.71"
+    kotlin("jvm") version "1.4.0"
     id("com.github.johnrengelman.shadow") version "4.0.3"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
     id("com.jfrog.bintray") version "1.8.4"

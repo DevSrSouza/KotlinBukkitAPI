@@ -1,11 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.bukkit
 
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.reverseTranslateColor
-import br.com.devsrsouza.kotlinbukkitapi.extensions.text.translateColor
 import br.com.devsrsouza.kotlinbukkitapi.serialization.ChangeColor
 import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.ClearSerializationEncodeInterceptor
 import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.SerializationEncodeInterceptor
-import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
 
 object BukkitSerializationEncodeInterceptor : SerializationEncodeInterceptor by ClearSerializationEncodeInterceptor() {
 

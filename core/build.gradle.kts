@@ -4,7 +4,7 @@ repositories {
 }
 
 dependencies {
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.8")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
     api("com.okkero.skedule:skedule:1.2.6")
     implementation("org.bstats:bstats-bukkit:1.7")
 }

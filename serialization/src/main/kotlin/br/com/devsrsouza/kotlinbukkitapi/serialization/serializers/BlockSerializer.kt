@@ -2,6 +2,11 @@ package br.com.devsrsouza.kotlinbukkitapi.serialization.serializers
 
 import br.com.devsrsouza.kotlinbukkitapi.serialization.serializers.exceptions.WorldNotFoundException
 import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import org.bukkit.Bukkit
 import org.bukkit.block.Block
 
@@ -9,7 +14,7 @@ object BlockSerializer : KSerializer<Block> {
     private const val BLOCK_SEPARATOR = ";"
 
     override val descriptor: SerialDescriptor
-        get() = PrimitiveDescriptor("org.bukkit.block.Block", PrimitiveKind.STRING)
+        get() = PrimitiveSerialDescriptor("org.bukkit.block.Block", PrimitiveKind.STRING)
 
     override fun deserialize(decoder: Decoder): Block {
         val raw = decoder.decodeString()

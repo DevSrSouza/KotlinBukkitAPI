@@ -1,6 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.bukkit
 
-import kotlinx.serialization.SerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
 
 internal inline fun <reified A: Annotation> SerialDescriptor.findElementAnnotation(
         elementIndex: Int
