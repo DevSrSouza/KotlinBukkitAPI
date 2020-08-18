@@ -123,7 +123,7 @@ You can find more examples in the [Documentation](https://github.com/DevSrSouza/
 | [Kotlinx-coroutines](https://github.com/Kotlin/kotlinx.coroutines/) | 1.3.9 |
 | [Skedule](https://github.com/okkero/Skedule) | 1.2.6 |
 | [Kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) | 1.4.0-RC  |
-| [KAML](https://github.com/charleskorn/kaml) | 0.18.1 |
+| [KAML](https://github.com/charleskorn/kaml) | 0.19.0 |
 
 ## Modules
 | Module | Description |
