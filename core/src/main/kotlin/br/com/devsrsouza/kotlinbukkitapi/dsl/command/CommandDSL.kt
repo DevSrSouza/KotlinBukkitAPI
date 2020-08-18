@@ -85,7 +85,7 @@ open class CommandDSL(
         vararg aliases: String = arrayOf(),
         executor: ExecutorBlock<CommandSender>? = null,
         var errorHandler: ErrorHandler = defaultErrorHandler,
-        private val job: Job = SupervisorJob(),
+        val job: Job = SupervisorJob(),
         private val coroutineScope: CoroutineScope = CoroutineScope(job + plugin.BukkitDispatchers.SYNC)
 ) : org.bukkit.command.Command(name.trim()) {
 
