@@ -47,21 +47,27 @@ fun simpleCommand(
 inline fun WithPlugin<*>.command(
         name: String,
         vararg aliases: String = arrayOf(),
+        job: Job = SupervisorJob(),
+        coroutineScope: CoroutineScope = CoroutineScope(job + plugin.BukkitDispatchers.SYNC),
         block: CommandBuilderBlock
-) = plugin.command(name, *aliases, block = block)
+) = plugin.command(name, *aliases, job = job, coroutineScope = coroutineScope, block = block)
 
 inline fun Plugin.command(
         name: String,
         vararg aliases: String = arrayOf(),
+        job: Job = SupervisorJob(),
+        coroutineScope: CoroutineScope = CoroutineScope(job + BukkitDispatchers.SYNC),
         block: CommandBuilderBlock
-) = command(name, *aliases, plugin = this, block = block)
+) = command(name, *aliases, plugin = this, job = job, coroutineScope = coroutineScope, block = block)
 
 inline fun command(
         name: String,
         vararg aliases: String = arrayOf(),
         plugin: Plugin,
+        job: Job = SupervisorJob(),
+        coroutineScope: CoroutineScope = CoroutineScope(job + plugin.BukkitDispatchers.SYNC),
         block: CommandBuilderBlock
-) = CommandDSL(plugin, name, *aliases).apply(block).apply {
+) = CommandDSL(plugin, name, *aliases, job = job, coroutineScope = coroutineScope).apply(block).apply {
     register(plugin)
 }
 
