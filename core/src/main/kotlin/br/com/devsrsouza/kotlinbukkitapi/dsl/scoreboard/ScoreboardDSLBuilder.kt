@@ -234,7 +234,7 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
 
         if (text.length > 16) {
             val fixedText = if (text.length > 32) text.take(32) else text
-            val prefix = fixedText.substring(0, 15)
+            val prefix = fixedText.substring(0, 16)
             val suffix = fixedText.substring(16, fixedText.length-1)
             if (team.prefix != prefix || team.suffix != suffix) {
                 team.prefix = prefix
