@@ -4,19 +4,15 @@ import br.com.devsrsouza.kotlinbukkitapi.extensions.text.msg
 import net.md_5.bungee.api.chat.BaseComponent
 import net.md_5.bungee.api.chat.TextComponent
 import org.bukkit.Bukkit
+import org.bukkit.Server
 import org.bukkit.command.ConsoleCommandSender
 import org.bukkit.entity.Player
-import java.util.*
+
+val server: Server get() = Bukkit.getServer()
 
 object Console : ConsoleCommandSender by Bukkit.getConsoleSender() {
     fun command(command: String) = Bukkit.dispatchCommand(this, command)
 }
-
-fun offlinePlayer(uuid: UUID) = Bukkit.getOfflinePlayer(uuid)
-fun offlinePlayer(name: String) = Bukkit.getOfflinePlayer(name)
-fun onlinePlayer(uuid: UUID) = Bukkit.getPlayer(uuid)
-fun onlinePlayer(name: String) = Bukkit.getPlayerExact(name)
-fun onlinePlayers() = Bukkit.getOnlinePlayers()
 
 // logger
 object Log {
