@@ -206,7 +206,14 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
         }
     }
 
-    private fun entryByLine(line: Int) = ChatColor.values()[line].toString()
+    private val lineColors = (0..15).map {
+        it.toByte().toString(2).take(4).map {
+            if(it == '0') ChatColor.RESET.toString()
+            else ChatColor.WHITE.toString()
+        }.joinToString("")
+    }
+
+    private fun entryByLine(line: Int) = lineColors[line]
 
     private inline fun lineBuild(objective: Objective, line: Int, lineTextTransformer: (ScoreboardLine) -> String) {
         val sb = objective.scoreboard
@@ -226,9 +233,9 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
         }
 
         if (text.length > 16) {
-            val fixedText = if (text.length > 32) text.substring(0, 31) else text
+            val fixedText = if (text.length > 32) text.take(32) else text
             val prefix = fixedText.substring(0, 15)
-            val suffix = fixedText.substring(16, 31)
+            val suffix = fixedText.substring(16, fixedText.length-1)
             if (team.prefix != prefix || team.suffix != suffix) {
                 team.prefix = prefix
                 team.suffix = suffix
