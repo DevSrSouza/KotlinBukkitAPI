@@ -2,13 +2,13 @@ package br.com.devsrsouza.kotlinbukkitapi.utils
 
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler.task
-import br.com.devsrsouza.kotlinbukkitapi.utils.time.Millisecond
 import org.bukkit.plugin.Plugin
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
+import kotlin.time.Duration
 
 internal val coroutineContextTakes = ConcurrentHashMap<CoroutineContext, TakeValues>()
 internal data class TakeValues(val startTimeMilliseconds: Long, val takeTimeMillisecond: Long) {
@@ -16,10 +16,10 @@ internal data class TakeValues(val startTimeMilliseconds: Long, val takeTimeMill
 }
 
 suspend fun WithPlugin<*>.takeMaxPerTick(
-        time: Millisecond
+        time: Duration
 ) = plugin.takeMaxPerTick(time)
 
-suspend fun Plugin.takeMaxPerTick(time: Millisecond) {
+suspend fun Plugin.takeMaxPerTick(time: Duration) {
     val takeValues = getTakeValuesOrNull(coroutineContext)
 
     if(takeValues == null) {
@@ -44,11 +44,11 @@ internal fun getTakeValuesOrNull(
 
 internal fun registerCoroutineContextTakes(
         coroutineContext: CoroutineContext,
-        time: Millisecond
+        time: Duration
 ) {
     coroutineContextTakes.put(
             coroutineContext,
-            TakeValues(System.currentTimeMillis(), time.toMillisecond())
+            TakeValues(System.currentTimeMillis(), time.toLongMilliseconds())
     )
 }
 

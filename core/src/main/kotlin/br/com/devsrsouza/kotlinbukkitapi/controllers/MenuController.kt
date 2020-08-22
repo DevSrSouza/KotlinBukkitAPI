@@ -1,8 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.controllers
 
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
-import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.onlinePlayers
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
+import br.com.devsrsouza.kotlinbukkitapi.extensions.server.onlinePlayers
 import br.com.devsrsouza.kotlinbukkitapi.menu.*
 import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotInteract
 import org.bukkit.entity.Player
@@ -21,7 +21,7 @@ internal class MenuController(
 
     @EventHandler
     fun pluginDisableEvent(event: PluginDisableEvent) {
-        onlinePlayers().forEach {
+        onlinePlayers.forEach {
             val menu = getMenuFromPlayer(it)
                     ?.takeIf { it.plugin.name == event.plugin.name }
             menu?.close(it, true)

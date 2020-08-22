@@ -3,19 +3,14 @@ package br.com.devsrsouza.kotlinbukkitapi.extensions.skedule
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.utils.getTakeValuesOrNull
 import br.com.devsrsouza.kotlinbukkitapi.utils.registerCoroutineContextTakes
-import br.com.devsrsouza.kotlinbukkitapi.utils.time.Millisecond
 import br.com.devsrsouza.kotlinbukkitapi.utils.unregisterCoroutineContextTakes
 import com.okkero.skedule.BukkitDispatcher
 import com.okkero.skedule.BukkitSchedulerController
 import com.okkero.skedule.SynchronizationContext
 import com.okkero.skedule.schedule
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.coroutineContext
+import kotlin.time.Duration
 
 fun WithPlugin<*>.schedule(
         initialContext: SynchronizationContext = SynchronizationContext.SYNC,
@@ -38,7 +33,7 @@ inline class PluginDispatcher(val plugin: JavaPlugin) {
 
 // Take max millisecond in a tick
 
-suspend fun BukkitSchedulerController.takeMaxPerTick(time: Millisecond) {
+suspend fun BukkitSchedulerController.takeMaxPerTick(time: Duration) {
     val takeValues = getTakeValuesOrNull(context)
 
     if(takeValues == null) {

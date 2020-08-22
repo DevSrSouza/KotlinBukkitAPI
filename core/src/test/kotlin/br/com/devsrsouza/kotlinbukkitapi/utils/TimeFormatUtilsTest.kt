@@ -9,28 +9,28 @@ class TimeFormatUtilsTest {
     fun `should format time to human readable (EN - SINGLE)`() {
         val time = 61
 
-        assertEquals("1 minute 1 second", time.formater.EN)
+        assertEquals("1 minute 1 second", time.formatter.EN)
     }
 
     @Test
     fun `should format time to human readable (EN - PLURAL)`() {
         val time = 330
 
-        assertEquals("5 minutes 30 seconds", time.formater.EN)
+        assertEquals("5 minutes 30 seconds", time.formatter.EN)
     }
 
     @Test
     fun `should format time to human readable (PT-BR - SINGLE)`() {
         val time = 61
 
-        assertEquals("1 minuto 1 segundo", time.formater.PTBR)
+        assertEquals("1 minuto 1 segundo", time.formatter.PTBR)
     }
 
     @Test
     fun `should format time to human readable (PT-BR - PLURAL)`() {
         val time = 330
 
-        assertEquals("5 minutos 30 segundos", time.formater.PTBR)
+        assertEquals("5 minutos 30 segundos", time.formatter.PTBR)
     }
 
     @Test
@@ -39,7 +39,7 @@ class TimeFormatUtilsTest {
 
         val formater = "%HOUR %MIN %SEC"
 
-        assertEquals("1 hour 1 second", time.formater.format(ENFormat, formater))
+        assertEquals("1 hour 1 second", time.formatter.format(ENFormat, formater))
     }
 
     @Test
@@ -49,7 +49,7 @@ class TimeFormatUtilsTest {
         val formater = "%HOUR;%MIN;%SEC"
         val spacer = ';'
 
-        assertEquals("1 hour;1 second", time.formater.format(ENFormat, formater, spacer))
+        assertEquals("1 hour;1 second", time.formatter.format(ENFormat, formater, spacer))
     }
 
     @Test
@@ -58,6 +58,6 @@ class TimeFormatUtilsTest {
 
         val formater = "%MIN %SEC"
 
-        assertEquals("1 minute 1 second", time.formater.format(ENFormat, formater))
+        assertEquals("1 minute 1 second", time.formatter.format(ENFormat, formater))
     }
 }

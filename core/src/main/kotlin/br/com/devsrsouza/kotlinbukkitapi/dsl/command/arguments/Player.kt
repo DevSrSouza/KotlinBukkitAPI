@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.dsl.command.arguments
 
 import br.com.devsrsouza.kotlinbukkitapi.dsl.command.*
-import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.onlinePlayers
+import br.com.devsrsouza.kotlinbukkitapi.extensions.server.onlinePlayers
 import br.com.devsrsouza.kotlinbukkitapi.extensions.text.color
 import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.*
@@ -30,7 +30,7 @@ fun Executor<*>.player(
 fun TabCompleter.player(
         index: Int
 ): List<String> = argumentCompleteBuilder(index) { arg ->
-    onlinePlayers().mapNotNull {
+    onlinePlayers.mapNotNull {
         if(it.name.startsWith(arg, true)) it.name else null
     }
 }
