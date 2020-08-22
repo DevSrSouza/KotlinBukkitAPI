@@ -72,14 +72,18 @@ open class KotlinPlugin : JavaPlugin() {
     final override fun reloadConfig() {
         super.reloadConfig()
 
-        someConfigReloaded()
+        someConfigReloaded(all = true)
     }
 
-    fun someConfigReloaded() {
+    fun someConfigReloaded(all: Boolean = false) {
         onConfigReload()
 
         for(lifecycle in _lifecycleListeners)
-            lifecycle.listener(LifecycleEvent.CONFIG_RELOAD)
+            lifecycle.listener(
+                    if(all)
+                        LifecycleEvent.ALL_CONFIG_RELOAD
+                                else LifecycleEvent.CONFIG_RELOAD
+            )
     }
 
 }

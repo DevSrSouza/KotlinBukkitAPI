@@ -2,7 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 
-inline fun <reified T : LifecycleListener<KotlinPlugin>> KotlinPlugin.getOrInsertGenericLifecycle(
+inline fun <reified T : PluginLifecycleListener> KotlinPlugin.getOrInsertGenericLifecycle(
         priority: Int,
         factory: () -> T
 ): T {
@@ -10,5 +10,5 @@ inline fun <reified T : LifecycleListener<KotlinPlugin>> KotlinPlugin.getOrInser
             .map { it.listener }
             .filterIsInstance<T>()
             .firstOrNull()
-            ?: lifecycle(priority) { factory() }
+            ?: factory().also { registerKotlinPluginLifecycle(priority, it) }
 }

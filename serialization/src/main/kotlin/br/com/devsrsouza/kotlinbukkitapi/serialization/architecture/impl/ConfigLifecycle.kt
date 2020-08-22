@@ -1,8 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
+import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleEvent
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
+import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.PluginLifecycleListener
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.getOrInsertGenericLifecycle
+import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.serialization.SerializationConfig
 import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.getConfig
 import kotlin.properties.ReadOnlyProperty
@@ -18,24 +21,32 @@ internal fun KotlinPlugin.getOrInsertConfigLifecycle(): ConfigLifecycle {
 
 internal class ConfigLifecycle(
         override val plugin: KotlinPlugin
-) : LifecycleListener<KotlinPlugin> {
+) : PluginLifecycleListener, WithPlugin<KotlinPlugin> {
     // String = Descriptor name
     internal val serializationConfigurations = hashMapOf<String, SerializationConfig<Any>>()
 
     internal val onEnableLoadSerializationConfigurations = mutableListOf<SerializationConfig<*>>()
     internal val onDisableSaveSerializationConfigurations = mutableListOf<SerializationConfig<*>>()
 
-    override fun onPluginEnable() {
+    override fun invoke(event: LifecycleEvent) {
+        when(event) {
+            LifecycleEvent.ENABLE -> onPluginEnable()
+            LifecycleEvent.DISABLE -> onPluginDisable()
+            LifecycleEvent.ALL_CONFIG_RELOAD -> onConfigReload()
+        }
+    }
+
+    fun onPluginEnable() {
         for (config in onEnableLoadSerializationConfigurations)
             config.load()
     }
 
-    override fun onPluginDisable() {
+    fun onPluginDisable() {
         for (config in onDisableSaveSerializationConfigurations)
             config.save()
     }
 
-    override fun onConfigReload() {
+    fun onConfigReload() {
         for (config in serializationConfigurations.values)
             config.reload()
     }
