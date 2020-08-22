@@ -13,7 +13,7 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin")
     }
     implementation("org.bstats:bstats-bukkit:1.7")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC")
 
     testImplementation(kotlin("stdlib"))
     testImplementation("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")

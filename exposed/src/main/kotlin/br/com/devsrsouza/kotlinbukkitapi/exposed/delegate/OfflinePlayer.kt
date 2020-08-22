@@ -1,6 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.exposed.delegate
 
-import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.offlinePlayer
+import br.com.devsrsouza.kotlinbukkitapi.extensions.server.offlinePlayer
 import org.bukkit.OfflinePlayer
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.Column

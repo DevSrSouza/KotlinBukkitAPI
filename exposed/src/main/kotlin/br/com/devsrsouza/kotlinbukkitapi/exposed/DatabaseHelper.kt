@@ -1,16 +1,27 @@
 package br.com.devsrsouza.kotlinbukkitapi.exposed
 
+import kotlinx.serialization.Serializable
 import java.io.File
 import java.sql.SQLException
 
-open class DatabaseTypeConfig(
-        open var type: String = "H2",
-        open var hostname: String = "localhost",
-        open var port: Short = 3306,
-        open var database: String = "kbapi_database",
-        open var user: String = "root",
-        open var password: String = "12345"
-)
+interface DatabaseTypeConfigHeader {
+    val type: String
+    val hostname: String
+    val port: Short
+    val database: String
+    val user: String
+    val password: String
+}
+
+@Serializable
+data class DatabaseTypeConfig(
+        override var type: String = "H2",
+        override var hostname: String = "localhost",
+        override var port: Short = 3306,
+        override var database: String = "kbapi_database",
+        override var user: String = "root",
+        override var password: String = "12345"
+) : DatabaseTypeConfigHeader
 
 fun databaseTypeFrom(dataFolder: File, config: DatabaseTypeConfig) : DatabaseType {
     val type = DatabaseType.byName(config.type)

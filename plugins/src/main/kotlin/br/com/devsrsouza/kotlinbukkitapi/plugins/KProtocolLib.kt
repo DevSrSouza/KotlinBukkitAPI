@@ -1,7 +1,5 @@
 package br.com.devsrsouza.kotlinbukkitapi.plugins.protocollib
 
-import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
-import br.com.devsrsouza.kotlinbukkitapi.extensions.bukkit.onlinePlayers
 import com.comphenix.protocol.PacketType
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.events.ListenerPriority
