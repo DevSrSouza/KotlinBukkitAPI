@@ -1,5 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils
 
+import kotlinx.serialization.Serializable
+
 const val DEFAULT_SPACER = ' '
 const val DEFAULT_FORMAT_STYLE = "%YEAR %MONTH %WEEK %DAY %HOUR %MIN %SEC"
 
@@ -9,29 +11,30 @@ val Int.formatter: TimeFormat get() = TimeFormat(this.toLong())
 val TimeFormat.PTBR: String get() = format(PTBRFormat)
 val TimeFormat.EN: String get() = format(ENFormat)
 
-interface IFormatLang {
-    val second: String
-    val seconds: String
-    val minute: String
-    val minutes: String
-    val hour: String
-    val hours: String
-    val day: String
-    val days: String
-    val week: String
-    val weeks: String
-    val month: String
-    val months: String
-    val year: String
-    val years: String
-}
+@Serializable
+data class FormatLang(
+        val second: String,
+        val seconds: String,
+        val minute: String,
+        val minutes: String,
+        val hour: String,
+        val hours: String,
+        val day: String,
+        val days: String,
+        val week: String,
+        val weeks: String,
+        val month: String,
+        val months: String,
+        val year: String,
+        val years: String
+)
 
 /**
  * @param time in second
  */
 inline class TimeFormat(private val time: Long) {
     fun format(
-            lang: IFormatLang,
+            lang: FormatLang,
             formatStyle: String = DEFAULT_FORMAT_STYLE,
             formatSpacer: Char = DEFAULT_SPACER
     ): String {
@@ -64,65 +67,48 @@ inline class TimeFormat(private val time: Long) {
     }
 }
 
-data class FormatLang(
-        override val second: String,
-        override val seconds: String,
-        override val minute: String,
-        override val minutes: String,
-        override val hour: String,
-        override val hours: String,
-        override val day: String,
-        override val days: String,
-        override val week: String,
-        override val weeks: String,
-        override val month: String,
-        override val months: String,
-        override val year: String,
-        override val years: String
-) : IFormatLang
+val PTBRFormat = FormatLang(
+        second = "segundo",
+        seconds = "segundos",
 
-object PTBRFormat : IFormatLang {
-    override val second: String get() = "segundo"
-    override val seconds: String get() = "segundos"
+        minute = "minuto",
+        minutes = "minutos",
 
-    override val minute: String get() = "minuto"
-    override val minutes: String get() = "minutos"
+        hour = "hora",
+        hours = "horas",
 
-    override val hour: String get() = "hora"
-    override val hours: String get() = "horas"
+        day = "dia",
+        days = "dias",
 
-    override val day: String get() = "dia"
-    override val days: String get() = "dias"
+        week = "semana",
+        weeks = "semanas",
 
-    override val week: String get() = "semana"
-    override val weeks: String get() = "semanas"
+        month = "mes",
+        months = "meses",
 
-    override val month: String get() = "mes"
-    override val months: String get() = "meses"
+        year = "ano",
+        years = "anos",
+)
 
-    override val year: String get() = "ano"
-    override val years: String get() = "anos"
-}
+val ENFormat = FormatLang(
+        second = "second",
+        seconds = "seconds",
 
-object ENFormat : IFormatLang {
-    override val second: String get() = "second"
-    override val seconds: String get() = "seconds"
+        minute = "minute",
+        minutes = "minutes",
 
-    override val minute: String get() = "minute"
-    override val minutes: String get() = "minutes"
+        hour = "hour",
+        hours = "hours",
 
-    override val hour: String get() = "hour"
-    override val hours: String get() = "hours"
+        day = "day",
+        days = "days",
 
-    override val day: String get() = "day"
-    override val days: String get() = "days"
+        week = "week",
+        weeks = "weeks",
 
-    override val week: String get() = "week"
-    override val weeks: String get() = "weeks"
+        month = "month",
+        months = "months",
 
-    override val month: String get() = "month"
-    override val months: String get() = "months"
-
-    override val year: String get() = "year"
-    override val years: String get() = "years"
-}
+        year = "year",
+        years = "years",
+)

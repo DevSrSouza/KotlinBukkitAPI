@@ -1,3 +1,7 @@
+plugins {
+    kotlin("plugin.serialization") version "1.4.0"
+}
+
 repositories {
     maven("http://nexus.okkero.com/repository/maven-releases/")
     maven("https://repo.codemc.org/repository/maven-public")
@@ -9,6 +13,7 @@ dependencies {
         exclude(group = "org.jetbrains.kotlin")
     }
     implementation("org.bstats:bstats-bukkit:1.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC")
 
     testImplementation(kotlin("stdlib"))
     testImplementation("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
