@@ -23,8 +23,21 @@ val BukkitSchedulerController.contextAsync get() = SynchronizationContext.ASYNC
 suspend fun BukkitSchedulerController.switchToSync() = switchContext(contextSync)
 suspend fun BukkitSchedulerController.switchToAsync() = switchContext(contextAsync)
 
-val WithPlugin<*>.BukkitDispatchers get() = JavaPlugin.getProvidingPlugin(plugin::class.java).BukkitDispatchers
-val Plugin.BukkitDispatchers get() = PluginDispatcher(JavaPlugin.getProvidingPlugin(this::class.java))
+/**
+ * Returns a PluginDispatcher to be used to provide ASYNC and SYNC Coroutines Dispatchers from Bukkit.
+ * by Skedule.
+ */
+val WithPlugin<*>.BukkitDispatchers get() = plugin.BukkitDispatchers
+val Plugin.BukkitDispatchers get() = PluginDispatcher(this as JavaPlugin)
+
+/**
+ * Returns a PluginDispatcher to be used to provide ASYNC and SYNC Coroutines Dispatchers from Bukkit.
+ * by Skedule.
+ *
+ * Uses Bukkit's [JavaPlugin.getProvidingPlugin] to safe retrieve the actually JavaPlugin class.
+ */
+val WithPlugin<*>.BukkitDispatchersSafe get() = plugin.BukkitDispatchersSafe
+val Plugin.BukkitDispatchersSafe get() = PluginDispatcher(JavaPlugin.getProvidingPlugin(this::class.java))
 
 inline class PluginDispatcher(val plugin: JavaPlugin) {
     val ASYNC get() = BukkitDispatcher(plugin, true)
