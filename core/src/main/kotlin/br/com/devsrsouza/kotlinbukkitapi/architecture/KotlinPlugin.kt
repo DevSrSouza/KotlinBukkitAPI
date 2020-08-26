@@ -2,7 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.architecture
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.*
 import org.bukkit.plugin.java.JavaPlugin
-import java.util.concurrent.ConcurrentSkipListSet
+import java.util.concurrent.ConcurrentHashMap
 
 open class KotlinPlugin : JavaPlugin() {
 
@@ -32,30 +32,34 @@ open class KotlinPlugin : JavaPlugin() {
             priority: Int = 1,
             listener: PluginLifecycleListener
     ) {
-        _lifecycleListeners.add(
-            Lifecycle(
-                priority,
-                listener
-            )
+        _lifecycleListeners.put(
+                Lifecycle(
+                        priority,
+                        listener
+                ),
+                true
         )
     }
 
     // implementation stuff, ignore...
-    private val _lifecycleListeners = ConcurrentSkipListSet<Lifecycle>()
-    val lifecycleListeners: Set<Lifecycle> = _lifecycleListeners
 
+    private val _lifecycleListeners = ConcurrentHashMap<Lifecycle, Boolean>()
+    val lifecycleListeners: Set<Lifecycle> = _lifecycleListeners.keys
+
+    private fun lifecycleLoadOrder() = _lifecycleListeners.keys.sortedBy { it.priority }.asReversed()
+    private fun lifecycleDisableOrder() = _lifecycleListeners.keys.sortedBy { it.priority }
 
     final override fun onLoad() {
         onPluginLoad()
 
-        for(lifecycle in _lifecycleListeners)
+        for(lifecycle in lifecycleLoadOrder())
             lifecycle.listener(LifecycleEvent.LOAD)
     }
 
     final override fun onEnable() {
         onPluginEnable()
 
-        for(lifecycle in _lifecycleListeners)
+        for(lifecycle in lifecycleLoadOrder())
             lifecycle.listener(LifecycleEvent.ENABLE)
     }
 
@@ -63,7 +67,7 @@ open class KotlinPlugin : JavaPlugin() {
         onPluginDisable()
 
         // reversing lifecycles for execute first the low priority ones
-        val reversedLifecyle = _lifecycleListeners.descendingSet()
+        val reversedLifecyle = lifecycleDisableOrder()
 
         for(lifecycle in reversedLifecyle)
             lifecycle.listener(LifecycleEvent.DISABLE)
@@ -78,7 +82,7 @@ open class KotlinPlugin : JavaPlugin() {
     fun someConfigReloaded(all: Boolean = false) {
         onConfigReload()
 
-        for(lifecycle in _lifecycleListeners)
+        for(lifecycle in lifecycleListeners)
             lifecycle.listener(
                     if(all)
                         LifecycleEvent.ALL_CONFIG_RELOAD
