@@ -5,7 +5,10 @@ plugins {
 
 dependencies {
     implementation("org.bstats:bstats-bukkit:${Versions.bstats}")
-    compileOnly(project(":libraries-embedded"))
+
+    baseDependencies().forEach { compileOnly(it) }
+    coreDependencies().forEach { compileOnly(it, excludeKotlin) }
+
 
     testImplementation(kotlin("stdlib"))
     testImplementation("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")

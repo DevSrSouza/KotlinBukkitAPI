@@ -5,5 +5,5 @@ plugins {
 dependencies {
     compileOnly(project(":core"))
 
-    compileOnly(project(":libraries-embedded"))
+    exposedDependencies().forEach { compileOnly(it, excludeKotlin) }
 }

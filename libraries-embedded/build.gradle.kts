@@ -4,23 +4,10 @@ repositories {
 }
 
 dependencies {
-    api(kotlin("stdlib-jdk8"))
-    api(kotlin("reflect"))
-
-    // core module
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.corouties}")
-    api("com.okkero.skedule:skedule:${Versions.skedule}", excludeKotlin)
-
-    // exposed module
-    api("org.jetbrains.exposed:exposed-core:${Versions.exposed}", excludeKotlin)
-    api("org.jetbrains.exposed:exposed-jdbc:${Versions.exposed}", excludeKotlin)
-    api("org.jetbrains.exposed:exposed-java-time:${Versions.exposed}", excludeKotlin)
-    api("org.jetbrains.exposed:exposed-dao:${Versions.exposed}", excludeKotlin)
-    api("com.zaxxer:HikariCP:${Versions.hikari}")
-
-    // serialization module
-    api("org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.serialization}")
-    api("com.charleskorn.kaml:kaml:${Versions.kaml}")
+    baseDependencies().forEach { api(it) }
+    coreDependencies().forEach { api(it, excludeKotlin) }
+    exposedDependencies().forEach { api(it, excludeKotlin) }
+    serializationDependencies().forEach { api(it, excludeKotlin) }
 }
 
 tasks {

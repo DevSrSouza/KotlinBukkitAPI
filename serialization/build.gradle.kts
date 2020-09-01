@@ -5,6 +5,6 @@ plugins {
 dependencies {
     compileOnly(project(":core"))
 
-    compileOnly(project(":libraries-embedded"))
+    serializationDependencies().forEach { compileOnly(it, excludeKotlin) }
     //implementation("de.brudaswen.kotlinx.serialization:kotlinx-serialization-csv:0.1.0")
 }
