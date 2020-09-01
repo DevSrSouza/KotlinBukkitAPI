@@ -1,6 +1,8 @@
 import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.kotlin
 
+val serializationDependency = "org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.serialization}"
+
 fun DependencyHandlerScope.baseDependencies(): List<Any> = listOf(
         kotlin("stdlib-jdk8"),
         kotlin("reflect"),
@@ -8,10 +10,12 @@ fun DependencyHandlerScope.baseDependencies(): List<Any> = listOf(
 )
 
 fun DependencyHandlerScope.coreDependencies(): List<String> = listOf(
+        serializationDependency,
         "com.okkero.skedule:skedule:${Versions.skedule}"
 )
 
 fun DependencyHandlerScope.exposedDependencies(): List<String> = listOf(
+        serializationDependency,
         "org.jetbrains.exposed:exposed-core:${Versions.exposed}",
         "org.jetbrains.exposed:exposed-jdbc:${Versions.exposed}",
         "org.jetbrains.exposed:exposed-java-time:${Versions.exposed}",
@@ -20,6 +24,6 @@ fun DependencyHandlerScope.exposedDependencies(): List<String> = listOf(
 )
 
 fun DependencyHandlerScope.serializationDependencies(): List<String> = listOf(
-        "org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.serialization}",
+        serializationDependency,
         "com.charleskorn.kaml:kaml:${Versions.kaml}"
 )

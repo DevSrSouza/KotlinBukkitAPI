@@ -18,10 +18,11 @@ tasks {
     }
 }
 
+/*
 publishing {
     publications {
         create<MavenPublication>("maven") {
             shadow.component(this)
         }
     }
-}
+}*/

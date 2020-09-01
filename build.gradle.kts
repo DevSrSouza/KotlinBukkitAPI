@@ -8,7 +8,7 @@ plugins {
     id("maven-publish")
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
     id("com.jfrog.bintray") version "1.8.4"
-    id("me.bristermitten.pdm")// version "0.0.26"
+    id("me.bristermitten.pdm")
 }
 
 val groupPrefix = "br.com.devsrsouza.kotlinbukkitapi"
@@ -35,7 +35,6 @@ subprojects {
     apply(plugin ="com.github.johnrengelman.shadow")
     apply(plugin = "maven-publish")
     apply(plugin = "com.jfrog.bintray")
-    apply(plugin = "me.bristermitten.pdm")
 
     group = groupPrefix
     version = pVersion
@@ -73,7 +72,7 @@ subprojects {
         publishing {
             publications {
                 create<MavenPublication>("maven") {
-                    from(components["java"])
+                    from(components["kotlin"])
                     artifact(sources.get())
                     groupId = project.group.toString()
                     artifactId = project.path.removePrefix(":")
