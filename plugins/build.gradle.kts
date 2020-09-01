@@ -7,7 +7,7 @@ repositories {
 }
 
 dependencies {
-    compileOnly(project(":core", configuration = "shadow"))
+    compileOnly(project(":core"))
 
     for (dependency in KotlinBukkitAPI.plugins.flatMap { it.dependencies }) {
         compileOnly(dependency) {

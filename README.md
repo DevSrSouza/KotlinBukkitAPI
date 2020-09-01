@@ -133,6 +133,14 @@ You can find more examples in the [Documentation](https://github.com/DevSrSouza/
 | Exposed | Extensions for SQL framework [Exposed](https://github.com/JetBrains/Exposed/) |
 | Serialization | Extensions for [Kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) |
 
+## Credits
+
+- [Kotlin](https://kotlinlang.org/), [Exposed](https://github.com/JetBrains/Exposed/), [Kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) by Jetbrains
+- [Skedule](https://github.com/okkero/Skedule) by okkero
+- [KAML](https://github.com/charleskorn/kaml) by charleskorn
+- [Shadow plugin](https://github.com/johnrengelman/shadow) by johnrengelman
+- [Plugin Dependency Manager](https://github.com/knightzmc/pdm) by knightzmc
+
 ## Consider donate
 
 <a href="https://www.buymeacoffee.com/DevSrSouza" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/lato-orange.png" alt="Buy Me A Coffee" style="height: 51px !important;width: 217px !important;" ></a>

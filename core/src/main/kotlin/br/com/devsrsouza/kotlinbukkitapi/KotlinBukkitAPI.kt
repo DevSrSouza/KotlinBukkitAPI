@@ -7,6 +7,7 @@ import br.com.devsrsouza.kotlinbukkitapi.controllers.MenuController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.PlayerController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.ProviderController
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.registerEvents
+import me.bristermitten.pdm.PDMBuilder
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
 import org.bukkit.event.Listener
@@ -32,6 +33,11 @@ class KotlinBukkitAPI : JavaPlugin() {
             commandController, menuController, playerController,
             providerController, bungeeCordController
     )
+
+    init {
+        val pdm = PDMBuilder().build()
+        pdm.downloadAllDependencies().join()
+    }
 
     override fun onEnable() {
         for (controller in controllers) {

@@ -1,3 +1,6 @@
+import org.gradle.api.Action
+import org.gradle.api.artifacts.ExternalModuleDependency
+import org.gradle.kotlin.dsl.*
 import java.io.File
 import java.util.*
 
@@ -8,4 +11,10 @@ fun loadProperties(file: String): Properties? {
     return Properties().apply {
         load(file.inputStream())
     }
+}
+
+val changing = Action<ExternalModuleDependency> { isChanging = true }
+
+val excludeKotlin = Action<ExternalModuleDependency> {
+    exclude(group = "org.jetbrains.kotlin")
 }

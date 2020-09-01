@@ -1,19 +1,11 @@
 plugins {
-    kotlin("plugin.serialization") version "1.4.0"
-}
-
-repositories {
-    maven("http://nexus.okkero.com/repository/maven-releases/")
-    maven("https://repo.codemc.org/repository/maven-public")
+    kotlin("plugin.serialization") version Versions.kotlin
+    id("me.bristermitten.pdm")
 }
 
 dependencies {
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
-    api("com.okkero.skedule:skedule:1.2.6") {
-        exclude(group = "org.jetbrains.kotlin")
-    }
-    implementation("org.bstats:bstats-bukkit:1.7")
-    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC")
+    implementation("org.bstats:bstats-bukkit:${Versions.bstats}")
+    compileOnly(project(":libraries-embedded"))
 
     testImplementation(kotlin("stdlib"))
     testImplementation("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")

@@ -2,12 +2,13 @@ import net.minecrell.pluginyml.bukkit.BukkitPluginDescription
 import org.gradle.api.tasks.bundling.Jar
 
 plugins {
+    kotlin("jvm")
+    id("com.github.johnrengelman.shadow")
     id("java")
     id("maven-publish")
-    kotlin("jvm") version "1.4.0"
-    id("com.github.johnrengelman.shadow") version "4.0.3"
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
     id("com.jfrog.bintray") version "1.8.4"
+    id("me.bristermitten.pdm")// version "0.0.26"
 }
 
 val groupPrefix = "br.com.devsrsouza.kotlinbukkitapi"
@@ -17,32 +18,32 @@ version = pVersion
 
 val jcenter = loadProperties("jcenter.properties")
 
+allprojects {
+    repositories {
+        jcenter()
+        mavenLocal()
+        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        //maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
+        maven("https://repo.codemc.org/repository/maven-public")
+        maven("http://nexus.okkero.com/repository/maven-releases/")
+    }
+}
+
 subprojects {
-    plugins.apply("org.jetbrains.kotlin.jvm")
-    plugins.apply("maven-publish")
-    plugins.apply("com.github.johnrengelman.shadow")
-    plugins.apply("com.jfrog.bintray")
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin ="com.github.johnrengelman.shadow")
+    apply(plugin = "maven-publish")
+    apply(plugin = "com.jfrog.bintray")
+    apply(plugin = "me.bristermitten.pdm")
 
     group = groupPrefix
     version = pVersion
-
-    repositories {
-        jcenter()
-        maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-        maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
-    }
 
     dependencies {
         compileOnly(kotlin("stdlib-jdk8"))
 
         compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
-    }
-
-    kotlin {
-        sourceSets.all {
-            languageSettings.useExperimentalAnnotation("kotlin.contracts.ExperimentalContracts")
-        }
     }
 
     tasks {
@@ -51,15 +52,13 @@ subprojects {
         }
         compileKotlin {
             kotlinOptions.jvmTarget = "1.8"
-            kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.time.ExperimentalTime,kotlin.ExperimentalStdlibApi,kotlinx.coroutines.ExperimentalCoroutinesApi"
+            kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.contracts.ExperimentalContracts,kotlin.time.ExperimentalTime,kotlin.ExperimentalStdlibApi,kotlinx.coroutines.ExperimentalCoroutinesApi"
         }
 
         shadowJar {
             baseName = "KotlinBukkitAPI-${project.name}"
             classifier = null
             version = null
-
-            relocate("org.bstats", "br.com.devsrsouza.kotlinbukkitapi.bstats")
         }
     }
 
@@ -70,41 +69,42 @@ subprojects {
         from(sourceSets.main.get().allSource)
     }
 
-    publishing {
-        publications {
-            create<MavenPublication>("maven") {
-                from(components["java"])
-                artifact(sources.get())
-                groupId = project.group.toString()
-                artifactId = project.path.removePrefix(":")
-                        .replace(":", "-").toLowerCase()
-                version = project.version.toString()
-                pom {
-                    name.set("KotlinBukkitAPI-${project.name}")
-                    description.set(KotlinBukkitAPI.github)
-                    url.set(KotlinBukkitAPI.github)
-                    licenses {
-                        license {
-                            name.set("MIT License")
-                            url.set("https://github.com/DevSrSouza/KotlinBukkitAPI/blob/master/LICENSE")
-                            distribution.set("repo")
+    if(project.name != "libraries-embedded")
+        publishing {
+            publications {
+                create<MavenPublication>("maven") {
+                    from(components["java"])
+                    artifact(sources.get())
+                    groupId = project.group.toString()
+                    artifactId = project.path.removePrefix(":")
+                            .replace(":", "-").toLowerCase()
+                    version = project.version.toString()
+                    pom {
+                        name.set("KotlinBukkitAPI-${project.name}")
+                        description.set(KotlinBukkitAPI.github)
+                        url.set(KotlinBukkitAPI.github)
+                        licenses {
+                            license {
+                                name.set("MIT License")
+                                url.set("https://github.com/DevSrSouza/KotlinBukkitAPI/blob/master/LICENSE")
+                                distribution.set("repo")
+                            }
                         }
-                    }
-                    developers {
-                        developer {
-                            id.set("DevSrSouza")
-                            name.set("Gabriel Souza")
-                            email.set("devsrsouza@gmail.com")
+                        developers {
+                            developer {
+                                id.set("DevSrSouza")
+                                name.set("Gabriel Souza")
+                                email.set("devsrsouza@gmail.com")
+                            }
                         }
-                    }
-                    scm {
-                        url.set("https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master/" +
-                                project.path.removePrefix(":").replace(":", "/"))
+                        scm {
+                            url.set("https://github.com/DevSrSouza/KotlinBukkitAPI/tree/master/" +
+                                    project.path.removePrefix(":").replace(":", "/"))
+                        }
                     }
                 }
             }
         }
-    }
 
     if(jcenter != null) {
         bintray {
@@ -132,16 +132,19 @@ subprojects {
     }
 }
 
-repositories {
-    jcenter()
-}
-
 dependencies {
-    api(kotlin("stdlib-jdk8"))
+    compileOnly(kotlin("stdlib-jdk8"))
 
     subprojects.forEach {
-        api(project(it.path, configuration = "shadow"))
+        if(it.name == "libraries-embedded")
+            pdm(project(it.path))
+        else
+            implementation(project(it.path))
     }
+}
+
+pdm {
+    projectRepository = "http://nexus.devsrsouza.com.br/repository/maven-public/"
 }
 
 tasks {
@@ -151,9 +154,13 @@ tasks {
         }
     }
     shadowJar {
+        dependsOn(pdm)
         baseName = project.name
         version += "-b${System.getenv("BUILD_NUMBER")}"
         classifier = null
+
+        relocateKotlinBukkitAPI()
+        relocate("org.bstats", "br.com.devsrsouza.kotlinbukkitapi.bstats")
     }
 }
 
