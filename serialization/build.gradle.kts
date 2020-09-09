@@ -1,11 +1,10 @@
 plugins {
-    kotlin("plugin.serialization") version "1.4.0"
+    kotlin("plugin.serialization") version Versions.kotlin
 }
 
 dependencies {
-    compileOnly(project(":core"))//, configuration = "shadow"))
+    compileOnly(project(":core"))
 
-    api("org.jetbrains.kotlinx:kotlinx-serialization-core:1.0.0-RC")
-    api("com.charleskorn.kaml:kaml:0.19.0")
+    serializationDependencies().forEach { pdm(it, excludeKotlin) }
     //implementation("de.brudaswen.kotlinx.serialization:kotlinx-serialization-csv:0.1.0")
 }

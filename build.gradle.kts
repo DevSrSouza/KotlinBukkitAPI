@@ -4,10 +4,11 @@ import org.gradle.api.tasks.bundling.Jar
 plugins {
     id("java")
     id("maven-publish")
-    kotlin("jvm") version "1.4.0"
-    id("com.github.johnrengelman.shadow") version "4.0.3"
+    kotlin("jvm")
+    id("com.github.johnrengelman.shadow")
     id("net.minecrell.plugin-yml.bukkit") version "0.3.0"
     id("com.jfrog.bintray") version "1.8.4"
+    id("me.bristermitten.pdm")
 }
 
 val groupPrefix = "br.com.devsrsouza.kotlinbukkitapi"
@@ -22,15 +23,18 @@ subprojects {
     plugins.apply("maven-publish")
     plugins.apply("com.github.johnrengelman.shadow")
     plugins.apply("com.jfrog.bintray")
+    plugins.apply("me.bristermitten.pdm")
 
     group = groupPrefix
     version = pVersion
 
     repositories {
         jcenter()
+        mavenLocal()
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
+        maven("https://repo.codemc.org/repository/maven-public")
     }
 
     dependencies {
@@ -134,13 +138,12 @@ subprojects {
 
 repositories {
     jcenter()
+    maven("https://repo.codemc.org/repository/maven-public")
 }
 
 dependencies {
-    api(kotlin("stdlib-jdk8"))
-
     subprojects.forEach {
-        api(project(it.path, configuration = "shadow"))
+        api(project(it.path))
     }
 }
 
@@ -151,9 +154,12 @@ tasks {
         }
     }
     shadowJar {
+        dependsOn(pdm)
         baseName = project.name
         version += "-b${System.getenv("BUILD_NUMBER")}"
         classifier = null
+
+        relocate("org.bstats", "br.com.devsrsouza.kotlinbukkitapi.bstats")
     }
 }
 

@@ -1,5 +1,5 @@
 object KotlinBukkitAPI {
-    val version = "0.1.0-SNAPSHOT"
+    val version = "0.2.0-SNAPSHOT"
 
     val displayName = "KotlinBukkitAPI"
     val description = "KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features Kotlin has to make your life more easier."

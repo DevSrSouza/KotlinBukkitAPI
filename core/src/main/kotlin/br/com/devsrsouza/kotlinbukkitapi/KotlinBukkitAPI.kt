@@ -7,6 +7,7 @@ import br.com.devsrsouza.kotlinbukkitapi.controllers.MenuController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.PlayerController
 import br.com.devsrsouza.kotlinbukkitapi.controllers.ProviderController
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.registerEvents
+import me.bristermitten.pdm.PDMBuilder
 import org.bstats.bukkit.Metrics
 import org.bukkit.Bukkit
 import org.bukkit.event.Listener
@@ -20,6 +21,8 @@ internal fun provideKotlinBukkitAPI(): KotlinBukkitAPI {
 private const val BSTATS_PLUGIN_ID = 6356
 
 class KotlinBukkitAPI : JavaPlugin() {
+    init { PDMBuilder().build().loadAllDependencies().join() }
+
     internal val commandController = CommandController(this)
     internal val menuController = MenuController(this)
     internal val playerController = PlayerController(this)
