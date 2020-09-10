@@ -77,7 +77,7 @@ subprojects {
     publishing {
         publications {
             create<MavenPublication>("maven") {
-                from(components["java"])
+                from(components["kotlin"])
                 artifact(sources.get())
                 groupId = project.group.toString()
                 artifactId = project.path.removePrefix(":")

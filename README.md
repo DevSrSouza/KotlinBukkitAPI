@@ -124,14 +124,14 @@ More about how to setup a project with KotlinBukkitAPI [here](https://github.com
 
 | Name | Version |
 | --- | --- |
-| Kotlin STD + JDK8 | 1.4.0 |
-| Kotlin Reflect | 1.4.0 |
+| Kotlin STD + JDK8 | 1.4.10 |
+| Kotlin Reflect | 1.4.10 |
 | [Kotlinx-coroutines](https://github.com/Kotlin/kotlinx.coroutines/) | 1.3.9 |
 | [Skedule](https://github.com/okkero/Skedule) | 1.2.6 |
 | [Kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) | 1.4.0-RC  |
 | [KAML](https://github.com/charleskorn/kaml) | 0.19.0 |
 | [Exposed](https://github.com/JetBrains/Exposed/) | 0.25.1 |
-| [HikariCP]() | 3.3.1 |
+| [HikariCP](https://github.com/brettwooldridge/HikariCP/) | 3.3.1 |
 
 ## Modules
 | Module | Description |
