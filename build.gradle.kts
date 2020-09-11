@@ -40,7 +40,7 @@ subprojects {
     dependencies {
         compileOnly(kotlin("stdlib-jdk8"))
 
-        compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
+        compileOnly(Dep.spigot)
     }
 
     kotlin {

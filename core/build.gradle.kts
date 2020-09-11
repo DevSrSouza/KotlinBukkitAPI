@@ -3,7 +3,7 @@ plugins {
 }
 
 dependencies {
-    implementation("org.bstats:bstats-bukkit:${Versions.bstats}")
+    implementation(Dep.bstats)
 
     baseDependencies().forEach { pdm(it) }
     coreDependencies().forEach { pdm(it, excludeKotlin) }
