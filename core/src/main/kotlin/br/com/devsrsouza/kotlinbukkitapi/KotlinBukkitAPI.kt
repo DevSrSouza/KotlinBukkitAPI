@@ -21,6 +21,7 @@ internal fun provideKotlinBukkitAPI(): KotlinBukkitAPI {
 private const val BSTATS_PLUGIN_ID = 6356
 
 class KotlinBukkitAPI : JavaPlugin() {
+    init { PDMBuilder(this).build().loadAllDependencies().join() }
 
     internal val commandController = CommandController(this)
     internal val menuController = MenuController(this)
@@ -34,10 +35,6 @@ class KotlinBukkitAPI : JavaPlugin() {
             commandController, menuController, playerController,
             providerController, bungeeCordController
     )
-
-    override fun onLoad() {
-        PDMBuilder().build().loadAllDependencies().join()
-    }
 
     override fun onEnable() {
         for (controller in controllers) {
