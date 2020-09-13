@@ -74,6 +74,46 @@ subprojects {
         from(sourceSets.main.get().allSource)
     }
 
+    afterEvaluate {
+        val maven = publishing.publications.findByName("maven") as MavenPublication
+
+        maven.apply {
+            pom {
+                withXml {
+                    val pdmConfig = configurations.pdm.get()
+
+                    val element = asElement()
+                    val doc = element.ownerDocument
+
+                    fun org.w3c.dom.NodeList.asList() = (0..length).map { item(it) }
+
+                    fun org.w3c.dom.Element.appendNode(name: String, value: Any?) {
+                        val element = doc.createElement(name).apply {
+                            setTextContent(value.toString())
+                        }
+                        appendChild(element)
+                    }
+
+                    val dependencies = element.getElementsByTagName("dependencies")
+                            .asList()
+                            .filterIsInstance<org.w3c.dom.Element>()
+                            .first()
+
+                    for (dependency in pdmConfig.allDependencies) {
+                        if ((dependency is ProjectDependency) || !(dependency is SelfResolvingDependency)) {
+                            val dependencyNode = doc.createElement("dependency")
+                            dependencyNode.appendNode("groupId", dependency.group)
+                            dependencyNode.appendNode("artifactId", dependency.name)
+                            dependencyNode.appendNode("version", dependency.version)
+                            dependencyNode.appendNode("scope", "runtime")
+                            dependencies.appendChild(dependencyNode)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     publishing {
         publications {
             create<MavenPublication>("maven") {
