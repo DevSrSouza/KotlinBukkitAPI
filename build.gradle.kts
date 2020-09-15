@@ -124,6 +124,18 @@ subprojects {
         }
     }
 
+    tasks{
+        withType<GenerateModuleMetadata> {
+            // disable because the gradle will focus on it for the resolution
+            // and we add dynamicly into pom the PDM dependencies as compile and
+            // not at the Gradle Module Metadata, currently I don't know how I will support it
+            // I guess, I could use withVariantsFromConfiguration for the pdm configurations
+            // but apperently is not supported for Kotlin components :S
+            // HELP WANTED!
+            enabled = false
+        }
+    }
+
     if(jcenter != null) {
         bintray {
             user = jcenter["bintray_user"] as String
