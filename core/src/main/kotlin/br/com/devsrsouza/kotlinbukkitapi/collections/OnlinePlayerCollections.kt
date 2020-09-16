@@ -3,7 +3,7 @@ package br.com.devsrsouza.kotlinbukkitapi.collections
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.registerEvents
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.unregisterAllListeners
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.unregisterListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.utils.PlayerComparator
 import org.bukkit.entity.Player
@@ -190,7 +190,7 @@ interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> 
             event<PlayerQuitEvent> { quit(player) }
             event<PlayerKickEvent> { quit(player) }
         } else if(size == 0) {
-            unregisterAllListeners()
+            unregisterListener()
         }
     }
 
@@ -273,7 +273,7 @@ class OnlinePlayerMap<V>(override val plugin: Plugin) : HashMap<Player, V>(), KL
             event<PlayerQuitEvent> { quit(player) }
             event<PlayerKickEvent> { quit(player) }
         } else if(size == 0) {
-            unregisterAllListeners()
+            unregisterListener()
         }
     }
 }

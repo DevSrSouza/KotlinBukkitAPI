@@ -32,4 +32,5 @@ val changing = Action<ExternalModuleDependency> { isChanging = true }
 
 val excludeKotlin = Action<ExternalModuleDependency> {
     exclude(group = "org.jetbrains.kotlin")
+    exclude(module = "kotlinx-coroutines-core")
 }

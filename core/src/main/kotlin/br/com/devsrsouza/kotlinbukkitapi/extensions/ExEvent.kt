@@ -50,9 +50,7 @@ fun <T : Event> Listener.event(
 }
 
 inline fun WithPlugin<*>.events(block: KListener<*>.() -> Unit) = plugin.events(block)
-inline fun Plugin.events(block: KListener<*>.() -> Unit) = InlineKListener(this).apply(block)
-
-fun Listener.unregisterAllListeners() = HandlerList.unregisterAll(this)
+inline fun Plugin.events(block: KListener<*>.() -> Unit) = SimpleKListener(this).apply(block)
 
 fun Listener.registerEvents(plugin: Plugin)
         = plugin.server.pluginManager.registerEvents(this, plugin)
@@ -65,4 +63,5 @@ val PlayerMoveEvent.displaced: Boolean
     get() = this.from.x != this.to?.x || this.from.y != this.to?.y || this.from.z != this.to?.z
 
 interface KListener<T : Plugin> : Listener, WithPlugin<T>
-inline class InlineKListener(override val plugin: Plugin) : KListener<Plugin>
+
+class SimpleKListener(override val plugin: Plugin) : KListener<Plugin>

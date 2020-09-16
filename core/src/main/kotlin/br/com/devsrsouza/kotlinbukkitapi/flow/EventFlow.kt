@@ -1,9 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.flow
 
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.event
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.events
-import br.com.devsrsouza.kotlinbukkitapi.extensions.event.unregisterAllListeners
+import br.com.devsrsouza.kotlinbukkitapi.extensions.event.*
 import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.channels.*
@@ -49,8 +46,8 @@ fun <T : Event> eventFlow(
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false,
     channel: Channel<T> = Channel<T>(Channel.CONFLATED),
-    listener: Listener = plugin.events {},
-    assignListener: Listener = plugin.events {}
+    listener: Listener = SimpleKListener(plugin),
+    assignListener: Listener = SimpleKListener(plugin)
 ): Flow<T> {
 
     val flow = channel.consumeAsFlow().onStart {
@@ -75,8 +72,8 @@ fun <T : Event> eventFlow(
     else null
 
     channel.invokeOnClose {
-        listener.unregisterAllListeners()
-        assignListener?.unregisterAllListeners()
+        listener.unregisterListener()
+        assignListener?.unregisterListener()
     }
 
     return flow
