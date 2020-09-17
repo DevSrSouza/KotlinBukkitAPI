@@ -7,6 +7,8 @@ object Dep {
     val kaml = "com.charleskorn.kaml:kaml:${Versions.kaml}"
     val serializationCore = "org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.serialization}"
 
+    val snakeYml = "org.snakeyaml:snakeyaml-engine:${Versions.snakeYaml}"
+
 
     object Exposed {
         val core = "org.jetbrains.exposed:exposed-core:${Versions.exposed}"
@@ -26,5 +28,7 @@ object Dep {
         val corouties = "1.3.9"
         val skedule = "1.2.6"
         val shadow = "6.0.0"
+
+        val snakeYaml = "2.1"
     }
 }

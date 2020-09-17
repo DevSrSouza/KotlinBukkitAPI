@@ -25,7 +25,8 @@ fun DependencyHandlerScope.exposedDependencies(): List<String> = listOf(
 
 fun DependencyHandlerScope.serializationDependencies(): List<String> = listOf(
         Dep.serializationCore,
-        Dep.kaml
+        Dep.kaml,
+        Dep.snakeYml
 )
 
 val changing = Action<ExternalModuleDependency> { isChanging = true }
