@@ -36,7 +36,7 @@ object MaterialDataSerializer : KSerializer<MaterialData> {
 
         return (material.toIntOrNull()?.let {
             Material.getMaterial(it)
-        } ?: Material.getMaterial(material)).asMaterialData(data.toByte())
+        } ?: Material.getMaterial(material.toUpperCase())).asMaterialData(data.toByte())
     }
 
 }

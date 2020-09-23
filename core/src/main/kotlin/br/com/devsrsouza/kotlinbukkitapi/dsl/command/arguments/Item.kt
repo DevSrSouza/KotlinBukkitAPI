@@ -14,7 +14,7 @@ val MATERIAL_NOT_FOUND = "The item specified not found.".color(ChatColor.RED)
 val MATERIAL_MISSING_PARAMETER = "Missing item argument.".color(ChatColor.RED)
 
 private fun toMaterial(string: String) = string.toIntOrNull()?.let { Material.getMaterial(it) }
-        ?: Material.getMaterial(string)
+        ?: Material.getMaterial(string.toUpperCase())
 
 /**
  * Returns [Material] or null if the Material was not found.
