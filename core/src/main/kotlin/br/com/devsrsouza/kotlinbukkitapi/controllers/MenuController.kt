@@ -3,13 +3,16 @@ package br.com.devsrsouza.kotlinbukkitapi.controllers
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.server.onlinePlayers
+import br.com.devsrsouza.kotlinbukkitapi.extensions.text.msg
 import br.com.devsrsouza.kotlinbukkitapi.menu.*
 import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotInteract
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.event.server.PluginDisableEvent
+import org.bukkit.inventory.ItemStack
 
 internal class MenuController(
         override val plugin: KotlinBukkitAPI
@@ -66,8 +69,14 @@ internal class MenuController(
             val player = event.whoClicked as Player
             val menu = getMenuFromInventory(event.inventory)?.takeIfHasPlayer(player)
             if (menu != null) {
-                val pass = event.inventorySlots.firstOrNull { it in event.rawSlots }
-                if (pass != null) event.isCancelled = true
+                Bukkit.getScheduler().runTaskAsynchronously(plugin)
+                {
+                    val amount = event.newItems.filter { it.key < event.inventory.size }.map {
+                        event.inventory.setItem(it.key, null)
+                        it.value.amount
+                    }.sum()
+                    event.whoClicked.itemOnCursor = ItemStack(event.oldCursor.type, amount + (event.cursor?.amount ?: 0))
+                }
             }
         }
     }
