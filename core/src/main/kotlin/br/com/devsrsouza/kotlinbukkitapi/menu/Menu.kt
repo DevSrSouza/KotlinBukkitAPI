@@ -14,6 +14,7 @@ interface Menu<T : Slot> : WithPlugin<Plugin>, InventoryHolder {
     var lines: Int
     var cancelOnTopClick: Boolean
     var cancelOnBottomClick: Boolean
+    var canBottomInventoryDoubleClick : Boolean
 
     val viewers: Map<Player, Inventory>
     val slots: TreeMap<Int, T>

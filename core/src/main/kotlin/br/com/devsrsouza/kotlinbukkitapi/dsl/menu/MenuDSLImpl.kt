@@ -21,16 +21,18 @@ inline fun WithPlugin<*>.menu(
         lines: Int,
         cancelOnTopClick: Boolean = true,
         cancelOnBottomClick: Boolean = true,
+        canBottomInventoryDoubleClick: Boolean = false,
         block: MenuDSL.() -> Unit
-): MenuDSL = plugin.menu(displayName, lines, cancelOnTopClick, cancelOnBottomClick, block)
+): MenuDSL = plugin.menu(displayName, lines, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, block)
 
 inline fun Plugin.menu(
         displayName: String,
         lines: Int,
         cancelOnTopClick: Boolean = true,
         cancelOnBottomClick: Boolean = true,
+        canBottomInventoryDoubleClick: Boolean = false,
         block: MenuDSL.() -> Unit
-): MenuDSL = menu(displayName, lines, this, cancelOnTopClick, cancelOnBottomClick, block)
+): MenuDSL = menu(displayName, lines, this, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, block)
 
 inline fun menu(
         displayName: String,
@@ -38,15 +40,17 @@ inline fun menu(
         plugin: Plugin,
         cancelOnTopClick: Boolean = true,
         cancelOnBottomClick: Boolean = true,
+        canBottomInventoryDoubleClick: Boolean = false,
         block: MenuDSL.() -> Unit
-): MenuDSL = MenuDSLImpl(plugin, displayName, lines, cancelOnTopClick, cancelOnBottomClick).apply(block)
+): MenuDSL = MenuDSLImpl(plugin, displayName, lines, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick).apply(block)
 
 class MenuDSLImpl(
         override val plugin: Plugin,
         override var title: String,
         override var lines: Int,
         override var cancelOnTopClick: Boolean,
-        override var cancelOnBottomClick: Boolean
+        override var cancelOnBottomClick: Boolean,
+        override var canBottomInventoryDoubleClick: Boolean,
 ) : MenuDSL {
 
     private var task: BukkitTask? = null

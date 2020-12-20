@@ -11,10 +11,7 @@ import br.com.devsrsouza.kotlinbukkitapi.menu.takeIfHasPlayer
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.inventory.InventoryClickEvent
-import org.bukkit.event.inventory.InventoryCloseEvent
-import org.bukkit.event.inventory.InventoryDragEvent
-import org.bukkit.event.inventory.InventoryType
+import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.inventory.ItemStack
@@ -97,5 +94,26 @@ internal class MenuController(
     @EventHandler(ignoreCancelled = true)
     fun onPickupItemEvent(event: PlayerPickupItemEvent) {
         if (getMenuFromPlayer(event.player) != null) event.isCancelled = true
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun antiIllegalBottomInventoryDoubleClick(event : InventoryClickEvent)
+    {
+        if (event.click == ClickType.DOUBLE_CLICK)
+        {
+            val player = event.whoClicked as Player
+            val menu = getMenuFromInventory(event.inventory)?.takeIfHasPlayer(player)
+            if (menu != null && !menu.canBottomInventoryDoubleClick)
+            {
+                val clickedItem = event.cursor
+                if (clickedItem != null)
+                {
+                    if (event.inventory.containsAtLeast(clickedItem, 1))
+                    {
+                        event.isCancelled = true
+                    }
+                }
+            }
+        }
     }
 }
