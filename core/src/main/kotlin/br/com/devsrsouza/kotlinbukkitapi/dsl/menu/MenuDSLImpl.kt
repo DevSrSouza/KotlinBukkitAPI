@@ -22,8 +22,9 @@ inline fun WithPlugin<*>.menu(
         cancelOnTopClick: Boolean = true,
         cancelOnBottomClick: Boolean = true,
         canBottomInventoryDoubleClick: Boolean = false,
+        canBottomInventoryShiftClick: Boolean = false,
         block: MenuDSL.() -> Unit
-): MenuDSL = plugin.menu(displayName, lines, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, block)
+): MenuDSL = plugin.menu(displayName, lines, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, canBottomInventoryShiftClick, block)
 
 inline fun Plugin.menu(
         displayName: String,
@@ -31,8 +32,9 @@ inline fun Plugin.menu(
         cancelOnTopClick: Boolean = true,
         cancelOnBottomClick: Boolean = true,
         canBottomInventoryDoubleClick: Boolean = false,
+        canBottomInventoryShiftClick: Boolean = false,
         block: MenuDSL.() -> Unit
-): MenuDSL = menu(displayName, lines, this, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, block)
+): MenuDSL = menu(displayName, lines, this, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, canBottomInventoryShiftClick, block)
 
 inline fun menu(
         displayName: String,
@@ -41,8 +43,9 @@ inline fun menu(
         cancelOnTopClick: Boolean = true,
         cancelOnBottomClick: Boolean = true,
         canBottomInventoryDoubleClick: Boolean = false,
+        canBottomInventoryShiftClick: Boolean = false,
         block: MenuDSL.() -> Unit
-): MenuDSL = MenuDSLImpl(plugin, displayName, lines, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick).apply(block)
+): MenuDSL = MenuDSLImpl(plugin, displayName, lines, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, canBottomInventoryShiftClick).apply(block)
 
 class MenuDSLImpl(
         override val plugin: Plugin,
@@ -51,6 +54,7 @@ class MenuDSLImpl(
         override var cancelOnTopClick: Boolean,
         override var cancelOnBottomClick: Boolean,
         override var canBottomInventoryDoubleClick: Boolean,
+        override var canBottomInventoryShiftClick: Boolean
 ) : MenuDSL {
 
     private var task: BukkitTask? = null

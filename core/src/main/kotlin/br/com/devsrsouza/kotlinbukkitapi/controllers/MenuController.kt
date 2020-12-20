@@ -102,7 +102,7 @@ internal class MenuController(
         if (event.click == ClickType.DOUBLE_CLICK)
         {
             val player = event.whoClicked as Player
-            val menu = getMenuFromInventory(event.inventory)?.takeIfHasPlayer(player)
+            val menu = getMenuFromInventory(event.view.topInventory)?.takeIfHasPlayer(player)
             if (menu != null && !menu.canBottomInventoryDoubleClick)
             {
                 val clickedItem = event.cursor
@@ -113,6 +113,20 @@ internal class MenuController(
                         event.isCancelled = true
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun antiIllegalBottomInventoryShiftClick(event : InventoryClickEvent)
+    {
+        if (event.isShiftClick)
+        {
+            val player = event.whoClicked as Player
+            val menu = getMenuFromInventory(event.inventory)?.takeIfHasPlayer(player)
+            if (menu != null && !menu.canBottomInventoryShiftClick)
+            {
+                event.isCancelled = true
             }
         }
     }
