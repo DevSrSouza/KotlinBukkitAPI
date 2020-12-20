@@ -20,7 +20,7 @@ inline fun WithPlugin<*>.menu(
         displayName: String,
         lines: Int,
         cancelOnTopClick: Boolean = true,
-        cancelOnBottomClick: Boolean = true,
+        cancelOnBottomClick: Boolean = false,
         canBottomInventoryDoubleClick: Boolean = false,
         canBottomInventoryShiftClick: Boolean = false,
         block: MenuDSL.() -> Unit
@@ -30,7 +30,7 @@ inline fun Plugin.menu(
         displayName: String,
         lines: Int,
         cancelOnTopClick: Boolean = true,
-        cancelOnBottomClick: Boolean = true,
+        cancelOnBottomClick: Boolean = false,
         canBottomInventoryDoubleClick: Boolean = false,
         canBottomInventoryShiftClick: Boolean = false,
         block: MenuDSL.() -> Unit
@@ -41,7 +41,7 @@ inline fun menu(
         lines: Int,
         plugin: Plugin,
         cancelOnTopClick: Boolean = true,
-        cancelOnBottomClick: Boolean = true,
+        cancelOnBottomClick: Boolean = false,
         canBottomInventoryDoubleClick: Boolean = false,
         canBottomInventoryShiftClick: Boolean = false,
         block: MenuDSL.() -> Unit
