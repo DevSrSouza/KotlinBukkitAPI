@@ -54,7 +54,7 @@ internal class MenuController(
                     if (interact.canceled) event.isCancelled = true
                 } else {
                     // TODO move item
-                    event.isCancelled = true
+                    event.isCancelled = menu.cancelOnBottomClick
                 }
             }
         }

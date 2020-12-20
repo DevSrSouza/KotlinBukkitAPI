@@ -6,7 +6,7 @@ import org.bukkit.inventory.ItemStack
 import java.util.*
 
 fun MenuDSL.newSlot(item: ItemStack?, builder: SlotDSL.() -> Unit): SlotDSL {
-    return SlotDSLImpl(item, cancelOnClick).apply(builder)
+    return SlotDSLImpl(item, cancelOnTopClick).apply(builder)
 }
 
 class SlotDSLImpl(
