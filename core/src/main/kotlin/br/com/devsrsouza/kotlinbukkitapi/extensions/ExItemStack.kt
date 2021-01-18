@@ -73,3 +73,15 @@ fun headFromBase64(base64: String): ItemStack {
 
     return item.apply { itemMeta = meta }
 }
+
+inline val Material.isPickaxe: Boolean get() = name.endsWith("PICKAXE")
+inline val Material.isSword: Boolean get() = name.endsWith("SWORD")
+inline val Material.isAxe: Boolean get() = name.endsWith("_AXE")
+inline val Material.isSpade: Boolean get() = name.endsWith("SPADE")
+inline val Material.isHoe: Boolean get() = name.endsWith("HOE")
+inline val Material.isOre: Boolean get() = name.endsWith("ORE")
+inline val Material.isIngot: Boolean get() = name.endsWith("INGOT")
+inline val Material.isDoor: Boolean get() = name.endsWith("DOOR")
+inline val Material.isMinecart: Boolean get() = name.endsWith("MINECART")
+inline val Material.isWater: Boolean get() = this == Material.WATER || this == Material.STATIONARY_WATER
+inline val Material.isLava: Boolean get() = this == Material.LAVA || this == Material.STATIONARY_LAVA
