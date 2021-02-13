@@ -3,13 +3,18 @@ package br.com.devsrsouza.kotlinbukkitapi.controllers
 import br.com.devsrsouza.kotlinbukkitapi.KotlinBukkitAPI
 import br.com.devsrsouza.kotlinbukkitapi.extensions.event.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.server.onlinePlayers
-import br.com.devsrsouza.kotlinbukkitapi.menu.*
+import br.com.devsrsouza.kotlinbukkitapi.menu.getMenuFromInventory
+import br.com.devsrsouza.kotlinbukkitapi.menu.getMenuFromPlayer
 import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotInteract
+import br.com.devsrsouza.kotlinbukkitapi.menu.slotOrBaseSlot
+import br.com.devsrsouza.kotlinbukkitapi.menu.takeIfHasPlayer
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.inventory.*
 import org.bukkit.event.player.PlayerPickupItemEvent
 import org.bukkit.event.server.PluginDisableEvent
+import org.bukkit.inventory.ItemStack
 
 internal class MenuController(
         override val plugin: KotlinBukkitAPI
@@ -54,7 +59,7 @@ internal class MenuController(
                     if (interact.canceled) event.isCancelled = true
                 } else {
                     // TODO move item
-                    event.isCancelled = true
+                    event.isCancelled = menu.cancelOnBottomClick
                 }
             }
         }
@@ -66,8 +71,14 @@ internal class MenuController(
             val player = event.whoClicked as Player
             val menu = getMenuFromInventory(event.inventory)?.takeIfHasPlayer(player)
             if (menu != null) {
-                val pass = event.inventorySlots.firstOrNull { it in event.rawSlots }
-                if (pass != null) event.isCancelled = true
+                Bukkit.getScheduler().runTaskAsynchronously(plugin)
+                {
+                    val amount = event.newItems.filter { it.key < event.inventory.size }.map {
+                        event.inventory.setItem(it.key, null)
+                        it.value.amount
+                    }.sum()
+                    event.whoClicked.itemOnCursor = ItemStack(event.oldCursor.type, amount + (event.cursor?.amount ?: 0))
+                }
             }
         }
     }
@@ -83,5 +94,40 @@ internal class MenuController(
     @EventHandler(ignoreCancelled = true)
     fun onPickupItemEvent(event: PlayerPickupItemEvent) {
         if (getMenuFromPlayer(event.player) != null) event.isCancelled = true
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun antiIllegalBottomInventoryDoubleClick(event : InventoryClickEvent)
+    {
+        if (event.click == ClickType.DOUBLE_CLICK)
+        {
+            val player = event.whoClicked as Player
+            val menu = getMenuFromInventory(event.view.topInventory)?.takeIfHasPlayer(player)
+            if (menu != null && !menu.canBottomInventoryDoubleClick)
+            {
+                val clickedItem = event.cursor
+                if (clickedItem != null)
+                {
+                    if (event.inventory.containsAtLeast(clickedItem, 1))
+                    {
+                        event.isCancelled = true
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler(ignoreCancelled = true)
+    fun antiIllegalBottomInventoryShiftClick(event : InventoryClickEvent)
+    {
+        if (event.isShiftClick)
+        {
+            val player = event.whoClicked as Player
+            val menu = getMenuFromInventory(event.inventory)?.takeIfHasPlayer(player)
+            if (menu != null && !menu.canBottomInventoryShiftClick)
+            {
+                event.isCancelled = true
+            }
+        }
     }
 }

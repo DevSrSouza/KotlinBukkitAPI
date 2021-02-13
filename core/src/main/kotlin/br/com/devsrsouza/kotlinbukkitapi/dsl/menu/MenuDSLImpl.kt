@@ -19,30 +19,42 @@ import java.util.*
 inline fun WithPlugin<*>.menu(
         displayName: String,
         lines: Int,
-        cancelOnClick: Boolean = true,
+        cancelOnTopClick: Boolean = true,
+        cancelOnBottomClick: Boolean = false,
+        canBottomInventoryDoubleClick: Boolean = false,
+        canBottomInventoryShiftClick: Boolean = false,
         block: MenuDSL.() -> Unit
-): MenuDSL = plugin.menu(displayName, lines, cancelOnClick, block)
+): MenuDSL = plugin.menu(displayName, lines, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, canBottomInventoryShiftClick, block)
 
 inline fun Plugin.menu(
         displayName: String,
         lines: Int,
-        cancelOnClick: Boolean = true,
+        cancelOnTopClick: Boolean = true,
+        cancelOnBottomClick: Boolean = false,
+        canBottomInventoryDoubleClick: Boolean = false,
+        canBottomInventoryShiftClick: Boolean = false,
         block: MenuDSL.() -> Unit
-): MenuDSL = menu(displayName, lines, this, cancelOnClick, block)
+): MenuDSL = menu(displayName, lines, this, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, canBottomInventoryShiftClick, block)
 
 inline fun menu(
         displayName: String,
         lines: Int,
         plugin: Plugin,
-        cancelOnClick: Boolean = true,
+        cancelOnTopClick: Boolean = true,
+        cancelOnBottomClick: Boolean = false,
+        canBottomInventoryDoubleClick: Boolean = false,
+        canBottomInventoryShiftClick: Boolean = false,
         block: MenuDSL.() -> Unit
-): MenuDSL = MenuDSLImpl(plugin, displayName, lines, cancelOnClick).apply(block)
+): MenuDSL = MenuDSLImpl(plugin, displayName, lines, cancelOnTopClick, cancelOnBottomClick, canBottomInventoryDoubleClick, canBottomInventoryShiftClick).apply(block)
 
 class MenuDSLImpl(
         override val plugin: Plugin,
         override var title: String,
         override var lines: Int,
-        override var cancelOnClick: Boolean
+        override var cancelOnTopClick: Boolean,
+        override var cancelOnBottomClick: Boolean,
+        override var canBottomInventoryDoubleClick: Boolean,
+        override var canBottomInventoryShiftClick: Boolean
 ) : MenuDSL {
 
     private var task: BukkitTask? = null
@@ -62,7 +74,7 @@ class MenuDSLImpl(
 
     override val eventHandler = MenuEventHandlerDSL(this)
 
-    override var baseSlot: SlotDSL = SlotDSLImpl(null, cancelOnClick, SlotEventHandlerDSL())
+    override var baseSlot: SlotDSL = SlotDSLImpl(null, cancelOnTopClick, SlotEventHandlerDSL())
 
     override fun setSlot(slot: Int, slotObj: SlotDSL) {
         slots.put(slot, slotObj)

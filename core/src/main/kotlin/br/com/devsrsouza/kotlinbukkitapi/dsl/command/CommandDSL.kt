@@ -184,8 +184,20 @@ open class CommandDSL(
                     return true
                 }
             }
+            val playerExecutor = executors.getByInstance(Player::class)
             val genericExecutor = executors.getByInstance(sender::class)
-            if (genericExecutor != null) {
+            if (playerExecutor != null) {
+                if (sender is Player) {
+                    val playerJob = Job() // store and cancel when player
+                    if (cancelOnPlayerDisconnect) jobsFromPlayers.put(sender, playerJob, { if (it.isActive) it.cancel() })
+                    coroutineScope.launch(playerJob) {
+                        val executorModel = Executor(sender, label, args, this@CommandDSL, coroutineScope)
+                        treatFail(executorModel) {
+                            playerExecutor.invoke(executorModel as Executor<CommandSender>)
+                        }
+                    }
+                } else sender.sendMessage(onlyInGameMessage)
+            } else if (genericExecutor != null) {
                 coroutineScope.launch {
                     val executorModel = Executor(sender, label, args, this@CommandDSL, coroutineScope)
                     treatFail(executorModel) {
@@ -193,24 +205,10 @@ open class CommandDSL(
                     }
                 }
             } else {
-                val playerExecutor = executors.getByInstance(Player::class)
-                if (playerExecutor != null) {
-                    if (sender is Player) {
-                        val playerJob = Job() // store and cancel when player
-                        if (cancelOnPlayerDisconnect) jobsFromPlayers.put(sender, playerJob, { if (it.isActive) it.cancel() })
-                        coroutineScope.launch(playerJob) {
-                            val executorModel = Executor(sender, label, args, this@CommandDSL, coroutineScope)
-                            treatFail(executorModel) {
-                                playerExecutor.invoke(executorModel as Executor<CommandSender>)
-                            }
-                        }
-                    } else sender.sendMessage(onlyInGameMessage)
-                } else {
-                    coroutineScope.launch {
-                        val executorModel = Executor(sender, label, args, this@CommandDSL, coroutineScope)
-                        treatFail(executorModel) {
-                            executor?.invoke(executorModel)
-                        }
+                coroutineScope.launch {
+                    val executorModel = Executor(sender, label, args, this@CommandDSL, coroutineScope)
+                    treatFail(executorModel) {
+                        executor?.invoke(executorModel)
                     }
                 }
             }

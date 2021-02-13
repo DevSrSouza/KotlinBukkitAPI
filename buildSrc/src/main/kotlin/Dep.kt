@@ -20,7 +20,7 @@ object Dep {
     object Versions {
         val kotlin = "1.4.10"
         val serialization = "1.0.0-RC"
-        val exposed = "0.25.1"
+        val exposed = "0.28.1"
         val hikari = "3.3.1"
         val bstats = "1.7"
         val spigotApi = "1.8.8-R0.1-SNAPSHOT"
