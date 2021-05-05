@@ -92,8 +92,8 @@ class MenuDSLImpl(
         }
 
         for((player, inventory) in viewersFromPlayers(players)) {
-            for((pos, slot) in slots) {
-                updateSlotOnlyPos(pos, slot, player, inventory)
+            for((pos, s) in slots) {
+                updateSlotOnlyPos(pos, s, player, inventory)
             }
         }
     }

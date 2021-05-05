@@ -48,7 +48,7 @@ internal fun registerCoroutineContextTakes(
 ) {
     coroutineContextTakes.put(
             coroutineContext,
-            TakeValues(System.currentTimeMillis(), time.toLongMilliseconds())
+            TakeValues(System.currentTimeMillis(), time.inWholeMilliseconds)
     )
 }
 

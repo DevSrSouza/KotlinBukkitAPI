@@ -34,7 +34,7 @@ value class BungeeCord(private val player: Player) {
     fun onlinePlayerAt(server: String = "ALL", callback: (playerCount: Int) -> Unit)
             = BungeeCordRequest(player, "PlayerCount", ByteStreams.newDataOutput().apply{writeUTF(server)}.toByteArray()) {
         val input = ByteStreams.newDataInput(it)
-        val server = input.readUTF()
+        val serverSendTo = input.readUTF()
         val playerCount = input.readInt()
         callback(playerCount)
     }.send()

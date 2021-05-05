@@ -76,8 +76,8 @@ fun Pair<Double, Double>.toInt() = first.toInt() to second.toInt()
 fun calculatePythagoras(vararg positions: Pair<Double, Double>): Pair<Double, Double> {
     val pow = positions.map { (x1, x2) -> (x1 * x1) to (x2 * x2) }
 
-    val x1Sum = pow.sumByDouble { (x, _) -> x }
-    val x2Sum = pow.sumByDouble { (_, x) -> x }
+    val x1Sum = pow.sumOf { (x, _) -> x }
+    val x2Sum = pow.sumOf { (_, x) -> x }
 
     val d1 = sqrt(x1Sum)
     val d2 = sqrt(x2Sum)

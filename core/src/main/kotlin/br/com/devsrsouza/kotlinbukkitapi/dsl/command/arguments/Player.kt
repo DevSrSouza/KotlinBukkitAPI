@@ -57,7 +57,7 @@ fun Executor<*>.gameModeOrNull(
         index: Int,
         argMissing: BaseComponent = GAMEMODE_MISSING_PARAMETER
 ): GameMode? = string(index, argMissing).run {
-    toIntOrNull()?.let { GameMode.getByValue(it) } ?: runCatching { GameMode.valueOf(this.toUpperCase()) }.getOrNull()
+    toIntOrNull()?.let { GameMode.getByValue(it) } ?: runCatching { GameMode.valueOf(this.uppercase(Locale.getDefault())) }.getOrNull()
 }
 
 fun Executor<*>.gameMode(
@@ -70,6 +70,6 @@ fun TabCompleter.gameMode(
         index: Int
 ): List<String> = argumentCompleteBuilder(index) { arg ->
     GameMode.values().mapNotNull {
-        if(it.name.startsWith(arg, true)) it.name.toLowerCase() else null
+        if(it.name.startsWith(arg, true)) it.name.lowercase(Locale.getDefault()) else null
     }
 }
