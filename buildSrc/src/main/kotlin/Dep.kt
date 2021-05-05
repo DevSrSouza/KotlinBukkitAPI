@@ -18,14 +18,14 @@ object Dep {
     }
 
     object Versions {
-        val kotlin = "1.4.32"
+        val kotlin = "1.5.0"
         val serialization = "1.2.0"
         val exposed = "0.31.1"
         val hikari = "4.0.3"
         val bstats = "2.2.1"
         val spigotApi = "1.8.8-R0.1-SNAPSHOT"
         val kaml = "0.31.0"
-        val corouties = "1.4.3"
+        val corouties = "1.5.0-RC"
         val skedule = "1.2.6"
         val shadow = "6.1.0"
 
