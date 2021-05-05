@@ -1,4 +1,4 @@
 include(
-        "core", "plugins", "exposed", "serialization"
+        "core", "exposed", "serialization"
 )
 rootProject.name = "KotlinBukkitAPI"
