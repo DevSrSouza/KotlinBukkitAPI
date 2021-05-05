@@ -39,7 +39,8 @@ val Plugin.BukkitDispatchers get() = PluginDispatcher(this as JavaPlugin)
 val WithPlugin<*>.BukkitDispatchersSafe get() = plugin.BukkitDispatchersSafe
 val Plugin.BukkitDispatchersSafe get() = PluginDispatcher(JavaPlugin.getProvidingPlugin(this::class.java))
 
-inline class PluginDispatcher(val plugin: JavaPlugin) {
+@JvmInline
+value class PluginDispatcher(val plugin: JavaPlugin) {
     val ASYNC get() = BukkitDispatcher(plugin, true)
     val SYNC get() = BukkitDispatcher(plugin, false)
 }

@@ -11,7 +11,8 @@ val Player.bungeecord get() = BungeeCord(this)
 
 fun Player.sendBungeeCord(message: ByteArray) = provideBungeeCordController().sendBungeeCord(this, message)
 
-inline class BungeeCord(private val player: Player) {
+@JvmInline
+value class BungeeCord(private val player: Player) {
 
     fun sendToServer(server: String) = BungeeCordRequest(
             player,
