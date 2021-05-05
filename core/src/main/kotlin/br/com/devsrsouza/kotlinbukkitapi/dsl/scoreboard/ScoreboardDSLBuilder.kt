@@ -172,7 +172,7 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
     inline fun title(block: ScoreboardTitle.() -> Unit) = titleController(ScoreboardTitle(this).apply(block))
 
     override fun show(player: Player) {
-        val max = lines.keys.max()
+        val max = lines.keys.maxOrNull()
         if (max != null) {
             if (_players.get(player)?.scoreboard != null) return
             val sb = Bukkit.getScoreboardManager().newScoreboard
@@ -276,7 +276,7 @@ class ScoreboardDSLBuilder(internal val plugin: Plugin, var title: String) : Sco
     }
 
     override fun updateLines() {
-        val max = lines.keys.max()
+        val max = lines.keys.maxOrNull()
         if (max != null) {
             for (i in 1..max) {
                 updateLine(i)
