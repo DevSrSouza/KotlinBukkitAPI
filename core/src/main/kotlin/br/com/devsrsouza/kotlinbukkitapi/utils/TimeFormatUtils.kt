@@ -32,7 +32,8 @@ data class FormatLang(
 /**
  * @param time in second
  */
-inline class TimeFormat(private val time: Long) {
+@JvmInline
+value class TimeFormat(private val time: Long) {
     fun format(
             lang: FormatLang,
             formatStyle: String = DEFAULT_FORMAT_STYLE,

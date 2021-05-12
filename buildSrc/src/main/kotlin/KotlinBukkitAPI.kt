@@ -5,6 +5,7 @@ object KotlinBukkitAPI {
     val description = "KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features Kotlin has to make your life more easier."
     val github = "https://github.com/DevSrSouza/KotlinBukkitAPI"
 
+    @Deprecated("Only standard plugins Will be suported, Like Vault and WE")
     val plugins = listOf(
             Plugin("Vault", setOf("http://nexus.hc.to/content/repositories/pub_releases"), setOf("net.milkbowl.vault:VaultAPI:1.6")),
             Plugin("PlaceholderAPI", setOf("http://repo.extendedclip.com/content/repositories/placeholderapi/"), setOf("me.clip:placeholderapi:2.8.5")),

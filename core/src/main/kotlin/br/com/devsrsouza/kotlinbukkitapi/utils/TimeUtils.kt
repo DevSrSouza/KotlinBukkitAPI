@@ -1,16 +1,15 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils.time
 
-import kotlin.time.Duration
-import kotlin.time.milliseconds
+import kotlin.time.*
 
 fun now(): Long = System.currentTimeMillis()
 fun nowNano(): Long = System.nanoTime()
 
 val Long.ticks: Duration get() = toDouble().ticks
 val Int.ticks: Duration get() = toDouble().ticks
-val Double.ticks: Duration get() = tickToMilliseconds(this).milliseconds
+val Double.ticks: Duration get() = Duration.milliseconds(tickToMilliseconds(this))
 
-val Duration.inTicks: Double get() = millisecondsToTick(inMilliseconds)
+val Duration.inTicks: Double get() = millisecondsToTick(toDouble(DurationUnit.MILLISECONDS))
 
 fun Duration.toLongTicks(): Long = inTicks.toLong()
 

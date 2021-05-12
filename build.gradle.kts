@@ -33,7 +33,9 @@ subprojects {
         mavenLocal()
         maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
-        maven("http://nexus.devsrsouza.com.br/repository/maven-public/")
+        maven("http://nexus.devsrsouza.com.br/repository/maven-public/") {
+            this.isAllowInsecureProtocol = true
+        }
         maven("https://repo.codemc.org/repository/maven-public")
     }
 
@@ -198,7 +200,7 @@ bukkit {
     website = KotlinBukkitAPI.github
     authors = listOf("DevSrSouza")
 
-    softDepend = KotlinBukkitAPI.plugins.map { it.name }
+//    softDepend = KotlinBukkitAPI.plugins.map { it.name }
 
     load = BukkitPluginDescription.PluginLoadOrder.STARTUP
 }

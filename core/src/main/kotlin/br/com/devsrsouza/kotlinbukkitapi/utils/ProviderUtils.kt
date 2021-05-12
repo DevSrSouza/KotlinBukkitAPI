@@ -12,7 +12,8 @@ fun <T : Any> Plugin.provider(kclass: KClass<T>): T? {
     return provideProviderController().find(this, kclass)
 }
 
-inline class Provider(val plugin: Plugin) {
+@JvmInline
+value class Provider(val plugin: Plugin) {
     // false if already has a instance with the same class.
     fun register(any: Any): Boolean = provideProviderController().register(plugin, any)
 

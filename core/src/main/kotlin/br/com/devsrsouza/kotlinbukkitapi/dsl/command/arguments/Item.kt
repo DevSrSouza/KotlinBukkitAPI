@@ -7,6 +7,7 @@ import net.md_5.bungee.api.chat.BaseComponent
 import org.bukkit.ChatColor
 import org.bukkit.Material
 import org.bukkit.material.MaterialData
+import java.util.*
 
 // MATERIAL
 
@@ -14,7 +15,7 @@ val MATERIAL_NOT_FOUND = "The item specified not found.".color(ChatColor.RED)
 val MATERIAL_MISSING_PARAMETER = "Missing item argument.".color(ChatColor.RED)
 
 private fun toMaterial(string: String) = string.toIntOrNull()?.let { Material.getMaterial(it) }
-        ?: Material.getMaterial(string.toUpperCase())
+        ?: Material.getMaterial(string.uppercase(Locale.getDefault()))
 
 /**
  * Returns [Material] or null if the Material was not found.
@@ -36,7 +37,7 @@ fun TabCompleter.material(
         index: Int
 ): List<String> = argumentCompleteBuilder(index) { arg ->
     Material.values().mapNotNull {
-        if(it.name.startsWith(arg, true)) it.name.toLowerCase() else null
+        if(it.name.startsWith(arg, true)) it.name.lowercase(Locale.getDefault()) else null
     }
 }
 
