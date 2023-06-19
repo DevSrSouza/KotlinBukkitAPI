@@ -9,7 +9,7 @@ import kotlinx.serialization.modules.contextual
  *
  * Serializers for: Block, Chunk, Location, MaterialData, Material, World.
  */
-fun BukkitSerialModule() = SerializersModule {
+public fun BukkitSerialModule(): SerializersModule = SerializersModule {
     contextual(BlockSerializer)
     contextual(ChunkSerializer)
     contextual(LocationSerializer)

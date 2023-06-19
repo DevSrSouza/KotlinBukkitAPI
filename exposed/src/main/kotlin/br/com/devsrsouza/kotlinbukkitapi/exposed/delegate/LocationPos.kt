@@ -1,31 +1,33 @@
 package br.com.devsrsouza.kotlinbukkitapi.exposed.delegate
 
-import br.com.devsrsouza.kotlinbukkitapi.utils.LocationPos
+import br.com.devsrsouza.kotlinbukkitapi.utility.types.LocationPos
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.Column
 import kotlin.reflect.KProperty
 
-fun Entity<*>.locationPos(column: Column<String>) = LocationPosExposedDelegate(column)
-fun Entity<*>.nullableLocationPos(column: Column<String?>) = LocationPosExposedDelegateNullable(column)
+public fun Entity<*>.locationPos(column: Column<String>): ExposedDelegate<LocationPos> = LocationPosExposedDelegate(column)
+@JvmName("locationPosNullable")
+public fun Entity<*>.locationPos(column: Column<String?>): ExposedDelegate<LocationPos?> = LocationPosExposedDelegateNullable(column)
 
-fun Entity<*>.locationPos(
+public fun Entity<*>.locationPos(
         xColumn: Column<Double>,
         yColumn: Column<Double>,
         zColumn: Column<Double>,
         yawColumn: Column<Float>,
         pitchColumn: Column<Float>
-) = LocationPosMultiColumnExposedDelegate(xColumn, yColumn, zColumn, yawColumn, pitchColumn)
+): ExposedDelegate<LocationPos> = LocationPosMultiColumnExposedDelegate(xColumn, yColumn, zColumn, yawColumn, pitchColumn)
 
-fun Entity<*>.locationPos(
+@JvmName("locationPosNullable")
+public fun Entity<*>.locationPos(
         xColumn: Column<Double?>,
         yColumn: Column<Double?>,
         zColumn: Column<Double?>,
         yawColumn: Column<Float?>,
         pitchColumn: Column<Float?>
-) = LocationPosMultiColumnExposedDelegateNullable(xColumn, yColumn, zColumn, yawColumn, pitchColumn)
+): ExposedDelegate<LocationPos?> = LocationPosMultiColumnExposedDelegateNullable(xColumn, yColumn, zColumn, yawColumn, pitchColumn)
 
-class LocationPosExposedDelegate(
-        val column: Column<String>
+public class LocationPosExposedDelegate(
+    public val column: Column<String>
 ) : ExposedDelegate<LocationPos> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -52,8 +54,8 @@ class LocationPosExposedDelegate(
     }
 }
 
-class LocationPosExposedDelegateNullable(
-        val column: Column<String?>
+public class LocationPosExposedDelegateNullable(
+    public val column: Column<String?>
 ) : ExposedDelegate<LocationPos?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -82,12 +84,12 @@ class LocationPosExposedDelegateNullable(
     }
 }
 
-class LocationPosMultiColumnExposedDelegate(
-        val xColumn: Column<Double>,
-        val yColumn: Column<Double>,
-        val zColumn: Column<Double>,
-        val yawColumn: Column<Float>,
-        val pitchColumn: Column<Float>
+public class LocationPosMultiColumnExposedDelegate(
+    public val xColumn: Column<Double>,
+    public val yColumn: Column<Double>,
+    public val zColumn: Column<Double>,
+    public val yawColumn: Column<Float>,
+    public val pitchColumn: Column<Float>
 ) : ExposedDelegate<LocationPos> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -121,12 +123,12 @@ class LocationPosMultiColumnExposedDelegate(
     }
 }
 
-class LocationPosMultiColumnExposedDelegateNullable(
-        val xColumn: Column<Double?>,
-        val yColumn: Column<Double?>,
-        val zColumn: Column<Double?>,
-        val yawColumn: Column<Float?>,
-        val pitchColumn: Column<Float?>
+public class LocationPosMultiColumnExposedDelegateNullable(
+    public val xColumn: Column<Double?>,
+    public val yColumn: Column<Double?>,
+    public val zColumn: Column<Double?>,
+    public val yawColumn: Column<Float?>,
+    public val pitchColumn: Column<Float?>
 ) : ExposedDelegate<LocationPos?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,

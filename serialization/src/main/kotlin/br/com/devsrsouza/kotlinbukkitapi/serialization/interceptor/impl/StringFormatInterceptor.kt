@@ -9,7 +9,7 @@ import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.StringFormat
 import kotlinx.serialization.decodeFromString
 
-class StringFormatInterceptor(
+internal class StringFormatInterceptor(
         private val delegate: StringFormat,
         private val encodeInterceptor: SerializationEncodeInterceptor,
         private val decodeInterceptor: SerializationDecodeInterceptor

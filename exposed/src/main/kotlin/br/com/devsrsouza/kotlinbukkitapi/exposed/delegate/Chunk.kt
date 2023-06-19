@@ -6,23 +6,26 @@ import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.Column
 import kotlin.reflect.KProperty
 
-fun Entity<*>.chunk(column: Column<String>) = ChunkExposedDelegate(column)
-fun Entity<*>.nullableChunk(column: Column<String?>) = ChunkExposedDelegateNullable(column)
+public fun Entity<*>.chunk(column: Column<String>): ExposedDelegate<Chunk> = ChunkExposedDelegate(column)
 
-fun Entity<*>.chunk(
+@JvmName("chunkNullable")
+public fun Entity<*>.chunk(column: Column<String?>): ExposedDelegate<Chunk?> = ChunkExposedDelegateNullable(column)
+
+public fun Entity<*>.chunk(
         worldColumn: Column<String>,
         xColumn: Column<Int>,
         zColumn: Column<Int>
-) = ChunkMultiColumnExposedDelegate(worldColumn, xColumn, zColumn)
+): ExposedDelegate<Chunk> = ChunkMultiColumnExposedDelegate(worldColumn, xColumn, zColumn)
 
-fun Entity<*>.chunk(
+@JvmName("chunkNullable")
+public fun Entity<*>.chunk(
         worldColumn: Column<String?>,
         xColumn: Column<Int?>,
         zColumn: Column<Int?>
-) = ChunkMultiColumnExposedDelegateNullable(worldColumn, xColumn, zColumn)
+):ExposedDelegate<Chunk?> = ChunkMultiColumnExposedDelegateNullable(worldColumn, xColumn, zColumn)
 
-class ChunkExposedDelegate(
-        val column: Column<String>
+public class ChunkExposedDelegate(
+    public val column: Column<String>
 ) : ExposedDelegate<Chunk> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -30,7 +33,9 @@ class ChunkExposedDelegate(
     ): Chunk {
         val data = entity.run { column.getValue(this, desc) }
         val slices = data.split(";")
-        return Bukkit.getWorld(slices[0]).getChunkAt(
+        val worldName = slices[0]
+        val world = requireNotNull(Bukkit.getWorld(worldName)) { "World '$worldName' retrieving from database unavailable." }
+        return world.getChunkAt(
                 slices[1].toInt(),
                 slices[2].toInt()
         )
@@ -46,8 +51,8 @@ class ChunkExposedDelegate(
     }
 }
 
-class ChunkExposedDelegateNullable(
-        val column: Column<String?>
+public class ChunkExposedDelegateNullable(
+    public val column: Column<String?>
 ) : ExposedDelegate<Chunk?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -56,7 +61,9 @@ class ChunkExposedDelegateNullable(
         val data = entity.run { column.getValue(this, desc) }
         val slices = data?.split(";")
         return slices?.let {
-            Bukkit.getWorld(it[0]).getChunkAt(
+            val worldName = it[0]
+            val world = requireNotNull(Bukkit.getWorld(worldName)) { "World '$worldName' retrieving from database unavailable." }
+            world.getChunkAt(
                     it[1].toInt(),
                     it[2].toInt()
             )
@@ -73,10 +80,10 @@ class ChunkExposedDelegateNullable(
     }
 }
 
-class ChunkMultiColumnExposedDelegate(
-        val worldColumn: Column<String>,
-        val xColumn: Column<Int>,
-        val zColumn: Column<Int>
+public class ChunkMultiColumnExposedDelegate(
+    public val worldColumn: Column<String>,
+    public val xColumn: Column<Int>,
+    public val zColumn: Column<Int>
 ) : ExposedDelegate<Chunk> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -86,7 +93,9 @@ class ChunkMultiColumnExposedDelegate(
         val x = entity.run { xColumn.getValue(this, desc) }
         val z = entity.run { zColumn.getValue(this, desc) }
 
-        return Bukkit.getWorld(worldName).getChunkAt(x, z)
+        val world = requireNotNull(Bukkit.getWorld(worldName)) { "World '$worldName' retrieving from database unavailable." }
+
+        return world.getChunkAt(x, z)
     }
 
     override operator fun <ID : Comparable<ID>> setValue(
@@ -104,10 +113,10 @@ class ChunkMultiColumnExposedDelegate(
     }
 }
 
-class ChunkMultiColumnExposedDelegateNullable(
-        val worldColumn: Column<String?>,
-        val xColumn: Column<Int?>,
-        val zColumn: Column<Int?>
+public class ChunkMultiColumnExposedDelegateNullable(
+    public val worldColumn: Column<String?>,
+    public val xColumn: Column<Int?>,
+    public val zColumn: Column<Int?>
 ) : ExposedDelegate<Chunk?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -120,9 +129,13 @@ class ChunkMultiColumnExposedDelegateNullable(
         return if (
                 worldName != null &&
                 x != null && z != null
-        ) Bukkit.getWorld(worldName).getChunkAt(
-                x, z
-        ) else null
+        ) {
+            val world = requireNotNull(Bukkit.getWorld(worldName)) { "World '$worldName' retrieving from database unavailable." }
+
+            world.getChunkAt(x, z)
+        } else {
+            null
+        }
     }
 
     override operator fun <ID : Comparable<ID>> setValue(

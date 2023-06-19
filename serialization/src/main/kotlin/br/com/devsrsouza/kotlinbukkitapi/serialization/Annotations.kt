@@ -8,4 +8,4 @@ import kotlinx.serialization.SerialInfo
  */
 @SerialInfo
 @Target(AnnotationTarget.PROPERTY)
-annotation class ChangeColor
+public annotation class ChangeColor

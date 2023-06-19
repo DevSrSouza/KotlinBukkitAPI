@@ -1,9 +1,18 @@
 plugins {
-    kotlin("plugin.serialization") version Dep.Versions.kotlin
+    id(libs.plugins.kotlinbukkitapi.build.get().pluginId)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
-    compileOnly(project(":core"))
+    compileOnly(libs.spigot.api)
+    implementation(libs.kotlinx.serialization.core)
 
-    exposedDependencies().forEach { pdm(it, excludeKotlin) }
+    implementation(libs.exposed.core)
+    implementation(libs.exposed.dao)
+    implementation(libs.hikaricp)
+
+    api(projects.architecture)
+    api(projects.utility)
+
+    api(libs.coroutines)
 }

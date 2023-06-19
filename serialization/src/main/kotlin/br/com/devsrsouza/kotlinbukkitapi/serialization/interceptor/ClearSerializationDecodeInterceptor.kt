@@ -2,7 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor
 
 import kotlinx.serialization.descriptors.SerialDescriptor
 
-class ClearSerializationDecodeInterceptor : SerializationDecodeInterceptor {
+internal class ClearSerializationDecodeInterceptor : SerializationDecodeInterceptor {
     override fun decodeBoolean(descriptor: SerialDescriptor, index: Int, value: Boolean): Boolean = value
 
     override fun decodeByte(descriptor: SerialDescriptor, index: Int, value: Byte): Byte = value

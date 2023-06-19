@@ -9,7 +9,7 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import org.bukkit.Material
 
-object MaterialSerializer : KSerializer<Material> {
+public object MaterialSerializer : KSerializer<Material> {
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("org.bukkit.Material", PrimitiveKind.STRING)
 

@@ -2,7 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor
 
 import kotlinx.serialization.descriptors.SerialDescriptor
 
-interface SerializationDecodeInterceptor {
+internal interface SerializationDecodeInterceptor {
     fun decodeBoolean(descriptor: SerialDescriptor, index: Int, value: Boolean): Boolean
 
     fun decodeByte(descriptor: SerialDescriptor, index: Int, value: Byte): Byte

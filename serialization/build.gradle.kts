@@ -1,10 +1,12 @@
 plugins {
-    kotlin("plugin.serialization") version Dep.Versions.kotlin
+    id(libs.plugins.kotlinbukkitapi.build.get().pluginId)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 dependencies {
-    compileOnly(project(":core"))
+    compileOnly(libs.spigot.api)
+    implementation(libs.kotlinx.serialization.core)
 
-    serializationDependencies().forEach { pdm(it, excludeKotlin) }
-    //implementation("de.brudaswen.kotlinx.serialization:kotlinx-serialization-csv:0.1.0")
+    api(projects.architecture)
+    api(projects.mcExtensions)
 }

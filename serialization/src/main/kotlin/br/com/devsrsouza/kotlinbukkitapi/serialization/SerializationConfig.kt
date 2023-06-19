@@ -7,9 +7,9 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.StringFormat
 import java.io.File
 
-typealias KotlinConfigEventObservable = (KotlinConfigEvent) -> Unit
+public typealias KotlinConfigEventObservable = (KotlinConfigEvent) -> Unit
 
-enum class KotlinConfigEvent { SAVE, RELOAD }
+public enum class KotlinConfigEvent { SAVE, RELOAD }
 
 /**
  * A helper class to work with Kotlinx.serialization for Bukkit plugins config.
@@ -18,23 +18,23 @@ enum class KotlinConfigEvent { SAVE, RELOAD }
  *
  * `@ChangeColor` in a String property translate the color codes from the Configuration, saves in `&` and loads in ``.
  */
-class SerializationConfig<T : Any>(
-    val defaultModel: T,
-    val file: File,
-    val serializer: KSerializer<T>,
+public class SerializationConfig<T : Any>(
+    public val defaultModel: T,
+    public val file: File,
+    public val serializer: KSerializer<T>,
     stringFormat: StringFormat,
-    val alwaysRestoreDefaults: Boolean,
-    val eventObservable: KotlinConfigEventObservable? = null
+    public val alwaysRestoreDefaults: Boolean,
+    public val eventObservable: KotlinConfigEventObservable? = null
 ) {
-    lateinit var config: T private set
+    public lateinit var config: T private set
 
-    val stringFormat = StringFormatInterceptor(
+    public val stringFormat: StringFormat = StringFormatInterceptor(
             stringFormat,
             BukkitSerializationEncodeInterceptor,
             BukkitSerializationDecodeInterceptor
     )
 
-    fun load() {
+    public fun load() {
         createFileIfNotExist()
 
         loadFromFile()
@@ -43,7 +43,7 @@ class SerializationConfig<T : Any>(
     /**
      * Save the current values of [model] in the configuration file.
      */
-    fun save(): SerializationConfig<T> = apply {
+    public fun save(): SerializationConfig<T> = apply {
         saveToFile(config)
 
         eventObservable?.invoke(KotlinConfigEvent.SAVE)
@@ -52,7 +52,7 @@ class SerializationConfig<T : Any>(
     /**
      * Reloads the current values from the configuration to the [model].
      */
-    fun reload(): SerializationConfig<T> = apply {
+    public fun reload(): SerializationConfig<T> = apply {
         loadFromFile()
 
         eventObservable?.invoke(KotlinConfigEvent.RELOAD)

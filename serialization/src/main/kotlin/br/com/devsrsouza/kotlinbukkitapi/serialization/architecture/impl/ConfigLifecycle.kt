@@ -1,11 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
+import br.com.devsrsouza.kotlinbukkitapi.architecture.extensions.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleEvent
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.PluginLifecycleListener
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.getOrInsertGenericLifecycle
-import br.com.devsrsouza.kotlinbukkitapi.extensions.plugin.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.serialization.SerializationConfig
 import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.getConfig
 import kotlin.properties.ReadOnlyProperty
@@ -33,6 +33,7 @@ internal class ConfigLifecycle(
             LifecycleEvent.ENABLE -> onPluginEnable()
             LifecycleEvent.DISABLE -> onPluginDisable()
             LifecycleEvent.ALL_CONFIG_RELOAD -> onConfigReload()
+            else -> {}
         }
     }
 
@@ -74,9 +75,9 @@ internal fun KotlinPlugin.registerConfiguration(
     }
 }
 
-class ConfigDelegate<T, R>(
-        val type: KType,
-        val deep: T.() -> R
+public class ConfigDelegate<T, R>(
+    public val type: KType,
+    public val deep: T.() -> R
 ) : ReadOnlyProperty<LifecycleListener<*>, R> {
     private var configCache: SerializationConfig<*>? = null
 

@@ -6,7 +6,7 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 import kotlinx.serialization.encoding.Decoder
 
-class DecoderInterceptor(
+internal class DecoderInterceptor(
         val interceptor: SerializationDecodeInterceptor,
         val delegate: Decoder
 ) : Decoder by delegate {

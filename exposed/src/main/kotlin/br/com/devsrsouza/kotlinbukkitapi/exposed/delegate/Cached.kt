@@ -3,9 +3,9 @@ package br.com.devsrsouza.kotlinbukkitapi.exposed.delegate
 import org.jetbrains.exposed.dao.Entity
 import kotlin.reflect.KProperty
 
-fun <T> ExposedDelegate<T>.cached() = CachedExposedDelegate(this)
+public fun <T> ExposedDelegate<T>.cached(): ExposedDelegate<T> = CachedExposedDelegate(this)
 
-class CachedExposedDelegate<T>(
+public class CachedExposedDelegate<T>(
         private val delegate: ExposedDelegate<T>
 ) : ExposedDelegate<T> {
     private var cache: T? = null

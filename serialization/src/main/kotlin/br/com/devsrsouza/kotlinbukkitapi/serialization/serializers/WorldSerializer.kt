@@ -10,7 +10,7 @@ import kotlinx.serialization.encoding.Encoder
 import org.bukkit.Bukkit
 import org.bukkit.World
 
-object WorldSerializer : KSerializer<World> {
+public object WorldSerializer : KSerializer<World> {
     override val descriptor: SerialDescriptor
         get() = PrimitiveSerialDescriptor("org.bukkit.World", PrimitiveKind.STRING)
 

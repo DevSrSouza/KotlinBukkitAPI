@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.serializers
 
 import br.com.devsrsouza.kotlinbukkitapi.serialization.serializers.exceptions.WorldNotFoundException
-import kotlinx.serialization.*
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -10,7 +10,7 @@ import kotlinx.serialization.encoding.Encoder
 import org.bukkit.Bukkit
 import org.bukkit.Location
 
-object LocationSerializer : KSerializer<Location> {
+public object LocationSerializer : KSerializer<Location> {
     private const val LOCATION_SEPARATOR = ";"
 
     override val descriptor: SerialDescriptor
@@ -34,6 +34,6 @@ object LocationSerializer : KSerializer<Location> {
     }
 
     override fun serialize(encoder: Encoder, value: Location) {
-        encoder.encodeString("${value.world.name}$LOCATION_SEPARATOR${value.x}$LOCATION_SEPARATOR${value.y}$LOCATION_SEPARATOR${value.z}$LOCATION_SEPARATOR${value.yaw}$LOCATION_SEPARATOR${value.pitch}")
+        encoder.encodeString("${value.world!!.name}$LOCATION_SEPARATOR${value.x}$LOCATION_SEPARATOR${value.y}$LOCATION_SEPARATOR${value.z}$LOCATION_SEPARATOR${value.yaw}$LOCATION_SEPARATOR${value.pitch}")
     }
 }

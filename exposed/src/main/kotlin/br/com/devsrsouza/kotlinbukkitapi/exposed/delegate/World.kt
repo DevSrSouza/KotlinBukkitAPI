@@ -6,18 +6,19 @@ import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.Column
 import kotlin.reflect.KProperty
 
-fun Entity<*>.world(column: Column<String>) = WorldExposedDelegate(column)
-fun Entity<*>.nullableWorld(column: Column<String?>) = WorldExposedDelegateNullable(column)
+public fun Entity<*>.world(column: Column<String>): ExposedDelegate<World> = WorldExposedDelegate(column)
+@JvmName("worldNullable")
+public fun Entity<*>.world(column: Column<String?>): ExposedDelegate<World?> = WorldExposedDelegateNullable(column)
 
-class WorldExposedDelegate(
-        val column: Column<String>
+public class WorldExposedDelegate(
+    public val column: Column<String>
 ) : ExposedDelegate<World> {
     override operator fun <ID : Comparable<ID>> getValue(
-            entity: Entity<ID>,
-            desc: KProperty<*>
+        entity: Entity<ID>,
+        desc: KProperty<*>
     ): World {
         val data = entity.run { column.getValue(this, desc) }
-        return Bukkit.getWorld(data)
+        return requireNotNull(Bukkit.getWorld(data)) { "World '$data' retrieving from database not loaded at server." }
     }
 
     override operator fun <ID : Comparable<ID>> setValue(
@@ -29,8 +30,8 @@ class WorldExposedDelegate(
     }
 }
 
-class WorldExposedDelegateNullable(
-        val column: Column<String?>
+public class WorldExposedDelegateNullable(
+    public val column: Column<String?>
 ) : ExposedDelegate<World?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,

@@ -1,0 +1,47 @@
+[versions]
+plugin-ktlint = "11.0.0"
+plugin-maven = "0.22.0"
+
+kotlin = "1.8.20"
+coroutines = "1.7.1"
+kodein = "7.20.1"
+koin = "3.2.2"
+ktxSerialization = "1.5.1"
+exposed = "0.40.1"
+hikaricp = "4.0.3"
+
+junit = "5.8.2"
+
+# minecraft
+spigot = "1.20.1-R0.1-SNAPSHOT"
+
+[libraries]
+coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+kodein = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "kodein" }
+koin = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koin" }
+
+exposed-core = { module = "org.jetbrains.exposed:exposed-core", version.ref = "exposed"}
+exposed-dao = { module = "org.jetbrains.exposed:exposed-dao", version.ref = "exposed"}
+exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "exposed"}
+exposed-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datetime", version.ref = "exposed"}
+hikaricp = { module = "com.zaxxer:HikariCP", version.ref = "hikaricp" }
+
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "ktxSerialization" }
+
+junit-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+
+# minecraft
+
+spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+
+#plugins
+plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+plugin-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "plugin-ktlint" }
+plugin-maven = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "plugin-maven" }
+
+[plugins]
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+kotlinbukkitapi-build = { id = "kotlinbukkitapi.build" }

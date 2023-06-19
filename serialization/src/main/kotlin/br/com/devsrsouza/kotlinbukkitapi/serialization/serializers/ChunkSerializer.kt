@@ -10,7 +10,7 @@ import kotlinx.serialization.encoding.Encoder
 import org.bukkit.Bukkit
 import org.bukkit.Chunk
 
-object ChunkSerializer : KSerializer<Chunk> {
+public object ChunkSerializer : KSerializer<Chunk> {
     private const val CHUNK_SEPARATOR = ";"
 
     override val descriptor: SerialDescriptor

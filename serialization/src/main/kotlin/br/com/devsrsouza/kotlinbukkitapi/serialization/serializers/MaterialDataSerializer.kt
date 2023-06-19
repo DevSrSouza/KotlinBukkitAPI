@@ -1,6 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.serializers
 
-import br.com.devsrsouza.kotlinbukkitapi.extensions.item.asMaterialData
+import br.com.devsrsouza.kotlinbukkitapi.extensions.asMaterialData
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -11,7 +11,7 @@ import org.bukkit.Material
 import org.bukkit.material.MaterialData
 
 @Serializer(forClass = MaterialData::class)
-object MaterialDataSerializer : KSerializer<MaterialData> {
+public object MaterialDataSerializer : KSerializer<MaterialData> {
     override val descriptor: SerialDescriptor = PrimitiveSerialDescriptor(
         "org.bukkit.material.MaterialData", PrimitiveKind.STRING
     )
@@ -25,7 +25,7 @@ object MaterialDataSerializer : KSerializer<MaterialData> {
     }
 
     private fun toString(material: MaterialData): String {
-        return "${material.itemTypeId}:${material.data}"
+        return "${material.itemType}:${material.data}"
     }
 
     private fun fromString(content: String): MaterialData {
@@ -34,9 +34,7 @@ object MaterialDataSerializer : KSerializer<MaterialData> {
         val material = slices[0]
         val data = slices.getOrNull(1)?.toIntOrNull() ?: 0
 
-        return (material.toIntOrNull()?.let {
-            Material.getMaterial(it)
-        } ?: Material.getMaterial(material.toUpperCase())).asMaterialData(data.toByte())
+        return Material.getMaterial(material.toUpperCase())!!.asMaterialData(data.toByte())
     }
 
 }

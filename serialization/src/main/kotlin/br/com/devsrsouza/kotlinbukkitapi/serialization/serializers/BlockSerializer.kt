@@ -10,7 +10,7 @@ import kotlinx.serialization.encoding.Encoder
 import org.bukkit.Bukkit
 import org.bukkit.block.Block
 
-object BlockSerializer : KSerializer<Block> {
+public object BlockSerializer : KSerializer<Block> {
     private const val BLOCK_SEPARATOR = ";"
 
     override val descriptor: SerialDescriptor

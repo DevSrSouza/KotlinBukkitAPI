@@ -15,6 +15,10 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
 
 * Need help? contact me on [Twitter](https://twitter.com/DevSrSouza) or join the [Discord](https://discord.gg/HhucBqk)
 
+## ANNOUNCEMENT
+
+**Developer returns to the project! You can find a lot more information at [Discord](https://discord.gg/HhucBqk), join and chat with me!**
+
 ### Contents:
   
   * [Documentation](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
@@ -22,8 +26,11 @@ KotlinBukkitAPI is an API for Bukkit/SpigotAPI using the cool and nifty features
   * [Dev builds (download)](http://jenkins.devsrsouza.com.br/job/KotlinBukkitAPI/)
   * [Starter project](https://github.com/KotlinMinecraft/KBAPI-StarterProject/)
   * [Setup for development](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/Getting-Started)
+  * [Example plugins](https://github.com/KotlinMinecraft)
 
 # Samples
+
+## [We have more Samples in the Documentation](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/)
 
 KotlinBukkitAPI goes beyond this samples, and you can find all of it in the [wiki/documentation](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/).
 

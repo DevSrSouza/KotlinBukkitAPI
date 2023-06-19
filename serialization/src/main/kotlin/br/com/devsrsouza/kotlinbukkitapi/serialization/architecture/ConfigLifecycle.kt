@@ -2,13 +2,11 @@ package br.com.devsrsouza.kotlinbukkitapi.serialization.architecture
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
-import br.com.devsrsouza.kotlinbukkitapi.serialization.BukkitSerialModule
 import br.com.devsrsouza.kotlinbukkitapi.serialization.KotlinConfigEvent
 import br.com.devsrsouza.kotlinbukkitapi.serialization.SerializationConfig
 import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl.ConfigDelegate
 import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl.getOrInsertConfigLifecycle
 import br.com.devsrsouza.kotlinbukkitapi.serialization.architecture.impl.registerConfiguration
-import com.charleskorn.kaml.Yaml
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.StringFormat
@@ -38,11 +36,11 @@ import kotlin.reflect.typeOf
  * uses a parser that Parser a Location or a World that is not loaded yet.
  * @param saveOnDisable: If true, saves the current [SerializationConfig.model] to the configuration file.
  */
-fun <T : Any> KotlinPlugin.config(
+public fun <T : Any> KotlinPlugin.config(
         file: String,
         defaultModel: T,
         serializer: KSerializer<T>,
-        type: StringFormat = Yaml(BukkitSerialModule()),
+        type: StringFormat,
         loadOnEnable: Boolean = false,
         saveOnDisable: Boolean = false,
         alwaysRestoreDefaults: Boolean = true
@@ -67,7 +65,7 @@ fun <T : Any> KotlinPlugin.config(
 /**
  * Gets the config for the given [KType]
  */
-fun LifecycleListener<*>.getConfig(type: KType): SerializationConfig<*> {
+public fun LifecycleListener<*>.getConfig(type: KType): SerializationConfig<*> {
     try {
         val serialName = serializer(type).descriptor.serialName
         val config = plugin.getOrInsertConfigLifecycle().serializationConfigurations[serialName]
@@ -85,14 +83,14 @@ fun LifecycleListener<*>.getConfig(type: KType): SerializationConfig<*> {
  * Config delegate that caches the config reference.
  */
 
-fun <T : Any> LifecycleListener<*>.config(type: KType): ConfigDelegate<T, T> {
+public fun <T : Any> LifecycleListener<*>.config(type: KType): ConfigDelegate<T, T> {
     return config(type, { this })
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T : Any> LifecycleListener<*>.config(): ConfigDelegate<T, T> = config<T>(typeOf<T>())
+public inline fun <reified T : Any> LifecycleListener<*>.config(): ConfigDelegate<T, T> = config<T>(typeOf<T>())
 
-fun <T : Any, R> LifecycleListener<*>.config(
+public fun <T : Any, R> LifecycleListener<*>.config(
         type: KType,
         deep: T.() -> R
 ): ConfigDelegate<T, R> {
@@ -100,6 +98,6 @@ fun <T : Any, R> LifecycleListener<*>.config(
 }
 
 @OptIn(ExperimentalStdlibApi::class)
-inline fun <reified T : Any, R> LifecycleListener<*>.config(
+public inline fun <reified T : Any, R> LifecycleListener<*>.config(
         noinline deep: T.() -> R
 ): ConfigDelegate<T, R> = config(typeOf<T>(), deep)

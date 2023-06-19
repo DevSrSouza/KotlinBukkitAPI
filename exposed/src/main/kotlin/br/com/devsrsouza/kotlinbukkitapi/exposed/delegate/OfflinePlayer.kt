@@ -1,17 +1,18 @@
 package br.com.devsrsouza.kotlinbukkitapi.exposed.delegate
 
-import br.com.devsrsouza.kotlinbukkitapi.extensions.server.offlinePlayer
+import br.com.devsrsouza.kotlinbukkitapi.extensions.offlinePlayer
 import org.bukkit.OfflinePlayer
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.Column
 import java.util.*
 import kotlin.reflect.KProperty
 
-fun Entity<*>.offlinePlayer(column: Column<UUID>) = OfflinePlayerExposedDelegate(column)
-fun Entity<*>.nullableOfflinePlayer(column: Column<UUID?>) = OfflinePlayerExposedDelegateNullable(column)
+public fun Entity<*>.offlinePlayer(column: Column<UUID>): ExposedDelegate<OfflinePlayer> = OfflinePlayerExposedDelegate(column)
+@JvmName("offlinePlayerNullable")
+public fun Entity<*>.offlinePlayer(column: Column<UUID?>): ExposedDelegate<OfflinePlayer?> = OfflinePlayerExposedDelegateNullable(column)
 
-class OfflinePlayerExposedDelegate(
-        val column: Column<UUID>
+public class OfflinePlayerExposedDelegate(
+    public val column: Column<UUID>
 ) : ExposedDelegate<OfflinePlayer> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -25,8 +26,8 @@ class OfflinePlayerExposedDelegate(
     }
 }
 
-class OfflinePlayerExposedDelegateNullable(
-        val column: Column<UUID?>
+public class OfflinePlayerExposedDelegateNullable(
+    public val column: Column<UUID?>
 ) : ExposedDelegate<OfflinePlayer?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,

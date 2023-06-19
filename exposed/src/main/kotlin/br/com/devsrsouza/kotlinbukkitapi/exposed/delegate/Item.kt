@@ -1,5 +1,6 @@
 package br.com.devsrsouza.kotlinbukkitapi.exposed.delegate
 
+import com.google.gson.annotations.Expose
 import org.bukkit.inventory.ItemStack
 import org.bukkit.util.io.BukkitObjectInputStream
 import org.bukkit.util.io.BukkitObjectOutputStream
@@ -15,11 +16,12 @@ import kotlin.reflect.KProperty
  * NOTE: This not save NBT and could break version to version, if you pretend
  * to upgrade your server and this keep the same, I can't guarantee that.
  */
-fun Entity<*>.itemStack(column: Column<ExposedBlob>) = ItemStackExposedDelegate(column)
-fun Entity<*>.nullableItemStack(column: Column<ExposedBlob?>) = ItemStackExposedDelegateNullable(column)
+public fun Entity<*>.itemStack(column: Column<ExposedBlob>): ExposedDelegate<ItemStack> = ItemStackExposedDelegate(column)
+@JvmName("itemStackNullable")
+public fun Entity<*>.itemStack(column: Column<ExposedBlob?>): ExposedDelegate<ItemStack?> = ItemStackExposedDelegateNullable(column)
 
-class ItemStackExposedDelegate(
-        val column: Column<ExposedBlob>
+public class ItemStackExposedDelegate(
+    public val column: Column<ExposedBlob>
 ) : ExposedDelegate<ItemStack> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -40,8 +42,8 @@ class ItemStackExposedDelegate(
     }
 }
 
-class ItemStackExposedDelegateNullable(
-        val column: Column<ExposedBlob?>
+public class ItemStackExposedDelegateNullable(
+    public val column: Column<ExposedBlob?>
 ) : ExposedDelegate<ItemStack?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,

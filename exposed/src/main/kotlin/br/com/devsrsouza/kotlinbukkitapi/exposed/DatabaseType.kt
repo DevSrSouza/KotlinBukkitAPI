@@ -2,7 +2,6 @@ package br.com.devsrsouza.kotlinbukkitapi.exposed
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import org.bukkit.plugin.Plugin
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -13,36 +12,36 @@ import kotlin.reflect.KClass
 
 private const val KEY_FILE = "{file}"
 
-sealed class DatabaseType(
-        val name: String,
-        val jdbc: String,
-        val driverClass: String,
-        val driverLink: String
+public sealed class DatabaseType(
+    public val name: String,
+    public val jdbc: String,
+    public val driverClass: String,
+    public val driverLink: String
 ) {
 
-    companion object {
-        val fileDatabases: Map<String, KClass<out DatabaseType>>
+    public companion object {
+        public val fileDatabases: Map<String, KClass<out DatabaseType>>
                 = mapOf("h2" to H2::class, "sqlite" to SQLite::class)
-        val remoteDatabases: Map<String, KClass<out DatabaseType>>
+        public val remoteDatabases: Map<String, KClass<out DatabaseType>>
                 = mapOf("mysql" to MySQL::class, "postgresql" to PostgreSQL::class, "sqlserver" to SQLServer::class)
-        val databases: Map<String, KClass<out DatabaseType>> = fileDatabases + remoteDatabases
+        public val databases: Map<String, KClass<out DatabaseType>> = fileDatabases + remoteDatabases
 
-        fun byName(name: String) = databases[name.toLowerCase()]
+        public fun byName(name: String): KClass<out DatabaseType>? = databases[name.toLowerCase()]
     }
 
-    abstract fun dataSource(): HikariDataSource
+    public abstract fun dataSource(): HikariDataSource
 
-    abstract fun config(): HikariConfig
+    public abstract fun config(): HikariConfig
 
-    abstract class FileDatabaseType(
-            name: String,
-            jdbc: String,
-            driverClass: String,
-            driverLink: String,
-            val dataFolder: File,
-            val file: String,
-            val databaseExtension: String,
-            val needFileCreation: Boolean
+    public abstract class FileDatabaseType(
+        name: String,
+        jdbc: String,
+        driverClass: String,
+        driverLink: String,
+        public val dataFolder: File,
+        public val file: String,
+        public val databaseExtension: String,
+        public val needFileCreation: Boolean
     ) : DatabaseType(name, jdbc, driverClass, driverLink) {
 
         private val realFile = File(dataFolder, "$file.$databaseExtension")
@@ -61,16 +60,16 @@ sealed class DatabaseType(
         }
     }
 
-    abstract class RemoteDatabaseType(
-            name: String,
-            jdbc: String,
-            driverClass: String,
-            driverLink: String,
-            val hostname: String,
-            val port: Short,
-            val database: String,
-            val username: String,
-            val password: String
+    public abstract class RemoteDatabaseType(
+        name: String,
+        jdbc: String,
+        driverClass: String,
+        driverLink: String,
+        public val hostname: String,
+        public val port: Short,
+        public val database: String,
+        public val username: String,
+        public val password: String
     ) : DatabaseType(name, jdbc, driverClass, driverLink) {
         override fun dataSource(): HikariDataSource {
             loadDependency()
@@ -86,7 +85,7 @@ sealed class DatabaseType(
         }
     }
 
-    class H2(
+    public class H2(
             dataFolder: File,
             file: String
     ) : FileDatabaseType(
@@ -100,7 +99,7 @@ sealed class DatabaseType(
             false
     )
 
-    class SQLite(
+    public class SQLite(
             dataFolder: File,
             file: String
     ) : FileDatabaseType(
@@ -121,7 +120,7 @@ sealed class DatabaseType(
         }
     }
 
-    class MySQL(
+    public class MySQL(
             hostname: String,
             port: Short,
             database: String,
@@ -136,7 +135,7 @@ sealed class DatabaseType(
             username, password
     )
 
-    class PostgreSQL(
+    public class PostgreSQL(
             hostname: String,
             port: Short,
             database: String,
@@ -151,7 +150,7 @@ sealed class DatabaseType(
             username, password
     )
 
-    class SQLServer(
+    public class SQLServer(
             hostname: String,
             port: Short,
             database: String,

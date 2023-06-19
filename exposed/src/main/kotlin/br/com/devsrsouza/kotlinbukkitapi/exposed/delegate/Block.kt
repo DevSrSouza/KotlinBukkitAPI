@@ -6,25 +6,27 @@ import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.Column
 import kotlin.reflect.KProperty
 
-fun Entity<*>.block(column: Column<String>) = BlockExposedDelegate(column)
-fun Entity<*>.block(column: Column<String?>) = BlockExposedDelegateNullable(column)
+public fun Entity<*>.block(column: Column<String>): ExposedDelegate<Block> = BlockExposedDelegate(column)
+@JvmName("blockNullable")
+public fun Entity<*>.block(column: Column<String?>): ExposedDelegate<Block?> = BlockExposedDelegateNullable(column)
 
-fun Entity<*>.block(
+public fun Entity<*>.block(
         worldColumn: Column<String>,
         xColumn: Column<Int>,
         yColumn: Column<Int>,
         zColumn: Column<Int>
-) = BlockMultiColumnExposedDelegate(worldColumn, xColumn, yColumn, zColumn)
+): ExposedDelegate<Block> = BlockMultiColumnExposedDelegate(worldColumn, xColumn, yColumn, zColumn)
 
-fun Entity<*>.nullableBlock(
+@JvmName("blockNullable")
+public fun Entity<*>.nullableBlock(
         worldColumn: Column<String?>,
         xColumn: Column<Int?>,
         yColumn: Column<Int?>,
         zColumn: Column<Int?>
-) = BlockMultiColumnExposedDelegateNullable(worldColumn, xColumn, yColumn, zColumn)
+): ExposedDelegate<Block?> = BlockMultiColumnExposedDelegateNullable(worldColumn, xColumn, yColumn, zColumn)
 
-class BlockExposedDelegate(
-        val column: Column<String>
+public class BlockExposedDelegate(
+    public val column: Column<String>
 ) : ExposedDelegate<Block> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -32,7 +34,9 @@ class BlockExposedDelegate(
     ): Block {
         val data = entity.run { column.getValue(this, desc) }
         val slices = data.split(";")
-        return Bukkit.getWorld(slices[0]).getBlockAt(
+        val worldName = slices[0]
+        val world = requireNotNull(Bukkit.getWorld(worldName)) { "World '$worldName' retrieving from database unavailable." }
+        return world.getBlockAt(
                 slices[1].toInt(),
                 slices[2].toInt(),
                 slices[3].toInt()
@@ -49,8 +53,8 @@ class BlockExposedDelegate(
     }
 }
 
-class BlockExposedDelegateNullable(
-        val column: Column<String?>
+public class BlockExposedDelegateNullable(
+    public val column: Column<String?>
 ) : ExposedDelegate<Block?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -59,7 +63,9 @@ class BlockExposedDelegateNullable(
         val data = entity.run { column.getValue(this, desc) }
         val slices = data?.split(";")
         return slices?.let {
-            Bukkit.getWorld(it[0]).getBlockAt(
+            val worldName = it[0]
+            val world = requireNotNull(Bukkit.getWorld(worldName)) { "World '$worldName' retrieving from database unavailable." }
+            world.getBlockAt(
                     it[1].toInt(),
                     it[2].toInt(),
                     it[3].toInt()
@@ -77,11 +83,11 @@ class BlockExposedDelegateNullable(
     }
 }
 
-class BlockMultiColumnExposedDelegate(
-        val worldColumn: Column<String>,
-        val xColumn: Column<Int>,
-        val yColumn: Column<Int>,
-        val zColumn: Column<Int>
+public class BlockMultiColumnExposedDelegate(
+    public val worldColumn: Column<String>,
+    public val xColumn: Column<Int>,
+    public val yColumn: Column<Int>,
+    public val zColumn: Column<Int>
 ) : ExposedDelegate<Block> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -92,7 +98,9 @@ class BlockMultiColumnExposedDelegate(
         val y = entity.run { yColumn.getValue(this, desc) }
         val z = entity.run { zColumn.getValue(this, desc) }
 
-        return Bukkit.getWorld(worldName).getBlockAt(x, y, z)
+        val world = requireNotNull(Bukkit.getWorld(worldName)) { "World '$worldName' retrieving from database unavailable." }
+
+        return world.getBlockAt(x, y, z)
     }
 
     override operator fun <ID : Comparable<ID>> setValue(
@@ -111,11 +119,11 @@ class BlockMultiColumnExposedDelegate(
     }
 }
 
-class BlockMultiColumnExposedDelegateNullable(
-        val worldColumn: Column<String?>,
-        val xColumn: Column<Int?>,
-        val yColumn: Column<Int?>,
-        val zColumn: Column<Int?>
+public class BlockMultiColumnExposedDelegateNullable(
+    public val worldColumn: Column<String?>,
+    public val xColumn: Column<Int?>,
+    public val yColumn: Column<Int?>,
+    public val zColumn: Column<Int?>
 ) : ExposedDelegate<Block?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -129,9 +137,13 @@ class BlockMultiColumnExposedDelegateNullable(
         return if (
                 worldName != null &&
                 x != null && y != null && z != null
-        ) Bukkit.getWorld(worldName).getBlockAt(
-                x, y, z
-        ) else null
+        ) {
+            val world = requireNotNull(Bukkit.getWorld(worldName)) { "World '$worldName' retrieving from database unavailable." }
+
+            world.getBlockAt(x, y, z)
+        } else {
+            null
+        }
     }
 
     override operator fun <ID : Comparable<ID>> setValue(

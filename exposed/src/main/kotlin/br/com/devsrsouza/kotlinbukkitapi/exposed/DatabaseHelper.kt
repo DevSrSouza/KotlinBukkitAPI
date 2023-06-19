@@ -4,17 +4,17 @@ import kotlinx.serialization.Serializable
 import java.io.File
 import java.sql.SQLException
 
-interface DatabaseTypeConfigHeader {
-    val type: String
-    val hostname: String
-    val port: Short
-    val database: String
-    val user: String
-    val password: String
+public interface DatabaseTypeConfigHeader {
+    public val type: String
+    public val hostname: String
+    public val port: Short
+    public val database: String
+    public val user: String
+    public val password: String
 }
 
 @Serializable
-data class DatabaseTypeConfig(
+public data class DatabaseTypeConfig(
         override var type: String = "H2",
         override var hostname: String = "localhost",
         override var port: Short = 3306,
@@ -23,7 +23,7 @@ data class DatabaseTypeConfig(
         override var password: String = "12345"
 ) : DatabaseTypeConfigHeader
 
-fun databaseTypeFrom(dataFolder: File, config: DatabaseTypeConfig) : DatabaseType {
+public fun databaseTypeFrom(dataFolder: File, config: DatabaseTypeConfig) : DatabaseType {
     val type = DatabaseType.byName(config.type)
     if (type != null) {
         return when(type) {

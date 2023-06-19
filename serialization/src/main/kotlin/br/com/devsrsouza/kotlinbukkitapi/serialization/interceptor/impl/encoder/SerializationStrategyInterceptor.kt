@@ -4,7 +4,7 @@ import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.Serialization
 import kotlinx.serialization.SerializationStrategy
 import kotlinx.serialization.encoding.Encoder
 
-class SerializationStrategyInterceptor<T>(
+internal class SerializationStrategyInterceptor<T>(
         val interceptor: SerializationEncodeInterceptor,
         val delegate: SerializationStrategy<T>
 ) : SerializationStrategy<T> by delegate {

@@ -1,34 +1,37 @@
 package br.com.devsrsouza.kotlinbukkitapi.exposed.delegate
 
+import br.com.devsrsouza.kotlinbukkitapi.extensions.world
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.jetbrains.exposed.dao.Entity
 import org.jetbrains.exposed.sql.Column
 import kotlin.reflect.KProperty
 
-fun Entity<*>.location(column: Column<String>) = LocationExposedDelegate(column)
-fun Entity<*>.location(column: Column<String?>) = LocationExposedDelegateNullable(column)
+public fun Entity<*>.location(column: Column<String>): ExposedDelegate<Location> = LocationExposedDelegate(column)
+@JvmName("locationNullable")
+public fun Entity<*>.location(column: Column<String?>): ExposedDelegate<Location?> = LocationExposedDelegateNullable(column)
 
-fun Entity<*>.location(
+public fun Entity<*>.location(
         worldColumn: Column<String>,
         xColumn: Column<Double>,
         yColumn: Column<Double>,
         zColumn: Column<Double>,
         yawColumn: Column<Float>,
         pitchColumn: Column<Float>
-) = LocationMultiColumnExposedDelegate(worldColumn, xColumn, yColumn, zColumn, yawColumn, pitchColumn)
+): ExposedDelegate<Location> = LocationMultiColumnExposedDelegate(worldColumn, xColumn, yColumn, zColumn, yawColumn, pitchColumn)
 
-fun Entity<*>.nullableLocation(
+@JvmName("locationNullable")
+public fun Entity<*>.location(
         worldColumn: Column<String?>,
         xColumn: Column<Double?>,
         yColumn: Column<Double?>,
         zColumn: Column<Double?>,
         yawColumn: Column<Float?>,
         pitchColumn: Column<Float?>
-) = LocationMultiColumnExposedDelegateNullable(worldColumn, xColumn, yColumn, zColumn, yawColumn, pitchColumn)
+): ExposedDelegate<Location?> = LocationMultiColumnExposedDelegateNullable(worldColumn, xColumn, yColumn, zColumn, yawColumn, pitchColumn)
 
-class LocationExposedDelegate(
-        val column: Column<String>
+public class LocationExposedDelegate(
+    public val column: Column<String>
 ) : ExposedDelegate<Location> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -51,13 +54,14 @@ class LocationExposedDelegate(
             desc: KProperty<*>,
             value: Location
     ) {
+        val world = requireNotNull(value.world) { "Location with nullable world can't be stored in database" }
         val parsed = value.run { "${world.name};$x;$y;$z;$yaw;$pitch" }
         entity.apply { column.setValue(this, desc, parsed) }
     }
 }
 
-class LocationExposedDelegateNullable(
-        val column: Column<String?>
+public class LocationExposedDelegateNullable(
+    public val column: Column<String?>
 ) : ExposedDelegate<Location?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -82,18 +86,21 @@ class LocationExposedDelegateNullable(
             desc: KProperty<*>,
             value: Location?
     ) {
-        val parsed = value?.run { "${world.name};$x;$y;$z;$yaw;$pitch" }
+        val parsed = value?.run {
+            val world = requireNotNull(world) { "Location with nullable world can't be stored in database" }
+            "${world.name};$x;$y;$z;$yaw;$pitch"
+        }
         entity.apply { column.setValue(this, desc, parsed) }
     }
 }
 
-class LocationMultiColumnExposedDelegate(
-        val worldColumn: Column<String>,
-        val xColumn: Column<Double>,
-        val yColumn: Column<Double>,
-        val zColumn: Column<Double>,
-        val yawColumn: Column<Float>,
-        val pitchColumn: Column<Float>
+public class LocationMultiColumnExposedDelegate(
+    public val worldColumn: Column<String>,
+    public val xColumn: Column<Double>,
+    public val yColumn: Column<Double>,
+    public val zColumn: Column<Double>,
+    public val yawColumn: Column<Float>,
+    public val pitchColumn: Column<Float>
 ) : ExposedDelegate<Location> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -119,6 +126,7 @@ class LocationMultiColumnExposedDelegate(
     ) {
         entity.apply {
             value.apply {
+                val world = requireNotNull(world) { "Location with nullable world can't be stored in database" }
                 worldColumn.setValue(entity, desc, world.name)
                 xColumn.setValue(entity, desc, x)
                 yColumn.setValue(entity, desc, y)
@@ -130,13 +138,13 @@ class LocationMultiColumnExposedDelegate(
     }
 }
 
-class LocationMultiColumnExposedDelegateNullable(
-        val worldColumn: Column<String?>,
-        val xColumn: Column<Double?>,
-        val yColumn: Column<Double?>,
-        val zColumn: Column<Double?>,
-        val yawColumn: Column<Float?>,
-        val pitchColumn: Column<Float?>
+public class LocationMultiColumnExposedDelegateNullable(
+    public val worldColumn: Column<String?>,
+    public val xColumn: Column<Double?>,
+    public val yColumn: Column<Double?>,
+    public val zColumn: Column<Double?>,
+    public val yawColumn: Column<Float?>,
+    public val pitchColumn: Column<Float?>
 ) : ExposedDelegate<Location?> {
     override operator fun <ID : Comparable<ID>> getValue(
             entity: Entity<ID>,
@@ -153,10 +161,11 @@ class LocationMultiColumnExposedDelegateNullable(
                 worldName != null &&
                 x != null && y != null && z != null &&
                 yaw != null && pitch != null
-        ) Location(
-                Bukkit.getWorld(worldName),
-                x, y, z, yaw, pitch
-        ) else null
+        ) {
+            Location(Bukkit.getWorld(worldName), x, y, z, yaw, pitch)
+        } else {
+            null
+        }
     }
 
     override operator fun <ID : Comparable<ID>> setValue(
