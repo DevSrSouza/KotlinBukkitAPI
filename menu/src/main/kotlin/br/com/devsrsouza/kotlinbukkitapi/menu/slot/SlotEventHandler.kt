@@ -11,5 +11,4 @@ public interface SlotEventHandler {
     public fun moveToSlot(moveToSlot: MenuPlayerSlotMoveTo)
 
     public fun clone(): SlotEventHandler
-
 }

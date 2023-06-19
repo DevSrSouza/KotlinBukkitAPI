@@ -74,10 +74,12 @@ public class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(
     private val whenQuit: MutableList<Pair<Player, WhenPlayerQuitCollectionCallback>> = LinkedList()
 
     override fun add(player: Player, whenPlayerQuitCallback: Player.() -> Unit): Boolean {
-        if(super<OnlinePlayerCollection>.add(player, whenPlayerQuitCallback)) {
+        if (super<OnlinePlayerCollection>.add(player, whenPlayerQuitCallback)) {
             whenQuit.add(player to whenPlayerQuitCallback)
             return true
-        } else return false
+        } else {
+            return false
+        }
     }
 
     override fun add(element: Player): Boolean {
@@ -86,16 +88,18 @@ public class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(
     }
 
     override fun quit(player: Player): Boolean {
-        if(super.quit(player)) {
+        if (super.quit(player)) {
             val iterator = whenQuit.iterator()
             for (pair in iterator) {
-                if(pair.first == player) {
+                if (pair.first == player) {
                     iterator.remove()
                     pair.second.invoke(pair.first)
                 }
             }
             return true
-        } else return false
+        } else {
+            return false
+        }
     }
 
     override fun removeFirst(): Player {
@@ -106,7 +110,7 @@ public class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(
 
     override fun removeLastOccurrence(p0: Any?): Boolean {
         return super.removeLastOccurrence(p0).also {
-            if(it) checkRegistration()
+            if (it) checkRegistration()
         }
     }
 
@@ -117,10 +121,12 @@ public class OnlinePlayerList(override val plugin: Plugin) : LinkedList<Player>(
     }
 
     override fun remove(element: Player): Boolean {
-        if(super.remove(element)) {
+        if (super.remove(element)) {
             checkRegistration()
             return true
-        } else return false
+        } else {
+            return false
+        }
     }
 
     override fun removeLast(): Player {
@@ -134,45 +140,48 @@ public class OnlinePlayerSet(override val plugin: Plugin) : HashSet<Player>(), O
     private val whenQuit: MutableMap<Player, WhenPlayerQuitCollectionCallback> = mutableMapOf()
 
     override fun add(player: Player, whenPlayerQuitCallback: WhenPlayerQuitCollectionCallback): Boolean {
-        if(super<OnlinePlayerCollection>.add(player, whenPlayerQuitCallback)) {
+        if (super<OnlinePlayerCollection>.add(player, whenPlayerQuitCallback)) {
             whenQuit.put(player, whenPlayerQuitCallback)
 
             checkRegistration()
             return true
-        } else return false
+        } else {
+            return false
+        }
     }
 
     override fun add(element: Player): Boolean {
         return super<HashSet>.add(element).also {
-            if(it) checkRegistration()
+            if (it) checkRegistration()
         }
     }
 
     override fun remove(element: Player): Boolean {
         return super.remove(element).also {
-            if(it) checkRegistration()
+            if (it) checkRegistration()
         }
     }
 
     override fun quit(player: Player): Boolean {
-        if(super.quit(player)) {
+        if (super.quit(player)) {
             whenQuit.remove(player)?.also { block ->
                 block.invoke(player)
             }
             return true
-        } else return false
+        } else {
+            return false
+        }
     }
 }
 
 public interface OnlinePlayerCollection : MutableCollection<Player>, KListener<Plugin> {
-
 
     /**
      * Adds a new Player to the collection with a callback for when the player quits the server.
      */
     public fun add(player: Player, whenPlayerQuit: WhenPlayerQuitCollectionCallback): Boolean {
         return add(player).also {
-            if(it) checkRegistration()
+            if (it) checkRegistration()
         }
     }
 
@@ -181,7 +190,7 @@ public interface OnlinePlayerCollection : MutableCollection<Player>, KListener<P
      */
     public fun quit(player: Player): Boolean {
         return remove(player).also {
-            if(it) checkRegistration()
+            if (it) checkRegistration()
         }
     }
 
@@ -196,10 +205,10 @@ public interface OnlinePlayerCollection : MutableCollection<Player>, KListener<P
 }
 
 internal fun OnlinePlayerCollection.checkRegistration() {
-    if(size == 1) {
+    if (size == 1) {
         event<PlayerQuitEvent> { quit(player) }
         event<PlayerKickEvent> { quit(player) }
-    } else if(size == 0) {
+    } else if (size == 0) {
         unregisterListener()
     }
 }
@@ -251,10 +260,10 @@ public class OnlinePlayerMap<V>(override val plugin: Plugin) : HashMap<Player, V
     }
 
     private fun checkRegistration() {
-        if(size == 1) {
+        if (size == 1) {
             event<PlayerQuitEvent> { quit(player) }
             event<PlayerKickEvent> { quit(player) }
-        } else if(size == 0) {
+        } else if (size == 0) {
             unregisterListener()
         }
     }

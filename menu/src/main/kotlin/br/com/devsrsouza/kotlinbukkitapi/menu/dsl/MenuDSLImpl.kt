@@ -2,13 +2,20 @@ package br.com.devsrsouza.kotlinbukkitapi.menu.dsl
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.extensions.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.extensions.task
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuControllerPlugins
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerClose
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerOpen
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerPreOpen
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerUpdate
 import br.com.devsrsouza.kotlinbukkitapi.menu.dsl.slot.SlotDSL
 import br.com.devsrsouza.kotlinbukkitapi.menu.dsl.slot.SlotDSLImpl
 import br.com.devsrsouza.kotlinbukkitapi.menu.dsl.slot.SlotEventHandlerDSL
-import br.com.devsrsouza.kotlinbukkitapi.menu.*
-import br.com.devsrsouza.kotlinbukkitapi.menu.slot.Slot
+import br.com.devsrsouza.kotlinbukkitapi.menu.rangeOfSlots
 import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotRender
 import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotUpdate
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.Slot
+import br.com.devsrsouza.kotlinbukkitapi.menu.slotOrBaseSlot
+import br.com.devsrsouza.kotlinbukkitapi.menu.viewersFromPlayers
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
@@ -17,32 +24,32 @@ import org.bukkit.scheduler.BukkitTask
 import java.util.*
 
 public inline fun WithPlugin<*>.menu(
-        displayName: String,
-        lines: Int,
-        cancelOnClick: Boolean = true,
-        block: MenuDSL.() -> Unit
+    displayName: String,
+    lines: Int,
+    cancelOnClick: Boolean = true,
+    block: MenuDSL.() -> Unit,
 ): MenuDSL = plugin.menu(displayName, lines, cancelOnClick, block)
 
 public inline fun Plugin.menu(
-        displayName: String,
-        lines: Int,
-        cancelOnClick: Boolean = true,
-        block: MenuDSL.() -> Unit
+    displayName: String,
+    lines: Int,
+    cancelOnClick: Boolean = true,
+    block: MenuDSL.() -> Unit,
 ): MenuDSL = menu(displayName, lines, this, cancelOnClick, block)
 
 public inline fun menu(
-        displayName: String,
-        lines: Int,
-        plugin: Plugin,
-        cancelOnClick: Boolean = true,
-        block: MenuDSL.() -> Unit
+    displayName: String,
+    lines: Int,
+    plugin: Plugin,
+    cancelOnClick: Boolean = true,
+    block: MenuDSL.() -> Unit,
 ): MenuDSL = MenuDSLImpl(plugin, displayName, lines, cancelOnClick).apply(block)
 
 public class MenuDSLImpl(
     public override val plugin: Plugin,
     override var title: String,
     override var lines: Int,
-    override var cancelOnClick: Boolean
+    override var cancelOnClick: Boolean,
 ) : MenuDSL {
 
     init {
@@ -54,8 +61,9 @@ public class MenuDSLImpl(
         set(value) {
             field = value
             removeTask()
-            if (value > 0 && viewers.isNotEmpty())
+            if (value > 0 && viewers.isNotEmpty()) {
                 setNewTask()
+            }
         }
 
     override val viewers: MutableMap<Player, Inventory> = WeakHashMap()
@@ -74,14 +82,14 @@ public class MenuDSLImpl(
 
     override fun update(players: Set<Player>) {
         val viewers = viewersFromPlayers(players)
-        for((player, inventory) in viewers) {
+        for ((player, inventory) in viewers) {
             val update = MenuPlayerUpdate(this, player, inventory, title)
             eventHandler.update(update)
 
             // TODO title
             /*if(update.title != title)*/
 
-            for(i in rangeOfSlots()) {
+            for (i in rangeOfSlots()) {
                 val slot = slotOrBaseSlot(i)
                 updateSlotOnlyPos(i, slot, player, inventory)
             }
@@ -89,14 +97,14 @@ public class MenuDSLImpl(
     }
 
     override fun updateSlot(slot: Slot, players: Set<Player>) {
-        val slots: Map<Int, SlotDSL> = if(slot === baseSlot) {
-            rangeOfSlots().mapNotNull { if(slots[it] == null) it to slot else null }.toMap()
+        val slots: Map<Int, SlotDSL> = if (slot === baseSlot) {
+            rangeOfSlots().mapNotNull { if (slots[it] == null) it to slot else null }.toMap()
         } else {
-            rangeOfSlots().mapNotNull { if(slot === slots[it]) it to slot else null }.toMap()
+            rangeOfSlots().mapNotNull { if (slot === slots[it]) it to slot else null }.toMap()
         }
 
-        for((player, inventory) in viewersFromPlayers(players)) {
-            for((pos, s) in slots) {
+        for ((player, inventory) in viewersFromPlayers(players)) {
+            for ((pos, s) in slots) {
                 updateSlotOnlyPos(pos, s, player, inventory)
             }
         }
@@ -119,7 +127,7 @@ public class MenuDSLImpl(
                 val preOpen = MenuPlayerPreOpen(this, player)
                 eventHandler.preOpen(preOpen)
 
-                if(preOpen.canceled) return
+                if (preOpen.canceled) return
 
                 for (i in rangeOfSlots()) {
                     val slot = slotOrBaseSlot(i)
@@ -134,9 +142,9 @@ public class MenuDSLImpl(
                 val open = MenuPlayerOpen(this, player, inventory)
                 eventHandler.open(open)
 
-                if (task == null && updateDelay > 0 && viewers.isNotEmpty())
+                if (task == null && updateDelay > 0 && viewers.isNotEmpty()) {
                     setNewTask()
-
+                }
             } catch (e: Throwable) {
                 e.printStackTrace()
                 removePlayer(player, true)
@@ -148,7 +156,7 @@ public class MenuDSLImpl(
         val slots = rangeOfSlots()
         val inventory = Bukkit.createInventory(this, slots.endInclusive, title)
 
-        for(i in slots) {
+        for (i in slots) {
             val slot = slotOrBaseSlot(i)
 
             val item = slot.item?.clone()
@@ -159,17 +167,18 @@ public class MenuDSLImpl(
     }
 
     private fun removePlayer(player: Player, closeInventory: Boolean): Boolean {
-        if(closeInventory) player.closeInventory()
+        if (closeInventory) player.closeInventory()
 
         val viewing = viewers.remove(player) != null
-        if(viewing)
+        if (viewing) {
             clearPlayerData(player)
+        }
 
         return viewing
     }
 
     override fun close(player: Player, closeInventory: Boolean) {
-        if(removePlayer(player, closeInventory)) {
+        if (removePlayer(player, closeInventory)) {
             val menuClose = MenuPlayerClose(this, player)
             eventHandler.close(menuClose)
 

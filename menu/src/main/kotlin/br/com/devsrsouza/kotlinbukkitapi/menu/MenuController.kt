@@ -2,17 +2,17 @@ package br.com.devsrsouza.kotlinbukkitapi.menu
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.PluginDisableAware
 import br.com.devsrsouza.kotlinbukkitapi.architecture.PluginDisableAwareController
-import br.com.devsrsouza.kotlinbukkitapi.architecture.extensions.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.extensions.KListener
 import br.com.devsrsouza.kotlinbukkitapi.extensions.onlinePlayers
 import br.com.devsrsouza.kotlinbukkitapi.extensions.registerEvents
 import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotInteract
-import java.util.WeakHashMap
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
-import org.bukkit.event.inventory.*
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.inventory.InventoryCloseEvent
+import org.bukkit.event.inventory.InventoryDragEvent
+import org.bukkit.event.inventory.InventoryType
 import org.bukkit.event.player.PlayerPickupItemEvent
-import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
 
 internal object MenuControllerPlugins : PluginDisableAwareController<MenuController>() {
@@ -20,7 +20,7 @@ internal object MenuControllerPlugins : PluginDisableAwareController<MenuControl
 }
 
 internal class MenuController(
-    override val plugin: Plugin
+    override val plugin: Plugin,
 ) : KListener<Plugin>, PluginDisableAware {
 
     init {
@@ -44,18 +44,18 @@ internal class MenuController(
             val menu = getMenuFromInventory(event.inventory)?.takeIfHasPlayer(player)
 
             if (menu != null) {
-                if(menu.plugin.name != plugin.name) return
+                if (menu.plugin.name != plugin.name) return
 
                 if (event.rawSlot == event.slot) {
                     val clickedSlot = event.slot + 1
                     val slot = menu.slotOrBaseSlot(clickedSlot)
 
                     val interact = MenuPlayerSlotInteract(
-                            menu, clickedSlot, slot,
-                            player, inv, slot.cancel,
-                            event.click, event.action,
-                            event.currentItem, event.cursor,
-                            event.hotbarButton
+                        menu, clickedSlot, slot,
+                        player, inv, slot.cancel,
+                        event.click, event.action,
+                        event.currentItem, event.cursor,
+                        event.hotbarButton,
                     )
 
                     slot.eventHandler.interact(interact)
@@ -75,7 +75,7 @@ internal class MenuController(
             val player = event.whoClicked as Player
             val menu = getMenuFromInventory(event.inventory)?.takeIfHasPlayer(player)
             if (menu != null) {
-                if(menu.plugin.name != plugin.name) return
+                if (menu.plugin.name != plugin.name) return
                 val pass = event.inventorySlots.firstOrNull { it in event.rawSlots }
                 if (pass != null) event.isCancelled = true
             }
@@ -87,8 +87,8 @@ internal class MenuController(
         if (event.view.type == InventoryType.CHEST) {
             val player = event.player as Player
             val menu = getMenuFromPlayer(player)
-            if(menu != null) {
-                if(menu.plugin.name != plugin.name) return
+            if (menu != null) {
+                if (menu.plugin.name != plugin.name) return
                 menu.close(player, false)
             }
         }
@@ -98,7 +98,7 @@ internal class MenuController(
     fun onPickupItemEvent(event: PlayerPickupItemEvent) {
         val menu = getMenuFromPlayer(event.player)
         if (menu != null) {
-            if(menu.plugin.name != plugin.name) return
+            if (menu.plugin.name != plugin.name) return
             event.isCancelled = true
         }
     }

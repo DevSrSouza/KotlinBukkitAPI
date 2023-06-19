@@ -1,7 +1,7 @@
 package br.com.devsrsouza.kotlinbukkitapi.serialization.serializers
 
 import br.com.devsrsouza.kotlinbukkitapi.serialization.serializers.exceptions.WorldNotFoundException
-import kotlinx.serialization.*
+import kotlinx.serialization.KSerializer
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -24,9 +24,9 @@ public object BlockSerializer : KSerializer<Block> {
         val world = Bukkit.getWorld(worldName) ?: throw WorldNotFoundException(worldName)
 
         return world.getBlockAt(
-                slices[1].toInt(),
-                slices[2].toInt(),
-                slices[3].toInt()
+            slices[1].toInt(),
+            slices[2].toInt(),
+            slices[3].toInt(),
         )
     }
 

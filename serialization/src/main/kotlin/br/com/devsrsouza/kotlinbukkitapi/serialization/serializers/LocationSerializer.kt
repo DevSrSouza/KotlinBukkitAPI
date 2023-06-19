@@ -24,12 +24,12 @@ public object LocationSerializer : KSerializer<Location> {
         val world = Bukkit.getWorld(worldName) ?: throw WorldNotFoundException(worldName)
 
         return Location(
-                world,
-                slices[1].toDouble(),
-                slices[2].toDouble(),
-                slices[3].toDouble(),
-                slices.getOrNull(4)?.toFloat() ?: 0f,
-                slices.getOrNull(5)?.toFloat() ?: 0f
+            world,
+            slices[1].toDouble(),
+            slices[2].toDouble(),
+            slices[3].toDouble(),
+            slices.getOrNull(4)?.toFloat() ?: 0f,
+            slices.getOrNull(5)?.toFloat() ?: 0f,
         )
     }
 

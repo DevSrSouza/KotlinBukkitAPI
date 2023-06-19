@@ -5,11 +5,11 @@ import org.bukkit.event.Listener
 import org.bukkit.plugin.Plugin
 
 public fun Plugin.registerEvents(
-        vararg listeners: Listener
+    vararg listeners: Listener,
 ): Unit = listeners.forEach { server.pluginManager.registerEvents(it, this) }
 
 public fun WithPlugin<*>.registerEvents(
-        vararg listeners: Listener
+    vararg listeners: Listener,
 ): Unit = plugin.registerEvents(*listeners)
 
 // logger

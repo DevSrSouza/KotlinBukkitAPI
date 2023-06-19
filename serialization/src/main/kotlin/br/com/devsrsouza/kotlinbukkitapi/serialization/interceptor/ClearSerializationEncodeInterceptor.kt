@@ -20,5 +20,4 @@ internal class ClearSerializationEncodeInterceptor : SerializationEncodeIntercep
     override fun encodeShort(descriptor: SerialDescriptor, index: Int, value: Short): Short = value
 
     override fun encodeString(descriptor: SerialDescriptor, index: Int, value: String): String = value
-
 }

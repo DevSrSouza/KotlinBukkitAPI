@@ -1,13 +1,17 @@
 package br.com.devsrsouza.kotlinbukkitapi.menu.slot
 
-import br.com.devsrsouza.kotlinbukkitapi.menu.*
+import br.com.devsrsouza.kotlinbukkitapi.menu.Menu
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayer
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerInteract
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerInventory
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerMove
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.inventory.ClickType
 import org.bukkit.event.inventory.InventoryAction
 import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
-import java.util.*
+import java.util.WeakHashMap
 
 public val MenuPlayerSlot.rawSlotPos: Int get() = slotPos - 1
 
@@ -50,7 +54,7 @@ public open class MenuPlayerSlotInteract(
     public val action: InventoryAction,
     public val clicked: ItemStack?,
     public val cursor: ItemStack?,
-    public val hotbarKey: Int
+    public val hotbarKey: Int,
 ) : MenuPlayerInteract(menu, player, inventory, canceled), MenuPlayerInventorySlot
 
 public class MenuPlayerSlotMoveTo(
@@ -61,7 +65,7 @@ public class MenuPlayerSlotMoveTo(
     override val inventory: Inventory,
     override var canceled: Boolean,
     override val toMoveSlot: Int,
-    override var toMoveItem: ItemStack?
+    override var toMoveItem: ItemStack?,
 ) : MenuPlayerInventorySlot, MenuPlayerMove
 
 public class MenuPlayerSlotRender(
@@ -69,7 +73,7 @@ public class MenuPlayerSlotRender(
     override val slotPos: Int,
     override val slot: Slot,
     override val player: Player,
-    override val inventory: Inventory
+    override val inventory: Inventory,
 ) : MenuPlayerInventorySlot
 
 public class MenuPlayerSlotUpdate(
@@ -77,5 +81,5 @@ public class MenuPlayerSlotUpdate(
     override val slotPos: Int,
     override val slot: Slot,
     override val player: Player,
-    override val inventory: Inventory
+    override val inventory: Inventory,
 ) : MenuPlayerInventorySlot

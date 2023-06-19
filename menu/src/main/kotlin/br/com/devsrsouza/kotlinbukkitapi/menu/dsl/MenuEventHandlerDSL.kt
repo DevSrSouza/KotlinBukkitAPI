@@ -1,6 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.menu.dsl
 
-import br.com.devsrsouza.kotlinbukkitapi.menu.*
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuEventHandler
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerClose
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerMoveTo
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerOpen
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerPreOpen
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerUpdate
 
 public typealias MenuPlayerUpdateEvent = MenuPlayerUpdate.() -> Unit
 public typealias MenuPlayerCloseEvent = MenuPlayerClose.() -> Unit
@@ -46,5 +51,4 @@ public class MenuEventHandlerDSL(public val menu: MenuDSL) : MenuEventHandler {
             callback(open)
         }
     }
-
 }

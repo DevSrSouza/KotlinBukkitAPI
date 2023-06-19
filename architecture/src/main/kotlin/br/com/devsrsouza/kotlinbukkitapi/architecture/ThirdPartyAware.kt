@@ -1,10 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi.architecture
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.extensions.WithPlugin
-import java.util.WeakHashMap
 import org.bukkit.event.EventHandler
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.plugin.Plugin
+import java.util.WeakHashMap
 
 /**
  * A holder for all instance of a class [T] that is bound a specific plugin.

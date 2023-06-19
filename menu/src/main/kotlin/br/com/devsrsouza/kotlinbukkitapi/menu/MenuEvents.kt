@@ -11,8 +11,9 @@ public interface MenuPlayer {
 
     public fun putPlayerData(key: String, value: Any) {
         val map = menu.playerData[player]
-        if (map != null) map[key] = value
-        else menu.playerData[player] = WeakHashMap<String, Any>().apply {put(key, value)}
+        if (map != null) {
+            map[key] = value
+        } else menu.playerData[player] = WeakHashMap<String, Any>().apply { put(key, value) }
     }
 
     public fun getPlayerData(key: String): Any? = menu.playerData.get(player)?.get(key)
@@ -70,31 +71,31 @@ public open class MenuPlayerInteract(
     override val menu: Menu<*>,
     override val player: Player,
     override val inventory: Inventory,
-    override var canceled: Boolean
+    override var canceled: Boolean,
 ) : MenuPlayerInventory, MenuPlayerCancellable
 
 public class MenuPlayerPreOpen(
     override val menu: Menu<*>,
     override val player: Player,
-    override var canceled: Boolean = false
+    override var canceled: Boolean = false,
 ) : MenuPlayerCancellable
 
 public class MenuPlayerOpen(
     override val menu: Menu<*>,
     override val player: Player,
-    override val inventory: Inventory
+    override val inventory: Inventory,
 ) : MenuPlayerInventory
 
 public class MenuPlayerUpdate(
     override val menu: Menu<*>,
     override val player: Player,
     override val inventory: Inventory,
-    public var title: String
+    public var title: String,
 ) : MenuPlayerInventory
 
 public class MenuPlayerClose(
     override val menu: Menu<*>,
-    override val player: Player
+    override val player: Player,
 ) : MenuPlayer
 
 public interface MenuPlayerMove : MenuPlayerInventory, MenuPlayerCancellable {
@@ -109,7 +110,7 @@ public class MenuPlayerMoveTo(
     canceled: Boolean,
     override val toMoveSlot: Int,
     override val toMoveItem: ItemStack?,
-    public var targetSlot: Int
+    public var targetSlot: Int,
 ) : MenuPlayerInteract(menu, player, inventory, canceled), MenuPlayerMove {
 
     public var targetCurrentItem: ItemStack?
@@ -117,5 +118,4 @@ public class MenuPlayerMoveTo(
             setItem(targetSlot, value)
         }
         get() = getItem(targetSlot)
-
 }

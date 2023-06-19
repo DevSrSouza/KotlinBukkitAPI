@@ -1,21 +1,21 @@
 package br.com.devsrsouza.kotlinbukkitapi.menu.dsl
 
-import br.com.devsrsouza.kotlinbukkitapi.menu.dsl.slot.SlotDSL
 import br.com.devsrsouza.kotlinbukkitapi.menu.Menu
 import br.com.devsrsouza.kotlinbukkitapi.menu.calculateSlot
+import br.com.devsrsouza.kotlinbukkitapi.menu.dsl.slot.SlotDSL
 import org.bukkit.inventory.ItemStack
 
 public inline fun MenuDSL.slot(
-        line: Int,
-        slot: Int,
-        item: ItemStack?,
-        block: SlotDSL.() -> Unit = {}
+    line: Int,
+    slot: Int,
+    item: ItemStack?,
+    block: SlotDSL.() -> Unit = {},
 ): SlotDSL = slot(calculateSlot(line, slot), item, block)
 
 public inline fun MenuDSL.slot(
-        slot: Int,
-        item: ItemStack?,
-        block: SlotDSL.() -> Unit = {}
+    slot: Int,
+    item: ItemStack?,
+    block: SlotDSL.() -> Unit = {},
 ): SlotDSL = baseSlot.clone(item).apply(block).also {
     setSlot(slot, it)
 }
@@ -43,5 +43,4 @@ public interface MenuDSL : Menu<SlotDSL> {
     public fun onOpen(open: MenuPlayerOpenEvent) {
         eventHandler.openCallbacks.add(open)
     }
-
 }

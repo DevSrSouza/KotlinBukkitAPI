@@ -2,29 +2,32 @@ package br.com.devsrsouza.kotlinbukkitapi.extensions
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.extensions.WithPlugin
 import org.bukkit.Bukkit
-import org.bukkit.event.*
+import org.bukkit.event.Event
+import org.bukkit.event.EventPriority
+import org.bukkit.event.HandlerList
+import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.plugin.Plugin
 import kotlin.reflect.KClass
 
 public inline fun <reified T : Event> KListener<*>.event(
-        priority: EventPriority = EventPriority.NORMAL,
-        ignoreCancelled: Boolean = false,
-        noinline block: T.() -> Unit
+    priority: EventPriority = EventPriority.NORMAL,
+    ignoreCancelled: Boolean = false,
+    noinline block: T.() -> Unit,
 ): Unit = event(plugin, priority, ignoreCancelled, block)
 
 public fun <T : Event> KListener<*>.event(
     type: KClass<T>,
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false,
-    block: T.() -> Unit
+    block: T.() -> Unit,
 ): Unit = event(plugin, type, priority, ignoreCancelled, block)
 
 public inline fun <reified T : Event> Listener.event(
-        plugin: Plugin,
-        priority: EventPriority = EventPriority.NORMAL,
-        ignoreCancelled: Boolean = false,
-        noinline block: T.() -> Unit
+    plugin: Plugin,
+    priority: EventPriority = EventPriority.NORMAL,
+    ignoreCancelled: Boolean = false,
+    noinline block: T.() -> Unit,
 ) {
     event<T>(plugin, T::class, priority, ignoreCancelled, block)
 }
@@ -34,18 +37,19 @@ public fun <T : Event> Listener.event(
     type: KClass<T>,
     priority: EventPriority = EventPriority.NORMAL,
     ignoreCancelled: Boolean = false,
-    block: T.() -> Unit
+    block: T.() -> Unit,
 ) {
     Bukkit.getServer().pluginManager.registerEvent(
         type.java,
         this,
         priority,
         { _, event ->
-            if(type.isInstance(event))
+            if (type.isInstance(event)) {
                 (event as? T)?.block()
+            }
         },
         plugin,
-        ignoreCancelled
+        ignoreCancelled,
     )
 }
 

@@ -24,14 +24,14 @@ public class SerializationConfig<T : Any>(
     public val serializer: KSerializer<T>,
     stringFormat: StringFormat,
     public val alwaysRestoreDefaults: Boolean,
-    public val eventObservable: KotlinConfigEventObservable? = null
+    public val eventObservable: KotlinConfigEventObservable? = null,
 ) {
     public lateinit var config: T private set
 
     public val stringFormat: StringFormat = StringFormatInterceptor(
-            stringFormat,
-            BukkitSerializationEncodeInterceptor,
-            BukkitSerializationDecodeInterceptor
+        stringFormat,
+        BukkitSerializationEncodeInterceptor,
+        BukkitSerializationDecodeInterceptor,
     )
 
     public fun load() {
@@ -61,8 +61,9 @@ public class SerializationConfig<T : Any>(
     private fun loadFromFile() {
         config = stringFormat.decodeFromString(serializer, file.readText())
 
-        if(alwaysRestoreDefaults)
+        if (alwaysRestoreDefaults) {
             saveToFile(config)
+        }
     }
 
     private fun stringifyModel(value: T) = stringFormat.encodeToString(serializer, value)
@@ -73,7 +74,7 @@ public class SerializationConfig<T : Any>(
     }
 
     private fun createFileIfNotExist() {
-        if(!file.exists()) {
+        if (!file.exists()) {
             file.parentFile.mkdirs()
             file.createNewFile()
 

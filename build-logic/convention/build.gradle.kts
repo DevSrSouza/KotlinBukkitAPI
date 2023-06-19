@@ -26,7 +26,7 @@ gradlePlugin {
     plugins {
         register("kotlinBukkitApiBuild") {
             id = "kotlinbukkitapi.build"
-            implementationClass = "br.com.devsrsouza.kotlinbukkitapi.build.KBAPIBuildPlugin"
+            implementationClass = "br.com.devsrsouza.kotlinbukkitapi.buildlogic.KBAPIBuildPlugin"
         }
     }
 }

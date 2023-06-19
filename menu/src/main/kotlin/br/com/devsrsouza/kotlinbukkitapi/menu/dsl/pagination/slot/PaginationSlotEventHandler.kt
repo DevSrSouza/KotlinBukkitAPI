@@ -1,7 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.menu.dsl.pagination.slot
 
 import br.com.devsrsouza.kotlinbukkitapi.menu.Menu
-import br.com.devsrsouza.kotlinbukkitapi.menu.slot.*
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerInventorySlot
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotInteract
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotRender
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotUpdate
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.Slot
 import org.bukkit.entity.Player
 import org.bukkit.inventory.Inventory
 
@@ -42,9 +46,9 @@ public class PaginationSlotEventHandler<T> {
 }
 
 public class MenuPlayerSlotPageChange(
-        override val menu: Menu<*>,
-        override val slotPos: Int,
-        override val slot: Slot,
-        override val player: Player,
-        override val inventory: Inventory
+    override val menu: Menu<*>,
+    override val slotPos: Int,
+    override val slot: Slot,
+    override val player: Player,
+    override val inventory: Inventory,
 ) : MenuPlayerInventorySlot

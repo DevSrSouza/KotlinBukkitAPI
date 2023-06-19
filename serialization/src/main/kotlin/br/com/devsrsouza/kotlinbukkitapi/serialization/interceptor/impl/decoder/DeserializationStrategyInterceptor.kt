@@ -5,8 +5,8 @@ import kotlinx.serialization.DeserializationStrategy
 import kotlinx.serialization.encoding.Decoder
 
 internal class DeserializationStrategyInterceptor<T>(
-        val interceptor: SerializationDecodeInterceptor,
-        val delegate: DeserializationStrategy<T>
+    val interceptor: SerializationDecodeInterceptor,
+    val delegate: DeserializationStrategy<T>,
 ) : DeserializationStrategy<T> by delegate {
     override fun deserialize(decoder: Decoder): T {
         return delegate.deserialize(DecoderInterceptor(interceptor, decoder))

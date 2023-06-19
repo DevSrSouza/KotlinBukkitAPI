@@ -3,8 +3,8 @@ package br.com.devsrsouza.kotlinbukkitapi.coroutines.architecture.impl
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.getOrInsertGenericLifecycle
-import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerMapOf
 import br.com.devsrsouza.kotlinbukkitapi.coroutines.BukkitDispatchers
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerMapOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -17,12 +17,12 @@ internal fun KotlinPlugin.getOrInsertCoroutineLifecycle(): CoroutineLifecycle {
 }
 
 internal class CoroutineLifecycle(
-        override val plugin: KotlinPlugin
+    override val plugin: KotlinPlugin,
 ) : LifecycleListener<KotlinPlugin> {
 
     inner class PlayerCoroutineScope(
-            val job: Job,
-            val coroutineScope: CoroutineScope
+        val job: Job,
+        val coroutineScope: CoroutineScope,
     ) {
         fun cancelJobs() = job.cancel()
     }
@@ -45,18 +45,18 @@ internal class CoroutineLifecycle(
 
     fun getPlayerCoroutineScope(player: Player): CoroutineScope {
         return playersCoroutineScope[player]?.coroutineScope
-                ?: newPlayerCoroutineScope().also {
-                    playersCoroutineScope.put(player, it) { playerCoroutineScope ->
-                        playerCoroutineScope.cancelJobs()
-                    }
-                }.coroutineScope
+            ?: newPlayerCoroutineScope().also {
+                playersCoroutineScope.put(player, it) { playerCoroutineScope ->
+                    playerCoroutineScope.cancelJobs()
+                }
+            }.coroutineScope
     }
 
     private fun newPlayerCoroutineScope(): PlayerCoroutineScope {
         val job = SupervisorJob()
         return PlayerCoroutineScope(
-                job,
-                CoroutineScope(BukkitDispatchers.SYNC + job)
+            job,
+            CoroutineScope(BukkitDispatchers.SYNC + job),
         )
     }
 }

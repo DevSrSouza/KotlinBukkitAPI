@@ -17,7 +17,7 @@ public val INT_RANGE_FORMAT: TextComponent = "The parameter needs a range of int
 public fun Executor<*>.intRangeOrNull(
     index: Int,
     argMissing: BaseComponent = MISSING_RANGE_PARAMETER,
-    separator: String = ".."
+    separator: String = "..",
 ): IntRange? {
     val slices = string(index, argMissing).split(separator)
     val min = slices.getOrNull(0)?.toIntOrNull()
@@ -30,6 +30,6 @@ public fun Executor<*>.intRange(
     index: Int,
     argMissing: BaseComponent = MISSING_RANGE_PARAMETER,
     rangeFormat: BaseComponent = INT_RANGE_FORMAT,
-    separator: String = ".."
+    separator: String = "..",
 ): IntRange = intRangeOrNull(index, argMissing, separator)
-        ?: fail(rangeFormat)
+    ?: fail(rangeFormat)

@@ -115,7 +115,6 @@ public interface ExpirationList<E> : MutableIterable<E> {
      * @return the element if was removed.
      */
     public fun removeLast(): E?
-
 }
 
 private class ExpirationNode<E>(var element: E, val expireTime: Int) {
@@ -143,8 +142,8 @@ public class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<
 
     override fun missingTime(element: E): Int? {
         return getNodeByElement(element)
-                ?.let { it.expireTime - ((System.currentTimeMillis() - it.startTime) / 1000) }
-                ?.toInt()
+            ?.let { it.expireTime - ((System.currentTimeMillis() - it.startTime) / 1000) }
+            ?.toInt()
     }
 
     override operator fun contains(element: E): Boolean = indexOf(element) > -1
@@ -188,7 +187,7 @@ public class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<
     }
 
     override fun add(element: E, expireTime: Int, onExpire: OnExpireCallback<E>?) {
-        if(expireTime <= 0) throw IllegalArgumentException("expireTime need to be greater then 0")
+        if (expireTime <= 0) throw IllegalArgumentException("expireTime need to be greater then 0")
         val newNode = ExpirationNode(element, expireTime).also { it.onExpire = onExpire }
         if (head == null) {
             head = newNode
@@ -202,7 +201,7 @@ public class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<
     }
 
     override fun addFirst(element: E, expireTime: Int, onExpire: OnExpireCallback<E>?) {
-        if(expireTime <= 0) throw IllegalArgumentException("expireTime need to be greater then 0")
+        if (expireTime <= 0) throw IllegalArgumentException("expireTime need to be greater then 0")
         val newNode = ExpirationNode(element, expireTime).also { it.onExpire = onExpire }
         if (head == null) {
             head = newNode
@@ -226,7 +225,7 @@ public class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<
     override fun removeFirst(): E? {
         val next = head?.next
         val headElement = head?.element
-        if(next == null) {
+        if (next == null) {
             tail = null
             head = null
         } else {
@@ -239,7 +238,7 @@ public class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<
     override fun removeLast(): E? {
         val previous = tail?.previous
         val tailElement = tail?.element
-        if(previous == null) {
+        if (previous == null) {
             tail = null
             head = null
         } else {
@@ -253,10 +252,11 @@ public class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<
         if (index < 0 || index >= _size) return null
 
         val mid = _size / 2
-        return if (index > mid)
+        return if (index > mid) {
             getFromSpecificSide(index - mid, tail) { it?.previous }
-        else
+        } else {
             getFromSpecificSide(index, head) { it?.next }
+        }
     }
 
     private fun getNodeByElement(element: E): ExpirationNode<E>? {
@@ -271,8 +271,11 @@ public class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<
         return null
     }
 
-    private inline fun getFromSpecificSide(count: Int, start: ExpirationNode<E>?,
-                                           next: (ExpirationNode<E>?) -> ExpirationNode<E>?): ExpirationNode<E> {
+    private inline fun getFromSpecificSide(
+        count: Int,
+        start: ExpirationNode<E>?,
+        next: (ExpirationNode<E>?) -> ExpirationNode<E>?,
+    ): ExpirationNode<E> {
         var index = 0
         var current = start
         while (index != count) {
@@ -298,21 +301,21 @@ public class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<
             }
 
             override fun remove() {
-                if (current != null)
+                if (current != null) {
                     removeNode(current!!)
+                }
             }
         }
     }
 
-    private fun checkTime(current: Long, node: ExpirationNode<E>)
-            = ((current - node.startTime) / 1000) - node.expireTime >= 0
+    private fun checkTime(current: Long, node: ExpirationNode<E>) = ((current - node.startTime) / 1000) - node.expireTime >= 0
 
     private fun generateTask() {
         if (task == null) {
             task = scheduler {
-                if (isEmpty())
+                if (isEmpty()) {
                     emptyCount++
-                else {
+                } else {
                     emptyCount = 0
                     val current = System.currentTimeMillis()
                     for (node in nodeIterator()) {
@@ -347,4 +350,3 @@ public class ExpirationListImpl<E>(private val plugin: Plugin) : ExpirationList<
         _size--
     }
 }
-

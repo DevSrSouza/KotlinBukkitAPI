@@ -15,27 +15,27 @@ import org.bukkit.plugin.Plugin
  * Creates a event flow for [PlayerEvent] that auto filter for only events from [player].
  */
 public inline fun <reified T : PlayerEvent> WithPlugin<*>.playerEventFlow(
-        player: Player,
-        priority: EventPriority = EventPriority.NORMAL,
-        ignoreCancelled: Boolean = false,
-        channel: Channel<T> = Channel<T>(Channel.CONFLATED),
-        listener: Listener = SimpleKListener(plugin),
+    player: Player,
+    priority: EventPriority = EventPriority.NORMAL,
+    ignoreCancelled: Boolean = false,
+    channel: Channel<T> = Channel<T>(Channel.CONFLATED),
+    listener: Listener = SimpleKListener(plugin),
 ): Flow<T> = plugin.playerEventFlow(player, priority, ignoreCancelled, channel, listener)
 
 public inline fun <reified T : PlayerEvent> Plugin.playerEventFlow(
-        player: Player,
-        priority: EventPriority = EventPriority.NORMAL,
-        ignoreCancelled: Boolean = false,
-        channel: Channel<T> = Channel<T>(Channel.CONFLATED),
-        listener: Listener = SimpleKListener(this),
+    player: Player,
+    priority: EventPriority = EventPriority.NORMAL,
+    ignoreCancelled: Boolean = false,
+    channel: Channel<T> = Channel<T>(Channel.CONFLATED),
+    listener: Listener = SimpleKListener(this),
 ): Flow<T> = playerEventFlow(player, this, priority, ignoreCancelled, channel, listener)
 
 public inline fun <reified T : PlayerEvent> playerEventFlow(
-        player: Player,
-        plugin: Plugin,
-        priority: EventPriority = EventPriority.NORMAL,
-        ignoreCancelled: Boolean = false,
-        channel: Channel<T> = Channel<T>(Channel.CONFLATED),
-        listener: Listener = SimpleKListener(plugin),
+    player: Player,
+    plugin: Plugin,
+    priority: EventPriority = EventPriority.NORMAL,
+    ignoreCancelled: Boolean = false,
+    channel: Channel<T> = Channel<T>(Channel.CONFLATED),
+    listener: Listener = SimpleKListener(plugin),
 ): Flow<T> = eventFlow<T>(T::class, plugin, player, priority, ignoreCancelled, channel, listener)
-        .filter { it.player.name == player.name }
+    .filter { it.player.name == player.name }

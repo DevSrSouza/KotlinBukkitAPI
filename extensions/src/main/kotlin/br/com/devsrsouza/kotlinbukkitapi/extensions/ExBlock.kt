@@ -10,14 +10,14 @@ public infix fun Block.eqType(data: MaterialData): Boolean = type == data.itemTy
 public infix fun Block.eqType(material: Material): Boolean = type == material
 
 public fun Block.sendBlockChange(
-        materialData: MaterialData,
-        players: List<Player>
+    materialData: MaterialData,
+    players: List<Player>,
 ): Unit = sendBlockChange(materialData.itemType, materialData.data, players)
 
 public fun Block.sendBlockChange(
-        material: Material,
-        data: Byte = 0,
-        players: List<Player>
+    material: Material,
+    data: Byte = 0,
+    players: List<Player>,
 ) {
     players.filter { it.world.name == world.name }.forEach {
         it.sendBlockChange(location, material, data)

@@ -10,9 +10,9 @@ import kotlinx.serialization.StringFormat
 import kotlinx.serialization.decodeFromString
 
 internal class StringFormatInterceptor(
-        private val delegate: StringFormat,
-        private val encodeInterceptor: SerializationEncodeInterceptor,
-        private val decodeInterceptor: SerializationDecodeInterceptor
+    private val delegate: StringFormat,
+    private val encodeInterceptor: SerializationEncodeInterceptor,
+    private val decodeInterceptor: SerializationDecodeInterceptor,
 ) : StringFormat by delegate {
 
     override fun <T> decodeFromString(deserializer: DeserializationStrategy<T>, raw: String): T {

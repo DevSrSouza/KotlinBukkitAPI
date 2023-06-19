@@ -37,13 +37,13 @@ public interface Menu<T : Slot> : WithPlugin<Plugin>, InventoryHolder {
 
     public fun clearData() {
         data.clear()
-        for(slot in slotsWithBaseSlot())
+        for (slot in slotsWithBaseSlot())
             slot.clearSlotData()
     }
 
     public fun clearPlayerData(player: Player) {
         playerData.remove(player)
-        for(slot in slotsWithBaseSlot())
+        for (slot in slotsWithBaseSlot())
             slot.clearPlayerData(player)
     }
 

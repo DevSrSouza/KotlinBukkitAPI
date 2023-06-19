@@ -1,7 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions
 
 import org.bukkit.Location
-import org.bukkit.entity.*
+import org.bukkit.entity.Entity
+import org.bukkit.entity.EntityType
+import org.bukkit.entity.Firework
+import org.bukkit.entity.Player
+import org.bukkit.entity.Projectile
 import org.bukkit.inventory.meta.FireworkMeta
 import org.bukkit.projectiles.ProjectileSource
 import org.bukkit.util.Vector

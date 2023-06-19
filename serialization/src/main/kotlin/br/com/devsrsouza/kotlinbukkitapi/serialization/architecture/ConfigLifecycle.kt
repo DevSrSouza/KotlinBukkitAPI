@@ -37,26 +37,27 @@ import kotlin.reflect.typeOf
  * @param saveOnDisable: If true, saves the current [SerializationConfig.model] to the configuration file.
  */
 public fun <T : Any> KotlinPlugin.config(
-        file: String,
-        defaultModel: T,
-        serializer: KSerializer<T>,
-        type: StringFormat,
-        loadOnEnable: Boolean = false,
-        saveOnDisable: Boolean = false,
-        alwaysRestoreDefaults: Boolean = true
+    file: String,
+    defaultModel: T,
+    serializer: KSerializer<T>,
+    type: StringFormat,
+    loadOnEnable: Boolean = false,
+    saveOnDisable: Boolean = false,
+    alwaysRestoreDefaults: Boolean = true,
 ): SerializationConfig<T> {
     val configFile = File(dataFolder, file)
 
     return SerializationConfig(
-            defaultModel,
-            configFile,
-            serializer,
-            type,
-            alwaysRestoreDefaults,
-            eventObservable = {
-                if (it == KotlinConfigEvent.RELOAD)
-                    someConfigReloaded()
+        defaultModel,
+        configFile,
+        serializer,
+        type,
+        alwaysRestoreDefaults,
+        eventObservable = {
+            if (it == KotlinConfigEvent.RELOAD) {
+                someConfigReloaded()
             }
+        },
     ).also {
         registerConfiguration(it as SerializationConfig<Any>, loadOnEnable, saveOnDisable)
     }
@@ -78,7 +79,6 @@ public fun LifecycleListener<*>.getConfig(type: KType): SerializationConfig<*> {
     }
 }
 
-
 /**
  * Config delegate that caches the config reference.
  */
@@ -91,13 +91,13 @@ public fun <T : Any> LifecycleListener<*>.config(type: KType): ConfigDelegate<T,
 public inline fun <reified T : Any> LifecycleListener<*>.config(): ConfigDelegate<T, T> = config<T>(typeOf<T>())
 
 public fun <T : Any, R> LifecycleListener<*>.config(
-        type: KType,
-        deep: T.() -> R
+    type: KType,
+    deep: T.() -> R,
 ): ConfigDelegate<T, R> {
     return ConfigDelegate(type, deep)
 }
 
 @OptIn(ExperimentalStdlibApi::class)
 public inline fun <reified T : Any, R> LifecycleListener<*>.config(
-        noinline deep: T.() -> R
+    noinline deep: T.() -> R,
 ): ConfigDelegate<T, R> = config(typeOf<T>(), deep)

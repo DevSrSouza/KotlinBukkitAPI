@@ -20,7 +20,7 @@ internal fun KotlinPlugin.getOrInsertConfigLifecycle(): ConfigLifecycle {
 }
 
 internal class ConfigLifecycle(
-        override val plugin: KotlinPlugin
+    override val plugin: KotlinPlugin,
 ) : PluginLifecycleListener, WithPlugin<KotlinPlugin> {
     // String = Descriptor name
     internal val serializationConfigurations = hashMapOf<String, SerializationConfig<Any>>()
@@ -29,7 +29,7 @@ internal class ConfigLifecycle(
     internal val onDisableSaveSerializationConfigurations = mutableListOf<SerializationConfig<*>>()
 
     override fun invoke(event: LifecycleEvent) {
-        when(event) {
+        when (event) {
             LifecycleEvent.ENABLE -> onPluginEnable()
             LifecycleEvent.DISABLE -> onPluginDisable()
             LifecycleEvent.ALL_CONFIG_RELOAD -> onConfigReload()
@@ -54,22 +54,22 @@ internal class ConfigLifecycle(
 }
 
 internal fun KotlinPlugin.registerConfiguration(
-        config: SerializationConfig<Any>,
-        loadOnEnable: Boolean,
-        saveOnDisable: Boolean
+    config: SerializationConfig<Any>,
+    loadOnEnable: Boolean,
+    saveOnDisable: Boolean,
 ) {
     val lifecycle = getOrInsertConfigLifecycle()
 
     lifecycle.serializationConfigurations.put(config.serializer.descriptor.serialName, config)
 
-    if(loadOnEnable) {
+    if (loadOnEnable) {
         val configLifecycle = getOrInsertConfigLifecycle()
         configLifecycle.onEnableLoadSerializationConfigurations.add(config)
     } else {
         config.load()
     }
 
-    if(saveOnDisable) {
+    if (saveOnDisable) {
         val configLifecycle = getOrInsertConfigLifecycle()
         configLifecycle.onDisableSaveSerializationConfigurations.add(config)
     }
@@ -77,15 +77,15 @@ internal fun KotlinPlugin.registerConfiguration(
 
 public class ConfigDelegate<T, R>(
     public val type: KType,
-    public val deep: T.() -> R
+    public val deep: T.() -> R,
 ) : ReadOnlyProperty<LifecycleListener<*>, R> {
     private var configCache: SerializationConfig<*>? = null
 
     override fun getValue(
-            thisRef: LifecycleListener<*>,
-            property: KProperty<*>
+        thisRef: LifecycleListener<*>,
+        property: KProperty<*>,
     ): R {
-        if(configCache == null) {
+        if (configCache == null) {
             val config = thisRef.getConfig(type)
 
             configCache = config

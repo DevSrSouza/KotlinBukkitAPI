@@ -1,11 +1,16 @@
 package br.com.devsrsouza.kotlinbukkitapi.coroutines
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.extensions.WithPlugin
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellableContinuation
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Delay
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.isActive
 import org.bukkit.Bukkit
 import org.bukkit.plugin.Plugin
 import org.bukkit.plugin.java.JavaPlugin
 import org.bukkit.scheduler.BukkitTask
+import java.lang.Runnable
 import kotlin.coroutines.CoroutineContext
 
 public val WithPlugin<*>.BukkitDispatchers: PluginDispatcher get() = plugin.BukkitDispatchers
@@ -28,15 +33,17 @@ public class BukkitDispatcher(
 ) : CoroutineDispatcher(), Delay {
 
     private val runTaskLater: (Plugin, Runnable, Long) -> BukkitTask =
-        if (async)
+        if (async) {
             bukkitScheduler::runTaskLaterAsynchronously
-        else
+        } else {
             bukkitScheduler::runTaskLater
+        }
     private val runTask: (Plugin, Runnable) -> BukkitTask =
-        if (async)
+        if (async) {
             bukkitScheduler::runTaskAsynchronously
-        else
+        } else {
             bukkitScheduler::runTask
+        }
 
     override fun scheduleResumeAfterDelay(timeMillis: Long, continuation: CancellableContinuation<Unit>) {
         val task = runTaskLater(
@@ -44,7 +51,8 @@ public class BukkitDispatcher(
             Runnable {
                 continuation.apply { resumeUndispatched(Unit) }
             },
-            timeMillis / 50)
+            timeMillis / 50,
+        )
         continuation.invokeOnCancellation { task.cancel() }
     }
 
@@ -59,7 +67,6 @@ public class BukkitDispatcher(
             runTask(plugin, block)
         }
     }
-
 }
 
 public fun JavaPlugin.dispatcher(async: Boolean = false): BukkitDispatcher = BukkitDispatcher(this, async)

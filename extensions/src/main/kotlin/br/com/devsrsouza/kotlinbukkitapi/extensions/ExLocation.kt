@@ -1,13 +1,16 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions
 
-import org.bukkit.*
+import org.bukkit.BlockChangeDelegate
+import org.bukkit.Effect
+import org.bukkit.Location
+import org.bukkit.Sound
+import org.bukkit.TreeType
 import org.bukkit.block.Block
 import org.bukkit.entity.Arrow
 import org.bukkit.entity.Entity
 import org.bukkit.entity.Item
 import org.bukkit.entity.LightningStrike
 import org.bukkit.inventory.ItemStack
-import org.bukkit.material.MaterialData
 import org.bukkit.util.Vector
 
 public operator fun Location.component1(): Double = x
@@ -19,8 +22,6 @@ public operator fun Location.component5(): Float = pitch
 public operator fun Block.component1(): Int = x
 public operator fun Block.component2(): Int = y
 public operator fun Block.component3(): Int = z
-
-
 
 public fun Location.dropItem(item: ItemStack): Item = world!!.dropItem(this, item)
 public fun Location.dropItemNaturally(item: ItemStack): Item = world!!.dropItemNaturally(this, item)

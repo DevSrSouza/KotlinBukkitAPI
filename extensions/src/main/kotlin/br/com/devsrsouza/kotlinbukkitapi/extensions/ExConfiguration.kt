@@ -4,7 +4,7 @@ import org.bukkit.configuration.ConfigurationSection
 
 public fun ConfigurationSection.putAll(map: Map<String, Any?>) {
     for ((key, value) in map) {
-        if(value is Map<*, *>) {
+        if (value is Map<*, *>) {
             set(key, null)
             (getConfigurationSection(key) ?: createSection(key)).putAll(value as Map<String, Any?>)
         } else {
@@ -19,9 +19,9 @@ public fun ConfigurationSection.putAll(map: Map<String, Any?>) {
 public fun ConfigurationSection.putAllIfAbsent(map: Map<String, Any?>): Int {
     var missing = 0
     for ((key, value) in map) {
-        if(value is Map<*, *>) {
+        if (value is Map<*, *>) {
             missing += (getConfigurationSection(key) ?: createSection(key)).putAllIfAbsent(value as Map<String, Any?>)
-        } else if(!contains(key)) {
+        } else if (!contains(key)) {
             missing++
         }
     }

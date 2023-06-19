@@ -1,7 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.utils.time
 
-import kotlin.time.*
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.DurationUnit
 
 public fun now(): Long = System.currentTimeMillis()
 public fun nowNano(): Long = System.nanoTime()

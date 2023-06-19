@@ -2,13 +2,12 @@ package br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.impl.decoder
 
 import br.com.devsrsouza.kotlinbukkitapi.serialization.interceptor.SerializationDecodeInterceptor
 import kotlinx.serialization.DeserializationStrategy
-
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.CompositeDecoder
 
 internal class CompositeDecoderInterceptor(
     val interceptor: SerializationDecodeInterceptor,
-    val delegate: CompositeDecoder
+    val delegate: CompositeDecoder,
 ) : CompositeDecoder by delegate {
 
     override fun decodeBooleanElement(descriptor: SerialDescriptor, index: Int): Boolean {
@@ -51,12 +50,12 @@ internal class CompositeDecoderInterceptor(
         descriptor: SerialDescriptor,
         index: Int,
         deserializer: DeserializationStrategy<T>,
-        previousValue: T?
+        previousValue: T?,
     ): T {
         return delegate.decodeSerializableElement(
             descriptor,
             index,
-            DeserializationStrategyInterceptor(interceptor, deserializer)
+            DeserializationStrategyInterceptor(interceptor, deserializer),
         )
     }
 }

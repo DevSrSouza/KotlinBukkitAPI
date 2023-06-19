@@ -15,7 +15,7 @@ public val Executor<Player>.player: Player get() = sender
 
 public fun Executor<*>.sendSubCommandsList(
     format: String = SEND_SUB_COMMANDS_DEFAULT_FORMAT,
-    needCommandPermission: Boolean = true
+    needCommandPermission: Boolean = true,
 ) {
     val subcmds = command.subCommands.filterNot {
         needCommandPermission && (it.permission != null && sender.hasPermission(it.permission!!).not())
@@ -24,9 +24,9 @@ public fun Executor<*>.sendSubCommandsList(
             .replace(SEND_SUB_COMMANDS_NAME_PLACEHOLDER, it.name, true)
             .replace(SEND_SUB_COMMANDS_DESCRIPTION_PLACEHOLDER, it.description, true)
     }
-    if(subcmds.isEmpty()) fail(command.permissionMessage ?: "")
+    if (subcmds.isEmpty()) fail(command.permissionMessage ?: "")
 
-    if(sender is Player) {
+    if (sender is Player) {
         subcmds.map { (key, value) ->
             value.suggestCommand("/$label ${key.name}")
         }.forEach { sender.msg(it) }

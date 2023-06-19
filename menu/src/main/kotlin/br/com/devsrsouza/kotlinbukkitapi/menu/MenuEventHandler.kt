@@ -11,5 +11,4 @@ public interface MenuEventHandler {
     public fun preOpen(preOpen: MenuPlayerPreOpen)
 
     public fun open(open: MenuPlayerOpen)
-
 }

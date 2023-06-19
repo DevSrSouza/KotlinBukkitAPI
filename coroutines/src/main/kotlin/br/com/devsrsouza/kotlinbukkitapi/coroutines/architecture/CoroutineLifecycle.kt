@@ -3,7 +3,7 @@ package br.com.devsrsouza.kotlinbukkitapi.coroutines.architecture
 import br.com.devsrsouza.kotlinbukkitapi.architecture.KotlinPlugin
 import br.com.devsrsouza.kotlinbukkitapi.architecture.lifecycle.LifecycleListener
 import br.com.devsrsouza.kotlinbukkitapi.coroutines.architecture.impl.getOrInsertCoroutineLifecycle
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
 import org.bukkit.entity.Player
 
 /**

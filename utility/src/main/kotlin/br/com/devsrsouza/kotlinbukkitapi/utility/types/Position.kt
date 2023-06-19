@@ -28,28 +28,28 @@ public fun Chunk.asPos(): ChunkPos = ChunkPos(x, z)
 public fun ChunkPos.asBukkitChunk(world: World): Chunk = world.getChunkAt(x, z)
 
 public data class BlockPos(
-        var x: Int,
-        var y: Int,
-        var z: Int
+    var x: Int,
+    var y: Int,
+    var z: Int,
 ) : VectorComparable<BlockPos> {
     override fun axis(): DoubleArray = doubleArrayOf(x.toDouble(), y.toDouble(), z.toDouble())
     override fun factor(axis: IntArray): BlockPos = BlockPos(axis[0], axis[1], axis[2])
 }
 
 public data class LocationPos(
-        var x: Double,
-        var y: Double,
-        var z: Double,
-        val yaw: Float,
-        val pitch: Float
+    var x: Double,
+    var y: Double,
+    var z: Double,
+    val yaw: Float,
+    val pitch: Float,
 ) : VectorComparable<LocationPos> {
     override fun axis(): DoubleArray = doubleArrayOf(x, y, z)
     override fun factor(axis: IntArray): LocationPos = LocationPos(axis[0].toDouble(), axis[1].toDouble(), axis[2].toDouble(), yaw, pitch)
 }
 
 public data class ChunkPos(
-        var x: Int,
-        var z: Int
+    var x: Int,
+    var z: Int,
 ) : VectorComparable<ChunkPos> {
     override fun axis(): DoubleArray = doubleArrayOf(x.toDouble(), z.toDouble())
     override fun factor(axis: IntArray): ChunkPos = ChunkPos(axis[0], axis[1])

@@ -16,14 +16,14 @@ public sealed class DatabaseType(
     public val name: String,
     public val jdbc: String,
     public val driverClass: String,
-    public val driverLink: String
+    public val driverLink: String,
 ) {
 
     public companion object {
-        public val fileDatabases: Map<String, KClass<out DatabaseType>>
-                = mapOf("h2" to H2::class, "sqlite" to SQLite::class)
-        public val remoteDatabases: Map<String, KClass<out DatabaseType>>
-                = mapOf("mysql" to MySQL::class, "postgresql" to PostgreSQL::class, "sqlserver" to SQLServer::class)
+        public val fileDatabases: Map<String, KClass<out DatabaseType>> =
+            mapOf("h2" to H2::class, "sqlite" to SQLite::class)
+        public val remoteDatabases: Map<String, KClass<out DatabaseType>> =
+            mapOf("mysql" to MySQL::class, "postgresql" to PostgreSQL::class, "sqlserver" to SQLServer::class)
         public val databases: Map<String, KClass<out DatabaseType>> = fileDatabases + remoteDatabases
 
         public fun byName(name: String): KClass<out DatabaseType>? = databases[name.toLowerCase()]
@@ -41,13 +41,13 @@ public sealed class DatabaseType(
         public val dataFolder: File,
         public val file: String,
         public val databaseExtension: String,
-        public val needFileCreation: Boolean
+        public val needFileCreation: Boolean,
     ) : DatabaseType(name, jdbc, driverClass, driverLink) {
 
         private val realFile = File(dataFolder, "$file.$databaseExtension")
 
         override fun dataSource(): HikariDataSource {
-            if(needFileCreation && !realFile.exists()) realFile.createNewFile()
+            if (needFileCreation && !realFile.exists()) realFile.createNewFile()
 
             loadDependency()
 
@@ -69,7 +69,7 @@ public sealed class DatabaseType(
         public val port: Short,
         public val database: String,
         public val username: String,
-        public val password: String
+        public val password: String,
     ) : DatabaseType(name, jdbc, driverClass, driverLink) {
         override fun dataSource(): HikariDataSource {
             loadDependency()
@@ -86,31 +86,31 @@ public sealed class DatabaseType(
     }
 
     public class H2(
-            dataFolder: File,
-            file: String
+        dataFolder: File,
+        file: String,
     ) : FileDatabaseType(
-            "H2",
-            "jdbc:h2:file:./$KEY_FILE",
-            "org.h2.Driver",
-            "https://repo1.maven.org/maven2/com/h2database/h2/1.4.199/h2-1.4.199.jar",
-            dataFolder,
-            file,
-            "h2.db",
-            false
+        "H2",
+        "jdbc:h2:file:./$KEY_FILE",
+        "org.h2.Driver",
+        "https://repo1.maven.org/maven2/com/h2database/h2/1.4.199/h2-1.4.199.jar",
+        dataFolder,
+        file,
+        "h2.db",
+        false,
     )
 
     public class SQLite(
-            dataFolder: File,
-            file: String
+        dataFolder: File,
+        file: String,
     ) : FileDatabaseType(
-            "SQLite",
-            "jdbc:sqlite:./$KEY_FILE",
-            "org.sqlite.JDBC",
-            "https://bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.23.1.jar",
-            dataFolder,
-            file,
-            "sqlite.db",
-            true
+        "SQLite",
+        "jdbc:sqlite:./$KEY_FILE",
+        "org.sqlite.JDBC",
+        "https://bitbucket.org/xerial/sqlite-jdbc/downloads/sqlite-jdbc-3.23.1.jar",
+        dataFolder,
+        file,
+        "sqlite.db",
+        true,
     ) {
         // https://github.com/brettwooldridge/HikariCP/issues/393#issuecomment-135580191
         override fun config(): HikariConfig {
@@ -121,59 +121,58 @@ public sealed class DatabaseType(
     }
 
     public class MySQL(
-            hostname: String,
-            port: Short,
-            database: String,
-            username: String,
-            password: String
+        hostname: String,
+        port: Short,
+        database: String,
+        username: String,
+        password: String,
     ) : RemoteDatabaseType(
-            "MySQL",
-            "jdbc:mysql://$hostname:$port/$database",
-            "com.mysql.jdbc.Driver",
-            "https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.11/mysql-connector-java-8.0.11.jar",
-            hostname, port, database,
-            username, password
+        "MySQL",
+        "jdbc:mysql://$hostname:$port/$database",
+        "com.mysql.jdbc.Driver",
+        "https://repo1.maven.org/maven2/mysql/mysql-connector-java/8.0.11/mysql-connector-java-8.0.11.jar",
+        hostname, port, database,
+        username, password,
     )
 
     public class PostgreSQL(
-            hostname: String,
-            port: Short,
-            database: String,
-            username: String,
-            password: String
+        hostname: String,
+        port: Short,
+        database: String,
+        username: String,
+        password: String,
     ) : RemoteDatabaseType(
-            "PostgreSQL",
-            "jdbc:postgresql://$hostname:$port/$database",
-            "org.postgresql.Driver",
-            "https://jdbc.postgresql.org/download/postgresql-42.2.2.jre7.jar",
-            hostname, port, database,
-            username, password
+        "PostgreSQL",
+        "jdbc:postgresql://$hostname:$port/$database",
+        "org.postgresql.Driver",
+        "https://jdbc.postgresql.org/download/postgresql-42.2.2.jre7.jar",
+        hostname, port, database,
+        username, password,
     )
 
     public class SQLServer(
-            hostname: String,
-            port: Short,
-            database: String,
-            username: String,
-            password: String
+        hostname: String,
+        port: Short,
+        database: String,
+        username: String,
+        password: String,
     ) : RemoteDatabaseType(
-            "SQLServer",
-            "jdbc:sqlserver://$hostname:$port;databaseName=$database",
-            "com.microsoft.sqlserver.jdbc.SQLServerDriver",
-            "https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.4.0.jre8/mssql-jdbc-6.4.0.jre8.jar",
-            hostname, port, database,
-            username, password
+        "SQLServer",
+        "jdbc:sqlserver://$hostname:$port;databaseName=$database",
+        "com.microsoft.sqlserver.jdbc.SQLServerDriver",
+        "https://repo1.maven.org/maven2/com/microsoft/sqlserver/mssql-jdbc/6.4.0.jre8/mssql-jdbc-6.4.0.jre8.jar",
+        hostname, port, database,
+        username, password,
     )
 
     private val libsFolder = File("klibs").apply { mkdirs() }
     private val jarFile = File(libsFolder, "$name-Driver.jar")
 
     protected fun loadDependency() {
-
         try {
             Class.forName(driverClass)
-        }catch (e: ClassNotFoundException) {
-            if(jarFile.exists())  {
+        } catch (e: ClassNotFoundException) {
+            if (jarFile.exists()) {
                 loadDriver()
             } else {
                 try {
@@ -184,7 +183,7 @@ public sealed class DatabaseType(
                 try {
                     loadDriver()
                     Class.forName(driverClass)
-                }catch (e: Exception) {
+                } catch (e: Exception) {
                     jarFile.delete()
                     throw SQLException("Cant load the driver dependencies of $name")
                 }
@@ -203,11 +202,13 @@ public sealed class DatabaseType(
     private fun downloadDriver() {
         val input = URL(driverLink).openStream()
         if (jarFile.exists()) {
-            if (jarFile.isDirectory)
+            if (jarFile.isDirectory) {
                 throw IOException("File '" + jarFile.name + "' is a directory")
+            }
 
-            if (!jarFile.canWrite())
+            if (!jarFile.canWrite()) {
                 throw IOException("File '" + jarFile.name + "' cannot be written")
+            }
         } else {
             val parent = jarFile.parentFile
             if (parent != null && !parent.exists() && !parent.mkdirs()) {

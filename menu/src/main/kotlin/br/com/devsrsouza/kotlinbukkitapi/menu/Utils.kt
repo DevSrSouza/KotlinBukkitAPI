@@ -18,7 +18,7 @@ public fun Menu<*>.viewersFromPlayers(players: Set<Player>): Map<Player, Invento
 public fun Menu<*>.slotsWithBaseSlot(): List<Slot> = slots.values + baseSlot
 
 public fun Menu<*>.hasPlayer(player: Player): Boolean = viewers.containsKey(player)
-public fun Menu<*>.takeIfHasPlayer(player: Player): Menu<*>? = if(hasPlayer(player)) this else null
+public fun Menu<*>.takeIfHasPlayer(player: Player): Menu<*>? = if (hasPlayer(player)) this else null
 
 public fun inventoryIsMenu(inventory: Inventory): Boolean = inventory.holder is Menu<*>
 

@@ -11,16 +11,16 @@ import kotlin.reflect.KProperty
  * otherwise, returns null
  */
 public inline fun <reified T : Plugin> KotlinPlugin.softDepend(
-    pluginName: String
+    pluginName: String,
 ): SoftDependencyDelegate<T> = softDepend(T::class, pluginName)
 
 public fun <T : Plugin> KotlinPlugin.softDepend(
     type: KClass<T>,
-    pluginName: String
+    pluginName: String,
 ): SoftDependencyDelegate<T> =
     SoftDependencyDelegate(
         pluginName,
-        type
+        type,
     )
 
 /**
@@ -28,28 +28,18 @@ public fun <T : Plugin> KotlinPlugin.softDepend(
  * is not available.
  */
 public inline fun <reified T : Plugin> KotlinPlugin.depend(
-    pluginName: String
+    pluginName: String,
 ): DependencyDelegate<T> = depend(T::class, pluginName)
 
 public fun <T : Plugin> KotlinPlugin.depend(
     type: KClass<T>,
-    pluginName: String
+    pluginName: String,
 ): DependencyDelegate<T> =
     DependencyDelegate(pluginName, type)
 
-
-
-
-
-
-
-
-
-
-
 public class DependencyDelegate<T : Plugin>(
     public val pluginName: String,
-    public val type: KClass<T>
+    public val type: KClass<T>,
 ) : ReadOnlyProperty<KotlinPlugin, T> {
 
     private var isDisabled: Boolean = false
@@ -57,9 +47,9 @@ public class DependencyDelegate<T : Plugin>(
 
     override fun getValue(
         thisRef: KotlinPlugin,
-        property: KProperty<*>
+        property: KProperty<*>,
     ): T {
-        if(cache == null) {
+        if (cache == null) {
             val plugin = thisRef.server.pluginManager.getPlugin(pluginName)
 
             if (plugin != null) {
@@ -69,7 +59,7 @@ public class DependencyDelegate<T : Plugin>(
                     thisRef.server.pluginManager.disablePlugin(thisRef)
                     error(
                         "Invalid plugin dependency with the name $pluginName: " +
-                                "The plugin do not match main class with ${type.qualifiedName}."
+                            "The plugin do not match main class with ${type.qualifiedName}.",
                     )
                 }
             } else {
@@ -84,7 +74,7 @@ public class DependencyDelegate<T : Plugin>(
 
 public class SoftDependencyDelegate<T : Plugin>(
     public val pluginName: String,
-    public val type: KClass<T>
+    public val type: KClass<T>,
 ) : ReadOnlyProperty<KotlinPlugin, T?> {
 
     private var alreadySearch: Boolean = false
@@ -92,9 +82,9 @@ public class SoftDependencyDelegate<T : Plugin>(
 
     override fun getValue(
         thisRef: KotlinPlugin,
-        property: KProperty<*>
+        property: KProperty<*>,
     ): T? {
-        if(!alreadySearch) {
+        if (!alreadySearch) {
             val plugin = thisRef.server.pluginManager.getPlugin(pluginName) ?: return null
 
             alreadySearch = true
@@ -105,7 +95,7 @@ public class SoftDependencyDelegate<T : Plugin>(
                 thisRef.server.pluginManager.disablePlugin(thisRef)
                 error(
                     "Invalid plugin dependency with the name $pluginName: " +
-                            "The plugin do not match main class with ${type.qualifiedName}."
+                        "The plugin do not match main class with ${type.qualifiedName}.",
                 )
             }
         }
@@ -113,4 +103,3 @@ public class SoftDependencyDelegate<T : Plugin>(
         return cache
     }
 }
-

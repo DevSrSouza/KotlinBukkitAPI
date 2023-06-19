@@ -1,8 +1,8 @@
 package br.com.devsrsouza.kotlinbukkitapi.scoreboard
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.extensions.WithPlugin
-import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerMapOf
 import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.onlinePlayerMapOf
 import org.bukkit.Bukkit
 import org.bukkit.ChatColor
 import org.bukkit.entity.Player
@@ -17,14 +17,14 @@ public annotation class ScoreboardDSLMarker
 
 @ScoreboardDSLMarker
 public inline fun WithPlugin<*>.scoreboard(
-        title: String,
-        block: ScoreboardDSLBuilder.() -> Unit
+    title: String,
+    block: ScoreboardDSLBuilder.() -> Unit,
 ): ScoreboardDSL = plugin.scoreboard(title, block)
 
 @ScoreboardDSLMarker
 public inline fun Plugin.scoreboard(
-        title: String,
-        block: ScoreboardDSLBuilder.() -> Unit
+    title: String,
+    block: ScoreboardDSLBuilder.() -> Unit,
 ): ScoreboardDSL = scoreboard(title, this, block)
 
 /**
@@ -35,9 +35,9 @@ public inline fun Plugin.scoreboard(
  */
 @ScoreboardDSLMarker
 public inline fun scoreboard(
-        title: String,
-        plugin: Plugin,
-        block: ScoreboardDSLBuilder.() -> Unit
+    title: String,
+    plugin: Plugin,
+    block: ScoreboardDSLBuilder.() -> Unit,
 ): ScoreboardDSL = ScoreboardDSLBuilder(plugin, title).apply(block)
 
 internal val linesBounds = 1..16
@@ -87,18 +87,20 @@ public class ScoreboardDSLBuilder(internal val plugin: Plugin, public var title:
 
     public var updateTitleDelay: Long = 0
         set(value) {
-            field = value;
+            field = value
             taskTitle?.cancel(); taskTitle = null
-            if (value > 0 && _players.isNotEmpty())
+            if (value > 0 && _players.isNotEmpty()) {
                 taskTitle = scheduler { updateTitle() }.runTaskTimer(plugin, 0, value)
+            }
         }
 
     public var updateLinesDelay: Long = 0
         set(value) {
-            field = value;
+            field = value
             taskLine?.cancel(); taskLine = null
-            if (value > 0 && _players.isNotEmpty())
+            if (value > 0 && _players.isNotEmpty()) {
                 taskLine = scheduler { updateLines() }.runTaskTimer(plugin, 0, value)
+            }
         }
 
     override fun dispose() {
@@ -111,8 +113,9 @@ public class ScoreboardDSLBuilder(internal val plugin: Plugin, public var title:
     }
 
     public fun line(line: Int, scoreboardLine: ScoreboardLine) {
-        if (line in linesBounds)
+        if (line in linesBounds) {
             lines.put(line, scoreboardLine)
+        }
     }
 
     /**
@@ -131,9 +134,9 @@ public class ScoreboardDSLBuilder(internal val plugin: Plugin, public var title:
      */
     @ScoreboardDSLMarker
     public inline fun line(
-            line: Int,
-            text: String,
-            block: ScoreboardLine.() -> Unit
+        line: Int,
+        text: String,
+        block: ScoreboardLine.() -> Unit,
     ): Unit = line(line, ScoreboardLine(this, text).apply(block))
 
     /**
@@ -178,10 +181,10 @@ public class ScoreboardDSLBuilder(internal val plugin: Plugin, public var title:
             val sb = requireNotNull(Bukkit.getScoreboardManager()).newScoreboard
 
             val objective = sb.getObjective(DisplaySlot.SIDEBAR)
-                    ?: sb.registerNewObjective("sidebar", "dummy").apply {
-                        displaySlot = DisplaySlot.SIDEBAR
-                        displayName = TitleRender(player, title).also { titleController?.renderEvent?.invoke(it) }.newTitle
-                    }
+                ?: sb.registerNewObjective("sidebar", "dummy").apply {
+                    displaySlot = DisplaySlot.SIDEBAR
+                    displayName = TitleRender(player, title).also { titleController?.renderEvent?.invoke(it) }.newTitle
+                }
 
             for (i in 1..max) {
                 lineBuild(objective, i) { sbLine ->
@@ -199,17 +202,20 @@ public class ScoreboardDSLBuilder(internal val plugin: Plugin, public var title:
                 }
             }
 
-            if (taskTitle == null && updateTitleDelay > 0)
+            if (taskTitle == null && updateTitleDelay > 0) {
                 updateTitleDelay = updateTitleDelay
-            if (taskLine == null && updateLinesDelay > 0)
+            }
+            if (taskLine == null && updateLinesDelay > 0) {
                 updateLinesDelay = updateLinesDelay
+            }
         }
     }
 
     private val lineColors = (0..15).map {
         it.toByte().toString(2).take(4).map {
-            if(it == '0') ChatColor.RESET.toString()
-            else ChatColor.WHITE.toString()
+            if (it == '0') {
+                ChatColor.RESET.toString()
+            } else ChatColor.WHITE.toString()
         }.joinToString("")
     }
 
@@ -235,7 +241,7 @@ public class ScoreboardDSLBuilder(internal val plugin: Plugin, public var title:
         if (text.length > 16) {
             val fixedText = if (text.length > 32) text.take(32) else text
             val prefix = fixedText.substring(0, 16)
-            val suffix = fixedText.substring(16, fixedText.length-1)
+            val suffix = fixedText.substring(16, fixedText.length - 1)
             if (team.prefix != prefix || team.suffix != suffix) {
                 team.prefix = prefix
                 team.suffix = suffix

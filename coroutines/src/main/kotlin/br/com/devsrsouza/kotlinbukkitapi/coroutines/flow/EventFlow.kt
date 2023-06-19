@@ -27,7 +27,7 @@ public inline fun <reified T : Event> WithPlugin<*>.eventFlow(
     ignoreCancelled: Boolean = false,
     channel: Channel<T> = Channel<T>(Channel.CONFLATED),
     listener: Listener = plugin.events {},
-    assignListener: Listener = plugin.events {}
+    assignListener: Listener = plugin.events {},
 ): Flow<T> = plugin.eventFlow<T>(assign, priority, ignoreCancelled, channel, listener, assignListener)
 
 public inline fun <reified T : Event> Plugin.eventFlow(
@@ -36,7 +36,7 @@ public inline fun <reified T : Event> Plugin.eventFlow(
     ignoreCancelled: Boolean = false,
     channel: Channel<T> = Channel<T>(Channel.CONFLATED),
     listener: Listener = events {},
-    assignListener: Listener = events {}
+    assignListener: Listener = events {},
 ): Flow<T> = eventFlow(T::class, this, assign, priority, ignoreCancelled, channel, listener, assignListener)
 
 /**
@@ -52,29 +52,32 @@ public fun <T : Event> eventFlow(
     ignoreCancelled: Boolean = false,
     channel: Channel<T> = Channel<T>(Channel.CONFLATED),
     listener: Listener = SimpleKListener(plugin),
-    assignListener: Listener = SimpleKListener(plugin)
+    assignListener: Listener = SimpleKListener(plugin),
 ): Flow<T> {
-
     val flow = channel.consumeAsFlow().onStart {
         listener.event(plugin, type, priority, ignoreCancelled) {
             GlobalScope.launch {
-                if (!channel.isClosedForSend && !channel.isClosedForReceive)
+                if (!channel.isClosedForSend && !channel.isClosedForReceive) {
                     channel.send(this@event)
+                }
             }
         }
     }
 
-    val assignListener: Listener? = if (assign != null)
+    val assignListener: Listener? = if (assign != null) {
         assignListener.apply {
             fun PlayerEvent.closeChannel() {
-                if (!channel.isClosedForSend && player.name == assign.name)
+                if (!channel.isClosedForSend && player.name == assign.name) {
                     channel.close()
+                }
             }
 
             event<PlayerQuitEvent>(plugin) { closeChannel() }
             event<PlayerKickEvent>(plugin) { closeChannel() }
         }
-    else null
+    } else {
+        null
+    }
 
     channel.invokeOnClose {
         listener.unregisterListener()

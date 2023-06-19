@@ -10,14 +10,13 @@ public fun MenuDSL.newSlot(item: ItemStack?, builder: SlotDSL.() -> Unit): SlotD
 }
 
 public class SlotDSLImpl(
-        override val item: ItemStack?,
-        override var cancel: Boolean,
-        override val eventHandler: SlotEventHandlerDSL = SlotEventHandlerDSL()
+    override val item: ItemStack?,
+    override var cancel: Boolean,
+    override val eventHandler: SlotEventHandlerDSL = SlotEventHandlerDSL(),
 ) : SlotDSL {
 
     override val slotData: WeakHashMap<String, Any> = WeakHashMap()
     override val playerSlotData: WeakHashMap<Player, WeakHashMap<String, Any>> = WeakHashMap()
 
     override fun clone(item: ItemStack?): SlotDSL = SlotDSLImpl(item, cancel, eventHandler.clone())
-
 }

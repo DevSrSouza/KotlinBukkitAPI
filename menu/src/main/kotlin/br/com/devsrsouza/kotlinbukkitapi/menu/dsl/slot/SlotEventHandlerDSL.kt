@@ -1,6 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi.menu.dsl.slot
 
-import br.com.devsrsouza.kotlinbukkitapi.menu.slot.*
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotInteract
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotMoveTo
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotRender
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.MenuPlayerSlotUpdate
+import br.com.devsrsouza.kotlinbukkitapi.menu.slot.SlotEventHandler
 
 public typealias MenuPlayerSlotInteractEvent = MenuPlayerSlotInteract.() -> Unit
 public typealias MenuPlayerSlotRenderEvent = MenuPlayerSlotRender.() -> Unit
@@ -46,5 +50,4 @@ public class SlotEventHandlerDSL : SlotEventHandler {
             it.moveToSlotCallbacks.addAll(moveToSlotCallbacks)
         }
     }
-
 }

@@ -1,6 +1,10 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions
 
-import org.bukkit.*
+import org.bukkit.Effect
+import org.bukkit.Instrument
+import org.bukkit.Material
+import org.bukkit.Note
+import org.bukkit.Sound
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack

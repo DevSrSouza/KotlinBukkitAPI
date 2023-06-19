@@ -13,20 +13,20 @@ public val TimeFormat.EN: String get() = format(ENFormat)
 
 @Serializable
 public data class FormatLang(
-        val second: String,
-        val seconds: String,
-        val minute: String,
-        val minutes: String,
-        val hour: String,
-        val hours: String,
-        val day: String,
-        val days: String,
-        val week: String,
-        val weeks: String,
-        val month: String,
-        val months: String,
-        val year: String,
-        val years: String
+    val second: String,
+    val seconds: String,
+    val minute: String,
+    val minutes: String,
+    val hour: String,
+    val hours: String,
+    val day: String,
+    val days: String,
+    val week: String,
+    val weeks: String,
+    val month: String,
+    val months: String,
+    val year: String,
+    val years: String,
 )
 
 /**
@@ -37,9 +37,8 @@ public value class TimeFormat(private val time: Long) {
     public fun format(
         lang: FormatLang,
         formatStyle: String = DEFAULT_FORMAT_STYLE,
-        formatSpacer: Char = DEFAULT_SPACER
+        formatSpacer: Char = DEFAULT_SPACER,
     ): String {
-
         val seconds = time % 60
         val minutes = time / 60 % 60
         val hours = time / 3600 % 24
@@ -69,47 +68,47 @@ public value class TimeFormat(private val time: Long) {
 }
 
 public val PTBRFormat: FormatLang = FormatLang(
-        second = "segundo",
-        seconds = "segundos",
+    second = "segundo",
+    seconds = "segundos",
 
-        minute = "minuto",
-        minutes = "minutos",
+    minute = "minuto",
+    minutes = "minutos",
 
-        hour = "hora",
-        hours = "horas",
+    hour = "hora",
+    hours = "horas",
 
-        day = "dia",
-        days = "dias",
+    day = "dia",
+    days = "dias",
 
-        week = "semana",
-        weeks = "semanas",
+    week = "semana",
+    weeks = "semanas",
 
-        month = "mes",
-        months = "meses",
+    month = "mes",
+    months = "meses",
 
-        year = "ano",
-        years = "anos",
+    year = "ano",
+    years = "anos",
 )
 
 public val ENFormat: FormatLang = FormatLang(
-        second = "second",
-        seconds = "seconds",
+    second = "second",
+    seconds = "seconds",
 
-        minute = "minute",
-        minutes = "minutes",
+    minute = "minute",
+    minutes = "minutes",
 
-        hour = "hour",
-        hours = "hours",
+    hour = "hour",
+    hours = "hours",
 
-        day = "day",
-        days = "days",
+    day = "day",
+    days = "days",
 
-        week = "week",
-        weeks = "weeks",
+    week = "week",
+    weeks = "weeks",
 
-        month = "month",
-        months = "months",
+    month = "month",
+    months = "months",
 
-        year = "year",
-        years = "years",
+    year = "year",
+    years = "years",
 )

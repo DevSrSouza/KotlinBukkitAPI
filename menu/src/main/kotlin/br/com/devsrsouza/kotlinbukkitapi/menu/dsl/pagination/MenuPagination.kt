@@ -1,11 +1,11 @@
 package br.com.devsrsouza.kotlinbukkitapi.menu.dsl.pagination
 
-import br.com.devsrsouza.kotlinbukkitapi.utility.collections.ObservableCollection
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayer
+import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerInventory
 import br.com.devsrsouza.kotlinbukkitapi.menu.dsl.MenuDSL
 import br.com.devsrsouza.kotlinbukkitapi.menu.dsl.pagination.slot.PaginationSlotDSL
 import br.com.devsrsouza.kotlinbukkitapi.menu.dsl.slot.SlotDSL
-import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayer
-import br.com.devsrsouza.kotlinbukkitapi.menu.MenuPlayerInventory
+import br.com.devsrsouza.kotlinbukkitapi.utility.collections.ObservableCollection
 import org.bukkit.entity.Player
 import java.lang.IllegalArgumentException
 import java.util.TreeMap
@@ -17,7 +17,7 @@ public typealias ItemsAdapter<T> = MenuPlayer.(List<T>) -> List<T>
 public enum class Orientation { HORIZONTAL, VERTICAL }
 
 public inline fun <T> MenuPagination<T>.slot(
-        builder: PaginationSlotDSL<T>.() -> Unit
+    builder: PaginationSlotDSL<T>.() -> Unit,
 ) {
     for (paginationSlot in paginationSlots.values) {
         paginationSlot.builder()
@@ -26,8 +26,8 @@ public inline fun <T> MenuPagination<T>.slot(
 
 public fun MenuDSL.setPlayerOpenPage(player: Player, page: Int) {
     playerData.put(
-            player,
-            WeakHashMap<String, Any>().apply { put(PAGINATION_OPEN_PAGE_KEY, page) }
+        player,
+        WeakHashMap<String, Any>().apply { put(PAGINATION_OPEN_PAGE_KEY, page) },
     )
 }
 public inline fun <T> MenuDSL.pagination(
@@ -36,27 +36,27 @@ public inline fun <T> MenuDSL.pagination(
     previousPageSlot: SlotDSL,
     autoUpdateSwitchPageSlot: Boolean = true,
     startLine: Int = 1,
-    endLine: Int = lines-1,
+    endLine: Int = lines - 1,
     startSlot: Int = 1,
     endSlot: Int = 9,
     orientation: Orientation = Orientation.HORIZONTAL,
     noinline itemsAdapterOnOpen: ItemsAdapter<T>? = null,
     noinline itemsAdapterOnUpdate: ItemsAdapter<T>? = null,
-    builder: MenuPaginationImpl<T>.() -> Unit
+    builder: MenuPaginationImpl<T>.() -> Unit,
 ): MenuPaginationImpl<T> {
     return pagination(
-            { itemsProvider },
-            nextPageSlot,
-            previousPageSlot,
-            autoUpdateSwitchPageSlot,
-            startLine,
-            endLine,
-            startSlot,
-            endSlot,
-            orientation,
-            itemsAdapterOnOpen,
-            itemsAdapterOnUpdate,
-            builder
+        { itemsProvider },
+        nextPageSlot,
+        previousPageSlot,
+        autoUpdateSwitchPageSlot,
+        startLine,
+        endLine,
+        startSlot,
+        endSlot,
+        orientation,
+        itemsAdapterOnOpen,
+        itemsAdapterOnUpdate,
+        builder,
     )
 }
 
@@ -66,30 +66,30 @@ public inline fun <T> MenuDSL.pagination(
     previousPageSlot: SlotDSL,
     autoUpdateSwitchPageSlot: Boolean = true,
     startLine: Int = 1,
-    endLine: Int = lines-1,
+    endLine: Int = lines - 1,
     startSlot: Int = 1,
     endSlot: Int = 9,
     orientation: Orientation = Orientation.HORIZONTAL,
     noinline itemsAdapterOnOpen: ItemsAdapter<T>? = null,
     noinline itemsAdapterOnUpdate: ItemsAdapter<T>? = null,
-    builder: MenuPaginationImpl<T>.() -> Unit
+    builder: MenuPaginationImpl<T>.() -> Unit,
 ): MenuPaginationImpl<T> {
-    if(startSlot > endSlot) throw IllegalArgumentException()
-    if(startLine > endLine) throw IllegalArgumentException()
+    if (startSlot > endSlot) throw IllegalArgumentException()
+    if (startLine > endLine) throw IllegalArgumentException()
 
     return MenuPaginationImpl(
-            this,
-            itemsProvider,
-            nextPageSlot,
-            previousPageSlot,
-            autoUpdateSwitchPageSlot,
-            startLine,
-            endLine,
-            startSlot,
-            endSlot,
-            orientation,
-            itemsAdapterOnOpen,
-            itemsAdapterOnUpdate
+        this,
+        itemsProvider,
+        nextPageSlot,
+        previousPageSlot,
+        autoUpdateSwitchPageSlot,
+        startLine,
+        endLine,
+        startSlot,
+        endSlot,
+        orientation,
+        itemsAdapterOnOpen,
+        itemsAdapterOnUpdate,
     ).apply(builder)
 }
 

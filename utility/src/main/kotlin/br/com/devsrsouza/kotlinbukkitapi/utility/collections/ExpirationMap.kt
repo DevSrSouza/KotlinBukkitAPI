@@ -67,12 +67,11 @@ public interface ExpirationMap<K, V> : MutableMap<K, V>, WithPlugin<Plugin> {
      * @return the previous value associated with the key, or `null` if the key was not present in the map.
      */
     public fun put(key: K, value: V, time: Long, callback: OnExpireMapCallback<K, V>): V?
-
 }
 
 public class ExpirationMapImpl<K, V>(
     override val plugin: Plugin,
-    private val initialMap: MutableMap<K ,V> = WeakHashMap()
+    private val initialMap: MutableMap<K, V> = WeakHashMap(),
 ) : ExpirationMap<K, V>, MutableMap<K, V> by initialMap {
 
     private val putTime: MutableMap<K, Long> = mutableMapOf()
@@ -80,9 +79,11 @@ public class ExpirationMapImpl<K, V>(
     private val whenExpire: MutableMap<K, OnExpireMapCallback<K, V>> = mutableMapOf()
 
     override fun missingTime(key: K): Long? {
-        return if (containsKey(key))
+        return if (containsKey(key)) {
             (expiration.get(key) ?: return -1) - ((now() - putTime.getOrPut(key) { now() }) / 1000)
-        else null
+        } else {
+            null
+        }
     }
 
     private fun ex(key: K, time: Long) {
@@ -95,17 +96,21 @@ public class ExpirationMapImpl<K, V>(
     }
 
     override fun expire(key: K, time: Long): Boolean {
-        if(containsKey(key)) {
+        if (containsKey(key)) {
             ex(key, time)
             return true
-        } else return false
+        } else {
+            return false
+        }
     }
 
     override fun expire(key: K, time: Long, callback: OnExpireMapCallback<K, V>): Boolean {
-        if(expire(key, time)) {
+        if (expire(key, time)) {
             whenEx(key, callback)
             return true
-        } else return false
+        } else {
+            return false
+        }
     }
 
     override fun put(key: K, value: V): V? {
@@ -115,14 +120,14 @@ public class ExpirationMapImpl<K, V>(
     }
 
     override fun put(key: K, value: V, time: Long): V? {
-        if(time <= 0) throw IllegalArgumentException("expiration time can't be negative or zero")
+        if (time <= 0) throw IllegalArgumentException("expiration time can't be negative or zero")
         val result = put(key, value)
         ex(key, time)
         return result
     }
 
     override fun put(key: K, value: V, time: Long, callback: OnExpireMapCallback<K, V>): V? {
-        if(time <= 0) throw IllegalArgumentException("expiration time can't be negative or zero")
+        if (time <= 0) throw IllegalArgumentException("expiration time can't be negative or zero")
         val result = put(key, value)
         ex(key, time)
         whenEx(key, callback)
@@ -131,7 +136,7 @@ public class ExpirationMapImpl<K, V>(
 
     override fun remove(key: K): V? {
         val result = initialMap.remove(key)
-        if(result != null) {
+        if (result != null) {
             putTime.remove(key)
             expiration.remove(key)
             whenExpire.remove(key)
@@ -139,17 +144,16 @@ public class ExpirationMapImpl<K, V>(
         return result
     }
 
-    private fun checkTime(current: Long, key: K)
-            = ((current - (putTime.getOrPut(key) { current })) / 1000) - (expiration.get(key) ?: 0) >= 0
+    private fun checkTime(current: Long, key: K) = ((current - (putTime.getOrPut(key) { current })) / 1000) - (expiration.get(key) ?: 0) >= 0
 
     private var task: BukkitTask? = null
     private var emptyCount: Byte = 0
     private fun generateTask() {
         if (task == null) {
             task = scheduler {
-                if (isEmpty())
+                if (isEmpty()) {
                     emptyCount++
-                else {
+                } else {
                     emptyCount = 0
                     val current = now()
                     for ((key, value) in entries) {

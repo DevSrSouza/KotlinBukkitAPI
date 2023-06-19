@@ -1,29 +1,29 @@
 package br.com.devsrsouza.kotlinbukkitapi.extensions
 
-import org.bukkit.inventory.ItemStack
-import org.bukkit.inventory.meta.ItemMeta
-import java.util.*
 import com.google.common.collect.Multimap
 import org.bukkit.Material
+import org.bukkit.inventory.ItemStack
+import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.material.MaterialData
+import java.util.*
 
 public inline fun item(
-        material: Material,
-        amount: Int = 1,
-        data: Short = 0,
-        meta: ItemMeta.() -> Unit = {}
+    material: Material,
+    amount: Int = 1,
+    data: Short = 0,
+    meta: ItemMeta.() -> Unit = {},
 ): ItemStack = ItemStack(material, amount, data).meta(meta)
 
 public inline fun <reified T : ItemMeta> metadataItem(
-        material: Material,
-        amount: Int = 1,
-        data: Short = 0,
-        meta: T.() -> Unit
+    material: Material,
+    amount: Int = 1,
+    data: Short = 0,
+    meta: T.() -> Unit,
 ): ItemStack = ItemStack(material, amount, data).meta(meta)
 
 public inline fun <reified T : ItemMeta> ItemStack.meta(
-        block: T.() -> Unit
+    block: T.() -> Unit,
 ): ItemStack = apply {
     itemMeta = (itemMeta as? T)?.apply(block) ?: itemMeta
 }
@@ -37,18 +37,18 @@ public fun ItemStack.lore(lore: List<String>): ItemStack = meta<ItemMeta> {
 }
 
 public inline fun Material.asItemStack(
-        amount: Int = 1,
-        data: Short = 0,
-        meta: ItemMeta.() -> Unit = {}
+    amount: Int = 1,
+    data: Short = 0,
+    meta: ItemMeta.() -> Unit = {},
 ): ItemStack = item(this, amount, data, meta)
 
 public fun Material.asMaterialData(
-        data: Byte = 0
+    data: Byte = 0,
 ): MaterialData = MaterialData(this, data)
 
 public fun MaterialData.toItemStack(
-        amount: Int = 1,
-        meta: ItemMeta.() -> Unit = {}
+    amount: Int = 1,
+    meta: ItemMeta.() -> Unit = {},
 ): ItemStack = toItemStack(amount).meta(meta)
 
 /**
