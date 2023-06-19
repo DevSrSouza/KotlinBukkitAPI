@@ -2,7 +2,7 @@ package br.com.devsrsouza.kotlinbukkitapi.utility.collections
 
 import br.com.devsrsouza.kotlinbukkitapi.architecture.extensions.WithPlugin
 import br.com.devsrsouza.kotlinbukkitapi.extensions.scheduler
-import br.com.devsrsouza.kotlinbukkitapi.utils.time.now
+import br.com.devsrsouza.kotlinbukkitapi.utility.extensions.now
 import org.bukkit.plugin.Plugin
 import org.bukkit.scheduler.BukkitTask
 import java.util.*

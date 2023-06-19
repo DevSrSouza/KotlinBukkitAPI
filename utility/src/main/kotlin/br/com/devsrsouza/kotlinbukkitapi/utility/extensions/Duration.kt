@@ -1,4 +1,4 @@
-package br.com.devsrsouza.kotlinbukkitapi.utils.time
+package br.com.devsrsouza.kotlinbukkitapi.utility.extensions
 
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds

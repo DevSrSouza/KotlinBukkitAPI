@@ -1,8 +1,9 @@
 [versions]
 plugin-ktlint = "3.15.0"
 plugin-maven = "0.22.0"
-
+plugin-dependency-graph = "0.7.0"
 kotlin = "1.8.20"
+
 coroutines = "1.7.1"
 kodein = "7.20.1"
 koin = "3.2.2"
@@ -44,5 +45,6 @@ plugin-maven = { module = "com.vanniktech:gradle-maven-publish-plugin", version.
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = { id = "org.jmailen.kotlinter", version.ref = "plugin-ktlint"}
+dependencyGraph = { id = "com.vanniktech.dependency.graph.generator", version.ref = "plugin-dependency-graph" }
 
 kotlinbukkitapi-build = { id = "kotlinbukkitapi.build" }

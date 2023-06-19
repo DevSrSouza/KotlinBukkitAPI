@@ -119,35 +119,21 @@ You can find more examples in the [Documentation](https://github.com/DevSrSouza/
 
 # Project
 
-## Dependencies
-| Name | Version |
-| --- | --- |
-| [Spigot API](https://hub.spigotmc.org/stash/projects/SPIGOT/repos/spigot/) | 1.8.8+ |
-
-## Dependencies Embed
-
-If you shade your plugin or use PDM, this dependencies should not be loaded be your plugin, you should let the KotlinBukkitAPI provide it at runtime to prevent conflicts.
-
-More about how to setup a project with KotlinBukkitAPI [here](https://github.com/DevSrSouza/KotlinBukkitAPI/wiki/Getting-Started).
-
-| Name | Version |
-| --- | --- |
-| Kotlin STD + JDK8 | 1.5.0 |
-| Kotlin Reflect | 1.5.0 |
-| [Kotlinx-coroutines](https://github.com/Kotlin/kotlinx.coroutines/) | 1.5.0-RC |
-| [Skedule](https://github.com/okkero/Skedule) | 1.2.6 |
-| [Kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) | 1.2.0  |
-| [KAML](https://github.com/charleskorn/kaml) | 0.31.0 |
-| [Exposed](https://github.com/JetBrains/Exposed/) | 0.32.1 |
-| [HikariCP](https://github.com/brettwooldridge/HikariCP/) | 4.0.3 |
-
 ## Modules
-| Module | Description |
-| --- | --- |
-| Core | The heart of the project containing the important API and extensions |
-| Plugins | Extensions for others plugins like Vault, PlaceholderAPI and others |
-| Exposed | Extensions for SQL framework [Exposed](https://github.com/JetBrains/Exposed/) |
-| Serialization | Extensions for [Kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization) |
+
+![](.github/images/module-graph.svg)
+
+| Module            | Description                                                                                                                                                                             |
+|-------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Architecture      | KotlinPlugin and Lifecycle aware APIs, inspired in Android Lifecycle Components                                                                                                         |
+| Extensions        | Extensions for bunch of Bukkit types like block, player, inventory, text, permissions, etc                                                                                              |
+| Utility           | Utility types and APIs for Kotlin and Bukkit development, for example, ExpiratioList, OnlinePlayerCollections, Kotlin Duration tick support.                                            |
+| Coroutines        | Adds Kotlin Coroutines Dispatcher for Bukkit Scheduler API as well as adding Flow APIs and Structured Concurrency (CoroutineScope bounded to Lifecycle of the plugin or Manager class). |
+| Exposed           | Extensions for SQL framework [Exposed](https://github.com/JetBrains/Exposed/)                                                                                                           |
+| Serialization     | Extensions for [Kotlinx.serialization](https://github.com/Kotlin/kotlinx.serialization)                                                                                                 |
+| Menu              | DSL to create Menus easy and support for Preview in IntelliJ by using the [Plugin](https://github.com/DevSrSouza/KotlinBukkitAPI-Tooling#menu-preview)                                  |
+| Command Legacy    | DSL to create Commands and Sub Commands with Parameter type safe, auto registering and support for Coroutines                                                                           |
+| Scoreboard Legacy | DSL to create Scoreboard with support for handling updates easily                                                                                                                       |
 
 ## Consider donate
 
