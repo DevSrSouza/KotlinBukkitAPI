@@ -1,5 +1,5 @@
 [versions]
-plugin-ktlint = "11.0.0"
+plugin-ktlint = "3.15.0"
 plugin-maven = "0.22.0"
 
 kotlin = "1.8.20"
@@ -37,11 +37,12 @@ spigot-api = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
 
 #plugins
 plugin-kotlin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
-plugin-ktlint = { module = "org.jlleitschuh.gradle:ktlint-gradle", version.ref = "plugin-ktlint" }
+plugin-ktlint = { module = "org.jmailen.gradle:kotlinter-gradle", version.ref = "plugin-ktlint" }
 plugin-maven = { module = "com.vanniktech:gradle-maven-publish-plugin", version.ref = "plugin-maven" }
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ktlint = { id = "org.jmailen.kotlinter", version.ref = "plugin-ktlint"}
 
 kotlinbukkitapi-build = { id = "kotlinbukkitapi.build" }
