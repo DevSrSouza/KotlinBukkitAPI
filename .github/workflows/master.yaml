@@ -75,7 +75,7 @@ jobs:
           arguments: publishToMavenLocal --scan
 
       - name: Copy files to repository
-        run: cp -r ~/.m2/repository/* /build/repository
+        run: cp -r ~/.m2/repository/* build/repository/
 
       - name: Commit and Push
         run: |

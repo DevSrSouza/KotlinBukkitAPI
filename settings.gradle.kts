@@ -21,3 +21,14 @@ include(":serialization")
 include(":exposed")
 
 project(":extensions").name = "mc-extensions" // Gradle apparently does not accept modules with name "extensions"
+
+plugins {
+    id("com.gradle.enterprise") version("3.13")
+}
+
+gradleEnterprise {
+    buildScan {
+        termsOfServiceUrl = "https://gradle.com/terms-of-service"
+        termsOfServiceAgree = "yes"
+    }
+}
