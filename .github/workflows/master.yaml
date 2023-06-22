@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v2
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up JDK 17
         uses: actions/setup-java@v2
@@ -54,10 +54,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Clone KotlinBukkitAPI-Repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           repository: KotlinMinecraft/KotlinBukkitAPI-Repository
           path: build/repository
@@ -79,10 +79,10 @@ jobs:
 
       - name: Commit and Push
         run: |
-          COMMIT_NAME=$(git log --format=%B -n 1)
+          COMMIT_NAME=$(git log -1 --pretty=%B | head -n 1)
           cd build/repository
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
           git add .
           git commit -m "$COMMIT_NAME"
-          git push
+          git push origin main
