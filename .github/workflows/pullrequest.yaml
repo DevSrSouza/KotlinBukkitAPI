@@ -84,6 +84,8 @@ jobs:
           arguments: test --scan
 
       - name: Publish Test Results
-        uses: mikepenz/action-junit-report@v2
+        uses: mikepenz/action-junit-report@v3
+        if: success() || failure()
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          summary: true

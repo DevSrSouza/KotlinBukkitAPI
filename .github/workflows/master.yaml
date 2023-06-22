@@ -6,10 +6,11 @@ on:
       - master
 
 jobs:
-  build:
+  lint:
+    name: Lint Kotlin
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
       - name: Set up JDK 17
@@ -18,18 +19,41 @@ jobs:
           distribution: 'temurin'
           java-version: 17
 
-      - name: Build project
+      - name: Run lintKotlin
         uses: gradle/gradle-build-action@v2
         with:
-          arguments: build --scan
+          arguments: lintKotlin --scan
 
-  clone-publish:
+  test:
+    name: Run Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
         with:
-          ref: ${{ github.event.pull_request.head.sha }}
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Run tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test --scan
+
+      - name: Publish Test Results
+        uses: mikepenz/action-junit-report@v3
+        if: success() || failure()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          summary: true
+
+  build-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
       - name: Clone KotlinBukkitAPI-Repository
         uses: actions/checkout@v2
