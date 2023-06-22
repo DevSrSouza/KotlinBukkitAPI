@@ -46,5 +46,6 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 ktlint = { id = "org.jmailen.kotlinter", version.ref = "plugin-ktlint"}
 dependencyGraph = { id = "com.vanniktech.dependency.graph.generator", version.ref = "plugin-dependency-graph" }
+maven = { id = "com.vanniktech.maven.publish", version.ref = "plugin-maven" }
 
 kotlinbukkitapi-build = { id = "kotlinbukkitapi.build" }

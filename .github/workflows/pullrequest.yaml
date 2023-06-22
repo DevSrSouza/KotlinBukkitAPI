@@ -1,0 +1,89 @@
+name: Pull Request
+
+on:
+  pull_request:
+
+jobs:
+  lint:
+    name: Lint Kotlin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Run lintKotlin
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: lintKotlin --scan
+
+      - name: Collect KtLint Result
+        if: ${{ failure() }}
+        continue-on-error: true
+        env:
+          REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -sfL https://raw.githubusercontent.com/reviewdog/reviewdog/master/install.sh | sh -s
+          ./gradlew lintKotlin || true
+          git stash -u && git stash drop || true
+          ./bin/reviewdog -name="ktlint" -f=diff -f.diff.strip=1 -reporter="github-pr-review" < "${TMPFILE}"
+          cat ${{ github.workspace }}/build/reports/ktlint/main-lint.xml | ./bin/reviewdog -f=checkstyle -name="ktlint" -reporter="github-pr-review" -level="error" -filter-mode="added" -fail-on-error="false"
+
+  build:
+    name: Build Project
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Run build
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: build --scan
+
+      - name: "Add build scan URL as PR comment"
+        uses: actions/github-script@v5
+        if: failure()
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '❌ ${{ github.workflow }} failed: ${{ steps.gradle.outputs.build-scan-url }}'
+            })
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: 17
+
+      - name: Run tests
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test --scan
+
+      - name: Publish Test Results
+        uses: mikepenz/action-junit-report@v2
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
