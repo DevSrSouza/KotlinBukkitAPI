@@ -4,10 +4,3 @@ plugins {
     alias(libs.plugins.dependencyGraph)
     alias(libs.plugins.maven) apply false
 }
-
-subprojects {
-    repositories {
-        mavenCentral()
-        maven("https://repo.papermc.io/repository/maven-public/")
-    }
-}
